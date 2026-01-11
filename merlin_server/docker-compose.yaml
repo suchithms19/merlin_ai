@@ -1,0 +1,44 @@
+services:
+  # Development services
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "8090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: merlin
+      POSTGRES_PASSWORD: "bHjGlTi3pZyKai3VzvcuK5n5VzDrqSbj"
+    volumes:
+      - merlin_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - "8091:6379"
+    command: redis-server --requirepass "TJQDJGT6YU4Nxhbpaab87j0BkLHbxp1U"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # Test services
+  postgres_test:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "9090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: merlin_test
+      POSTGRES_PASSWORD: "AzSNEyd_b9TdLT44in1AdPuJ52VE2rIL"
+    volumes:
+      - merlin_test_data:/var/lib/postgresql/data
+
+  redis_test:
+    image: redis:6.2.6
+    ports:
+      - "9091:6379"
+    command: redis-server --requirepass "AL7ny4ijaR6v10rGIxKJNPZzrLc293Tc"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+volumes:
+  merlin_data:
+  merlin_test_data:

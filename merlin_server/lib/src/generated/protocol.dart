@@ -18,8 +18,10 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
 import 'google_oauth/google_oauth_token.dart' as _i5;
 import 'greetings/greeting.dart' as _i6;
+import 'user_profile/user_profile.dart' as _i7;
 export 'google_oauth/google_oauth_token.dart';
 export 'greetings/greeting.dart';
+export 'user_profile/user_profile.dart';
 
 class Protocol extends _i1.SerializationManagerServer {
   Protocol._();
@@ -43,7 +45,7 @@ class Protocol extends _i1.SerializationManagerServer {
           columnDefault: 'nextval(\'google_oauth_token_id_seq\'::regclass)',
         ),
         _i2.ColumnDefinition(
-          name: 'userId',
+          name: 'userProfileId',
           columnType: _i2.ColumnType.bigint,
           isNullable: false,
           dartType: 'int',
@@ -97,6 +99,68 @@ class Protocol extends _i1.SerializationManagerServer {
       ],
       managed: true,
     ),
+    _i2.TableDefinition(
+      name: 'user_profile',
+      dartName: 'UserProfile',
+      schema: 'public',
+      module: 'merlin',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'user_profile_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'authUserId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'email',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'fullName',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'user_profile_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
     ..._i3.Protocol.targetTableDefinitions,
     ..._i4.Protocol.targetTableDefinitions,
     ..._i2.Protocol.targetTableDefinitions,
@@ -135,17 +199,17 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i6.Greeting) {
       return _i6.Greeting.fromJson(data) as T;
     }
+    if (t == _i7.UserProfile) {
+      return _i7.UserProfile.fromJson(data) as T;
+    }
     if (t == _i1.getType<_i5.GoogleOAuthToken?>()) {
       return (data != null ? _i5.GoogleOAuthToken.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i6.Greeting?>()) {
       return (data != null ? _i6.Greeting.fromJson(data) : null) as T;
     }
-    if (t == Map<String, dynamic>) {
-      return (data as Map).map(
-            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
-          )
-          as T;
+    if (t == _i1.getType<_i7.UserProfile?>()) {
+      return (data != null ? _i7.UserProfile.fromJson(data) : null) as T;
     }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
@@ -163,6 +227,7 @@ class Protocol extends _i1.SerializationManagerServer {
     return switch (type) {
       _i5.GoogleOAuthToken => 'GoogleOAuthToken',
       _i6.Greeting => 'Greeting',
+      _i7.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -181,6 +246,8 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'GoogleOAuthToken';
       case _i6.Greeting():
         return 'Greeting';
+      case _i7.UserProfile():
+        return 'UserProfile';
     }
     className = _i2.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -208,6 +275,9 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_i6.Greeting>(data['data']);
+    }
+    if (dataClassName == 'UserProfile') {
+      return deserialize<_i7.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -247,6 +317,8 @@ class Protocol extends _i1.SerializationManagerServer {
     switch (t) {
       case _i5.GoogleOAuthToken:
         return _i5.GoogleOAuthToken.t;
+      case _i7.UserProfile:
+        return _i7.UserProfile.t;
     }
     return null;
   }

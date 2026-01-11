@@ -12,36 +12,31 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
-abstract class GoogleOAuthToken implements _i1.SerializableModel {
-  GoogleOAuthToken._({
+abstract class UserProfile implements _i1.SerializableModel {
+  UserProfile._({
     this.id,
-    required this.userProfileId,
-    required this.accessToken,
-    required this.refreshToken,
-    required this.expiresAt,
+    required this.authUserId,
+    this.email,
+    this.fullName,
     this.createdAt,
     this.updatedAt,
   });
 
-  factory GoogleOAuthToken({
+  factory UserProfile({
     int? id,
-    required int userProfileId,
-    required String accessToken,
-    required String refreshToken,
-    required DateTime expiresAt,
+    required String authUserId,
+    String? email,
+    String? fullName,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) = _GoogleOAuthTokenImpl;
+  }) = _UserProfileImpl;
 
-  factory GoogleOAuthToken.fromJson(Map<String, dynamic> jsonSerialization) {
-    return GoogleOAuthToken(
+  factory UserProfile.fromJson(Map<String, dynamic> jsonSerialization) {
+    return UserProfile(
       id: jsonSerialization['id'] as int?,
-      userProfileId: jsonSerialization['userProfileId'] as int,
-      accessToken: jsonSerialization['accessToken'] as String,
-      refreshToken: jsonSerialization['refreshToken'] as String,
-      expiresAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['expiresAt'],
-      ),
+      authUserId: jsonSerialization['authUserId'] as String,
+      email: jsonSerialization['email'] as String?,
+      fullName: jsonSerialization['fullName'] as String?,
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
@@ -56,39 +51,35 @@ abstract class GoogleOAuthToken implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  int userProfileId;
+  String authUserId;
 
-  String accessToken;
+  String? email;
 
-  String refreshToken;
-
-  DateTime expiresAt;
+  String? fullName;
 
   DateTime? createdAt;
 
   DateTime? updatedAt;
 
-  /// Returns a shallow copy of this [GoogleOAuthToken]
+  /// Returns a shallow copy of this [UserProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  GoogleOAuthToken copyWith({
+  UserProfile copyWith({
     int? id,
-    int? userProfileId,
-    String? accessToken,
-    String? refreshToken,
-    DateTime? expiresAt,
+    String? authUserId,
+    String? email,
+    String? fullName,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'GoogleOAuthToken',
+      '__className__': 'UserProfile',
       if (id != null) 'id': id,
-      'userProfileId': userProfileId,
-      'accessToken': accessToken,
-      'refreshToken': refreshToken,
-      'expiresAt': expiresAt.toJson(),
+      'authUserId': authUserId,
+      if (email != null) 'email': email,
+      if (fullName != null) 'fullName': fullName,
       if (createdAt != null) 'createdAt': createdAt?.toJson(),
       if (updatedAt != null) 'updatedAt': updatedAt?.toJson(),
     };
@@ -102,44 +93,40 @@ abstract class GoogleOAuthToken implements _i1.SerializableModel {
 
 class _Undefined {}
 
-class _GoogleOAuthTokenImpl extends GoogleOAuthToken {
-  _GoogleOAuthTokenImpl({
+class _UserProfileImpl extends UserProfile {
+  _UserProfileImpl({
     int? id,
-    required int userProfileId,
-    required String accessToken,
-    required String refreshToken,
-    required DateTime expiresAt,
+    required String authUserId,
+    String? email,
+    String? fullName,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : super._(
          id: id,
-         userProfileId: userProfileId,
-         accessToken: accessToken,
-         refreshToken: refreshToken,
-         expiresAt: expiresAt,
+         authUserId: authUserId,
+         email: email,
+         fullName: fullName,
          createdAt: createdAt,
          updatedAt: updatedAt,
        );
 
-  /// Returns a shallow copy of this [GoogleOAuthToken]
+  /// Returns a shallow copy of this [UserProfile]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  GoogleOAuthToken copyWith({
+  UserProfile copyWith({
     Object? id = _Undefined,
-    int? userProfileId,
-    String? accessToken,
-    String? refreshToken,
-    DateTime? expiresAt,
+    String? authUserId,
+    Object? email = _Undefined,
+    Object? fullName = _Undefined,
     Object? createdAt = _Undefined,
     Object? updatedAt = _Undefined,
   }) {
-    return GoogleOAuthToken(
+    return UserProfile(
       id: id is int? ? id : this.id,
-      userProfileId: userProfileId ?? this.userProfileId,
-      accessToken: accessToken ?? this.accessToken,
-      refreshToken: refreshToken ?? this.refreshToken,
-      expiresAt: expiresAt ?? this.expiresAt,
+      authUserId: authUserId ?? this.authUserId,
+      email: email is String? ? email : this.email,
+      fullName: fullName is String? ? fullName : this.fullName,
       createdAt: createdAt is DateTime? ? createdAt : this.createdAt,
       updatedAt: updatedAt is DateTime? ? updatedAt : this.updatedAt,
     );

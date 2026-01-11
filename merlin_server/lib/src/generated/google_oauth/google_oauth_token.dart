@@ -16,7 +16,7 @@ abstract class GoogleOAuthToken
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   GoogleOAuthToken._({
     this.id,
-    required this.userId,
+    required this.userProfileId,
     required this.accessToken,
     required this.refreshToken,
     required this.expiresAt,
@@ -26,7 +26,7 @@ abstract class GoogleOAuthToken
 
   factory GoogleOAuthToken({
     int? id,
-    required int userId,
+    required int userProfileId,
     required String accessToken,
     required String refreshToken,
     required DateTime expiresAt,
@@ -37,7 +37,7 @@ abstract class GoogleOAuthToken
   factory GoogleOAuthToken.fromJson(Map<String, dynamic> jsonSerialization) {
     return GoogleOAuthToken(
       id: jsonSerialization['id'] as int?,
-      userId: jsonSerialization['userId'] as int,
+      userProfileId: jsonSerialization['userProfileId'] as int,
       accessToken: jsonSerialization['accessToken'] as String,
       refreshToken: jsonSerialization['refreshToken'] as String,
       expiresAt: _i1.DateTimeJsonExtension.fromJson(
@@ -59,22 +59,16 @@ abstract class GoogleOAuthToken
   @override
   int? id;
 
-  /// The user ID this token belongs to
-  int userId;
+  int userProfileId;
 
-  /// Encrypted access token
   String accessToken;
 
-  /// Encrypted refresh token
   String refreshToken;
 
-  /// When the access token expires
   DateTime expiresAt;
 
-  /// When this record was created
   DateTime? createdAt;
 
-  /// When this record was last updated
   DateTime? updatedAt;
 
   @override
@@ -85,7 +79,7 @@ abstract class GoogleOAuthToken
   @_i1.useResult
   GoogleOAuthToken copyWith({
     int? id,
-    int? userId,
+    int? userProfileId,
     String? accessToken,
     String? refreshToken,
     DateTime? expiresAt,
@@ -97,7 +91,7 @@ abstract class GoogleOAuthToken
     return {
       '__className__': 'GoogleOAuthToken',
       if (id != null) 'id': id,
-      'userId': userId,
+      'userProfileId': userProfileId,
       'accessToken': accessToken,
       'refreshToken': refreshToken,
       'expiresAt': expiresAt.toJson(),
@@ -111,7 +105,7 @@ abstract class GoogleOAuthToken
     return {
       '__className__': 'GoogleOAuthToken',
       if (id != null) 'id': id,
-      'userId': userId,
+      'userProfileId': userProfileId,
       'accessToken': accessToken,
       'refreshToken': refreshToken,
       'expiresAt': expiresAt.toJson(),
@@ -155,7 +149,7 @@ class _Undefined {}
 class _GoogleOAuthTokenImpl extends GoogleOAuthToken {
   _GoogleOAuthTokenImpl({
     int? id,
-    required int userId,
+    required int userProfileId,
     required String accessToken,
     required String refreshToken,
     required DateTime expiresAt,
@@ -163,7 +157,7 @@ class _GoogleOAuthTokenImpl extends GoogleOAuthToken {
     DateTime? updatedAt,
   }) : super._(
          id: id,
-         userId: userId,
+         userProfileId: userProfileId,
          accessToken: accessToken,
          refreshToken: refreshToken,
          expiresAt: expiresAt,
@@ -177,7 +171,7 @@ class _GoogleOAuthTokenImpl extends GoogleOAuthToken {
   @override
   GoogleOAuthToken copyWith({
     Object? id = _Undefined,
-    int? userId,
+    int? userProfileId,
     String? accessToken,
     String? refreshToken,
     DateTime? expiresAt,
@@ -186,7 +180,7 @@ class _GoogleOAuthTokenImpl extends GoogleOAuthToken {
   }) {
     return GoogleOAuthToken(
       id: id is int? ? id : this.id,
-      userId: userId ?? this.userId,
+      userProfileId: userProfileId ?? this.userProfileId,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       expiresAt: expiresAt ?? this.expiresAt,
@@ -200,8 +194,8 @@ class GoogleOAuthTokenUpdateTable
     extends _i1.UpdateTable<GoogleOAuthTokenTable> {
   GoogleOAuthTokenUpdateTable(super.table);
 
-  _i1.ColumnValue<int, int> userId(int value) => _i1.ColumnValue(
-    table.userId,
+  _i1.ColumnValue<int, int> userProfileId(int value) => _i1.ColumnValue(
+    table.userProfileId,
     value,
   );
 
@@ -238,8 +232,8 @@ class GoogleOAuthTokenTable extends _i1.Table<int?> {
   GoogleOAuthTokenTable({super.tableRelation})
     : super(tableName: 'google_oauth_token') {
     updateTable = GoogleOAuthTokenUpdateTable(this);
-    userId = _i1.ColumnInt(
-      'userId',
+    userProfileId = _i1.ColumnInt(
+      'userProfileId',
       this,
     );
     accessToken = _i1.ColumnString(
@@ -266,28 +260,22 @@ class GoogleOAuthTokenTable extends _i1.Table<int?> {
 
   late final GoogleOAuthTokenUpdateTable updateTable;
 
-  /// The user ID this token belongs to
-  late final _i1.ColumnInt userId;
+  late final _i1.ColumnInt userProfileId;
 
-  /// Encrypted access token
   late final _i1.ColumnString accessToken;
 
-  /// Encrypted refresh token
   late final _i1.ColumnString refreshToken;
 
-  /// When the access token expires
   late final _i1.ColumnDateTime expiresAt;
 
-  /// When this record was created
   late final _i1.ColumnDateTime createdAt;
 
-  /// When this record was last updated
   late final _i1.ColumnDateTime updatedAt;
 
   @override
   List<_i1.Column> get columns => [
     id,
-    userId,
+    userProfileId,
     accessToken,
     refreshToken,
     expiresAt,

@@ -16,8 +16,10 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i5;
-import 'protocol.dart' as _i6;
+import 'package:merlin_client/src/protocol/google_oauth/google_oauth_token.dart'
+    as _i5;
+import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i6;
+import 'protocol.dart' as _i7;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -233,7 +235,6 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
   );
 }
 
-/// Endpoint for Google OAuth authentication
 /// {@category Endpoint}
 class EndpointGoogleOAuth extends _i2.EndpointRef {
   EndpointGoogleOAuth(_i2.EndpointCaller caller) : super(caller);
@@ -241,30 +242,26 @@ class EndpointGoogleOAuth extends _i2.EndpointRef {
   @override
   String get name => 'googleOAuth';
 
-  /// Initiates Google OAuth flow and returns authorization URL
   _i3.Future<String> initiateGoogleOAuth() => caller.callServerEndpoint<String>(
     'googleOAuth',
     'initiateGoogleOAuth',
     {},
   );
 
-  /// Handles OAuth callback and stores tokens
-  _i3.Future<Map<String, dynamic>> handleGoogleOAuthCallback(String code) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i3.Future<_i5.GoogleOAuthToken> handleGoogleOAuthCallback(String code) =>
+      caller.callServerEndpoint<_i5.GoogleOAuthToken>(
         'googleOAuth',
         'handleGoogleOAuthCallback',
         {'code': code},
       );
 
-  /// Refreshes expired tokens
-  _i3.Future<Map<String, dynamic>> refreshGoogleTokens() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i3.Future<_i5.GoogleOAuthToken> refreshGoogleTokens() =>
+      caller.callServerEndpoint<_i5.GoogleOAuthToken>(
         'googleOAuth',
         'refreshGoogleTokens',
         {},
       );
 
-  /// Gets Google connection status for current user
   _i3.Future<bool> getGoogleConnectionStatus() =>
       caller.callServerEndpoint<bool>(
         'googleOAuth',
@@ -272,7 +269,6 @@ class EndpointGoogleOAuth extends _i2.EndpointRef {
         {},
       );
 
-  /// Disconnects Google account
   _i3.Future<void> disconnectGoogle() => caller.callServerEndpoint<void>(
     'googleOAuth',
     'disconnectGoogle',
@@ -290,8 +286,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i5.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i5.Greeting>(
+  _i3.Future<_i6.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i6.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -329,7 +325,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i6.Protocol(),
+         _i7.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,

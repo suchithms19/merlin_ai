@@ -1,7 +1,7 @@
 class: GoogleOAuthToken
 table: google_oauth_token
 fields:
-  userId: int
+  userProfileId: int
   accessToken: String
   refreshToken: String
   expiresAt: DateTime

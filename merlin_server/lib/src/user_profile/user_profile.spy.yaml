@@ -1,0 +1,9 @@
+class: UserProfile
+table: user_profile
+
+fields:
+  authUserId: String
+  email: String?
+  fullName: String?
+  createdAt: DateTime?
+  updatedAt: DateTime?

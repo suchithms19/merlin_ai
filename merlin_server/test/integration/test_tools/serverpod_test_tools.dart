@@ -17,7 +17,9 @@ import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
-import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i5;
+import 'package:merlin_server/src/generated/google_oauth/google_oauth_token.dart'
+    as _i5;
+import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i6;
 import 'package:merlin_server/src/generated/protocol.dart';
 import 'package:merlin_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -490,7 +492,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> handleGoogleOAuthCallback(
+  _i3.Future<_i5.GoogleOAuthToken> handleGoogleOAuthCallback(
     _i1.TestSessionBuilder sessionBuilder,
     String code,
   ) async {
@@ -513,7 +515,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i5.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -521,7 +523,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> refreshGoogleTokens(
+  _i3.Future<_i5.GoogleOAuthToken> refreshGoogleTokens(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -543,7 +545,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<Map<String, dynamic>>);
+                as _i3.Future<_i5.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -622,7 +624,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i5.Greeting> hello(
+  _i3.Future<_i6.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -645,7 +647,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i5.Greeting>);
+                as _i3.Future<_i6.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

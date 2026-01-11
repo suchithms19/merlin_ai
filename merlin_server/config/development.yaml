@@ -57,3 +57,14 @@ sessionLogs:
 #futureCall:
 #  concurrencyLimit: 1 # Defaults to 1, a negative or null value removes the limit
 #  scanInterval: 5000 # Unit in milliseconds, defaults to 5000
+
+# Google OAuth configuration
+googleOAuth:
+  clientId: ${GOOGLE_OAUTH_CLIENT_ID}
+  clientSecret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+  redirectUri: http://localhost:8082/auth/google/callback
+  scopes:
+    - https://www.googleapis.com/auth/calendar
+    - https://www.googleapis.com/auth/gmail.readonly
+    - https://www.googleapis.com/auth/gmail.send
+    - https://www.googleapis.com/auth/gmail.modify

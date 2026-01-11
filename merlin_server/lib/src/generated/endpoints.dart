@@ -13,11 +13,12 @@
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/jwt_refresh_endpoint.dart' as _i3;
-import '../greetings/greeting_endpoint.dart' as _i4;
+import '../endpoints/google_oauth_endpoint.dart' as _i4;
+import '../greetings/greeting_endpoint.dart' as _i5;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i5;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i6;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i7;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -35,7 +36,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'jwtRefresh',
           null,
         ),
-      'greeting': _i4.GreetingEndpoint()
+      'googleOAuth': _i4.GoogleOAuthEndpoint()
+        ..initialize(
+          server,
+          'googleOAuth',
+          null,
+        ),
+      'greeting': _i5.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -236,6 +243,71 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['googleOAuth'] = _i1.EndpointConnector(
+      name: 'googleOAuth',
+      endpoint: endpoints['googleOAuth']!,
+      methodConnectors: {
+        'initiateGoogleOAuth': _i1.MethodConnector(
+          name: 'initiateGoogleOAuth',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+                  .initiateGoogleOAuth(session),
+        ),
+        'handleGoogleOAuthCallback': _i1.MethodConnector(
+          name: 'handleGoogleOAuthCallback',
+          params: {
+            'code': _i1.ParameterDescription(
+              name: 'code',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+                  .handleGoogleOAuthCallback(
+                    session,
+                    params['code'],
+                  ),
+        ),
+        'refreshGoogleTokens': _i1.MethodConnector(
+          name: 'refreshGoogleTokens',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+                  .refreshGoogleTokens(session),
+        ),
+        'getGoogleConnectionStatus': _i1.MethodConnector(
+          name: 'getGoogleConnectionStatus',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+                  .getGoogleConnectionStatus(session),
+        ),
+        'disconnectGoogle': _i1.MethodConnector(
+          name: 'disconnectGoogle',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+                  .disconnectGoogle(session),
+        ),
+      },
+    );
     connectors['greeting'] = _i1.EndpointConnector(
       name: 'greeting',
       endpoint: endpoints['greeting']!,
@@ -253,16 +325,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i4.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i5.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i5.Endpoints()
+    modules['serverpod_auth_idp'] = _i6.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i6.Endpoints()
+    modules['serverpod_auth_core'] = _i7.Endpoints()
       ..initializeEndpoints(server);
   }
 }

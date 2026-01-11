@@ -1,0 +1,9 @@
+class: GoogleOAuthToken
+table: google_oauth_token
+fields:
+  userId: int
+  accessToken: String
+  refreshToken: String
+  expiresAt: DateTime
+  createdAt: DateTime?
+  updatedAt: DateTime?

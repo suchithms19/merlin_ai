@@ -8,5 +8,11 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+googleOAuth:
+  - initiateGoogleOAuth:
+  - handleGoogleOAuthCallback:
+  - refreshGoogleTokens:
+  - getGoogleConnectionStatus:
+  - disconnectGoogle:
 greeting:
   - hello:

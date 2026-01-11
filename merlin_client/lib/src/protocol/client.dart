@@ -233,6 +233,53 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
   );
 }
 
+/// Endpoint for Google OAuth authentication
+/// {@category Endpoint}
+class EndpointGoogleOAuth extends _i2.EndpointRef {
+  EndpointGoogleOAuth(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'googleOAuth';
+
+  /// Initiates Google OAuth flow and returns authorization URL
+  _i3.Future<String> initiateGoogleOAuth() => caller.callServerEndpoint<String>(
+    'googleOAuth',
+    'initiateGoogleOAuth',
+    {},
+  );
+
+  /// Handles OAuth callback and stores tokens
+  _i3.Future<Map<String, dynamic>> handleGoogleOAuthCallback(String code) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'googleOAuth',
+        'handleGoogleOAuthCallback',
+        {'code': code},
+      );
+
+  /// Refreshes expired tokens
+  _i3.Future<Map<String, dynamic>> refreshGoogleTokens() =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'googleOAuth',
+        'refreshGoogleTokens',
+        {},
+      );
+
+  /// Gets Google connection status for current user
+  _i3.Future<bool> getGoogleConnectionStatus() =>
+      caller.callServerEndpoint<bool>(
+        'googleOAuth',
+        'getGoogleConnectionStatus',
+        {},
+      );
+
+  /// Disconnects Google account
+  _i3.Future<void> disconnectGoogle() => caller.callServerEndpoint<void>(
+    'googleOAuth',
+    'disconnectGoogle',
+    {},
+  );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -293,6 +340,7 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    googleOAuth = EndpointGoogleOAuth(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -300,6 +348,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointGoogleOAuth googleOAuth;
 
   late final EndpointGreeting greeting;
 
@@ -309,6 +359,7 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'googleOAuth': googleOAuth,
     'greeting': greeting,
   };
 

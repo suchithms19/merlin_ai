@@ -37,10 +37,42 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return _isSignedIn
         ? widget.child
-        : Center(
-            child: SignInWidget(
-              client: client,
-              onAuthenticated: () {},
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text('Merlin Calendar'),
+            ),
+            body: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Welcome to Merlin Calendar',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Sign in to your account to continue.\n'
+                        'After signing in, you can connect your Google account to view your calendar.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
+                      SignInWidget(
+                        client: client,
+                        onAuthenticated: () {},
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           );
   }

@@ -8,6 +8,11 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+calendar:
+  - getCalendars:
+  - getCalendarEvents:
+  - getCalendarEvent:
+  - syncCalendar:
 googleOAuth:
   - initiateGoogleOAuth:
   - handleGoogleOAuthCallback:

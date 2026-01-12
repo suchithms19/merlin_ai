@@ -1,0 +1,11 @@
+class: Calendar
+table: calendar
+fields:
+  userProfileId: int
+  googleCalendarId: String
+  name: String
+  description: String?
+  backgroundColor: String?
+  isPrimary: bool
+  createdAt: DateTime?
+  updatedAt: DateTime?

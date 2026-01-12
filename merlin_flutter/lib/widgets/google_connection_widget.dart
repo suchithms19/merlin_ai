@@ -5,7 +5,7 @@ import 'dart:async';
 
 class GoogleConnectionWidget extends StatefulWidget {
   final Client client;
-  
+
   const GoogleConnectionWidget({
     super.key,
     required this.client,
@@ -34,7 +34,8 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
     });
 
     try {
-      final isConnected = await widget.client.googleOAuth.getGoogleConnectionStatus();
+      final isConnected = await widget.client.googleOAuth
+          .getGoogleConnectionStatus();
       setState(() {
         _isConnected = isConnected;
         _isLoading = false;
@@ -56,16 +57,16 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
 
     try {
       final authUrl = await widget.client.googleOAuth.initiateGoogleOAuth();
-      
+
       final uri = Uri.parse(authUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
-        
+
         // TODO: Set up web redirect handler to capture callback
-      
+
         await Future.delayed(const Duration(seconds: 2));
         await _checkConnectionStatus();
       } else {

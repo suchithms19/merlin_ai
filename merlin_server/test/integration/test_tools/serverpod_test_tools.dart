@@ -17,9 +17,12 @@ import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i5;
+import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
+    as _i6;
 import 'package:merlin_server/src/generated/google_oauth/google_oauth_token.dart'
-    as _i5;
-import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i6;
+    as _i7;
+import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i8;
 import 'package:merlin_server/src/generated/protocol.dart';
 import 'package:merlin_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -131,6 +134,8 @@ class TestEndpoints {
 
   late final _JwtRefreshEndpoint jwtRefresh;
 
+  late final _CalendarEndpoint calendar;
+
   late final _GoogleOAuthEndpoint googleOAuth;
 
   late final _GreetingEndpoint greeting;
@@ -148,6 +153,10 @@ class _InternalTestEndpoints extends TestEndpoints
       serializationManager,
     );
     jwtRefresh = _JwtRefreshEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    calendar = _CalendarEndpoint(
       endpoints,
       serializationManager,
     );
@@ -452,6 +461,156 @@ class _JwtRefreshEndpoint {
   }
 }
 
+class _CalendarEndpoint {
+  _CalendarEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<List<_i5.Calendar>> getCalendars(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'getCalendars',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'getCalendars',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i5.Calendar>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i6.CalendarEvent>> getCalendarEvents(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    DateTime startTime,
+    DateTime endTime,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'getCalendarEvents',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'getCalendarEvents',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'startTime': startTime,
+            'endTime': endTime,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i6.CalendarEvent>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i6.CalendarEvent?> getCalendarEvent(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    String googleEventId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'getCalendarEvent',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'getCalendarEvent',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'googleEventId': googleEventId,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.CalendarEvent?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> syncCalendar(
+    _i1.TestSessionBuilder sessionBuilder, {
+    String? calendarId,
+    DateTime? timeMin,
+    DateTime? timeMax,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'syncCalendar',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'syncCalendar',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'timeMin': timeMin,
+            'timeMax': timeMax,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _GoogleOAuthEndpoint {
   _GoogleOAuthEndpoint(
     this._endpointDispatch,
@@ -492,7 +651,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<_i5.GoogleOAuthToken> handleGoogleOAuthCallback(
+  _i3.Future<_i7.GoogleOAuthToken> handleGoogleOAuthCallback(
     _i1.TestSessionBuilder sessionBuilder,
     String code,
   ) async {
@@ -515,7 +674,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i5.GoogleOAuthToken>);
+                as _i3.Future<_i7.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -523,7 +682,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<_i5.GoogleOAuthToken> refreshGoogleTokens(
+  _i3.Future<_i7.GoogleOAuthToken> refreshGoogleTokens(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -545,7 +704,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i5.GoogleOAuthToken>);
+                as _i3.Future<_i7.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -624,7 +783,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i6.Greeting> hello(
+  _i3.Future<_i8.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -647,7 +806,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.Greeting>);
+                as _i3.Future<_i8.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -1,0 +1,17 @@
+class: CalendarEvent
+table: calendar_event
+fields:
+  userProfileId: int
+  calendarId: String
+  googleEventId: String
+  title: String
+  description: String?
+  startTime: DateTime
+  endTime: DateTime
+  location: String?
+  attendees: List<String>
+  organizerEmail: String?
+  recurrenceRule: String?
+  status: String
+  createdAt: DateTime?
+  updatedAt: DateTime?

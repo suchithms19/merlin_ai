@@ -16,10 +16,12 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
+import 'package:merlin_client/src/protocol/calendar/calendar.dart' as _i5;
+import 'package:merlin_client/src/protocol/calendar/calendar_event.dart' as _i6;
 import 'package:merlin_client/src/protocol/google_oauth/google_oauth_token.dart'
-    as _i5;
-import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i6;
-import 'protocol.dart' as _i7;
+    as _i7;
+import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i8;
+import 'protocol.dart' as _i9;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -236,6 +238,61 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
 }
 
 /// {@category Endpoint}
+class EndpointCalendar extends _i2.EndpointRef {
+  EndpointCalendar(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'calendar';
+
+  _i3.Future<List<_i5.Calendar>> getCalendars() =>
+      caller.callServerEndpoint<List<_i5.Calendar>>(
+        'calendar',
+        'getCalendars',
+        {},
+      );
+
+  _i3.Future<List<_i6.CalendarEvent>> getCalendarEvents(
+    String calendarId,
+    DateTime startTime,
+    DateTime endTime,
+  ) => caller.callServerEndpoint<List<_i6.CalendarEvent>>(
+    'calendar',
+    'getCalendarEvents',
+    {
+      'calendarId': calendarId,
+      'startTime': startTime,
+      'endTime': endTime,
+    },
+  );
+
+  _i3.Future<_i6.CalendarEvent?> getCalendarEvent(
+    String calendarId,
+    String googleEventId,
+  ) => caller.callServerEndpoint<_i6.CalendarEvent?>(
+    'calendar',
+    'getCalendarEvent',
+    {
+      'calendarId': calendarId,
+      'googleEventId': googleEventId,
+    },
+  );
+
+  _i3.Future<void> syncCalendar({
+    String? calendarId,
+    DateTime? timeMin,
+    DateTime? timeMax,
+  }) => caller.callServerEndpoint<void>(
+    'calendar',
+    'syncCalendar',
+    {
+      'calendarId': calendarId,
+      'timeMin': timeMin,
+      'timeMax': timeMax,
+    },
+  );
+}
+
+/// {@category Endpoint}
 class EndpointGoogleOAuth extends _i2.EndpointRef {
   EndpointGoogleOAuth(_i2.EndpointCaller caller) : super(caller);
 
@@ -248,15 +305,15 @@ class EndpointGoogleOAuth extends _i2.EndpointRef {
     {},
   );
 
-  _i3.Future<_i5.GoogleOAuthToken> handleGoogleOAuthCallback(String code) =>
-      caller.callServerEndpoint<_i5.GoogleOAuthToken>(
+  _i3.Future<_i7.GoogleOAuthToken> handleGoogleOAuthCallback(String code) =>
+      caller.callServerEndpoint<_i7.GoogleOAuthToken>(
         'googleOAuth',
         'handleGoogleOAuthCallback',
         {'code': code},
       );
 
-  _i3.Future<_i5.GoogleOAuthToken> refreshGoogleTokens() =>
-      caller.callServerEndpoint<_i5.GoogleOAuthToken>(
+  _i3.Future<_i7.GoogleOAuthToken> refreshGoogleTokens() =>
+      caller.callServerEndpoint<_i7.GoogleOAuthToken>(
         'googleOAuth',
         'refreshGoogleTokens',
         {},
@@ -286,8 +343,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i6.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i6.Greeting>(
+  _i3.Future<_i8.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i8.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -325,7 +382,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i7.Protocol(),
+         _i9.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -336,6 +393,7 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    calendar = EndpointCalendar(this);
     googleOAuth = EndpointGoogleOAuth(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -344,6 +402,8 @@ class Client extends _i2.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointCalendar calendar;
 
   late final EndpointGoogleOAuth googleOAuth;
 
@@ -355,6 +415,7 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'calendar': calendar,
     'googleOAuth': googleOAuth,
     'greeting': greeting,
   };

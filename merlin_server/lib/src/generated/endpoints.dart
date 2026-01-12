@@ -13,12 +13,13 @@
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../auth/email_idp_endpoint.dart' as _i2;
 import '../auth/jwt_refresh_endpoint.dart' as _i3;
-import '../endpoints/google_oauth_endpoint.dart' as _i4;
-import '../greetings/greeting_endpoint.dart' as _i5;
+import '../endpoints/calendar_endpoint.dart' as _i4;
+import '../endpoints/google_oauth_endpoint.dart' as _i5;
+import '../greetings/greeting_endpoint.dart' as _i6;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i6;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i7;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i8;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -36,13 +37,19 @@ class Endpoints extends _i1.EndpointDispatch {
           'jwtRefresh',
           null,
         ),
-      'googleOAuth': _i4.GoogleOAuthEndpoint()
+      'calendar': _i4.CalendarEndpoint()
+        ..initialize(
+          server,
+          'calendar',
+          null,
+        ),
+      'googleOAuth': _i5.GoogleOAuthEndpoint()
         ..initialize(
           server,
           'googleOAuth',
           null,
         ),
-      'greeting': _i5.GreetingEndpoint()
+      'greeting': _i6.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -243,6 +250,109 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['calendar'] = _i1.EndpointConnector(
+      name: 'calendar',
+      endpoint: endpoints['calendar']!,
+      methodConnectors: {
+        'getCalendars': _i1.MethodConnector(
+          name: 'getCalendars',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .getCalendars(session),
+        ),
+        'getCalendarEvents': _i1.MethodConnector(
+          name: 'getCalendarEvents',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'startTime': _i1.ParameterDescription(
+              name: 'startTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+            'endTime': _i1.ParameterDescription(
+              name: 'endTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .getCalendarEvents(
+                    session,
+                    params['calendarId'],
+                    params['startTime'],
+                    params['endTime'],
+                  ),
+        ),
+        'getCalendarEvent': _i1.MethodConnector(
+          name: 'getCalendarEvent',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'googleEventId': _i1.ParameterDescription(
+              name: 'googleEventId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .getCalendarEvent(
+                    session,
+                    params['calendarId'],
+                    params['googleEventId'],
+                  ),
+        ),
+        'syncCalendar': _i1.MethodConnector(
+          name: 'syncCalendar',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'timeMin': _i1.ParameterDescription(
+              name: 'timeMin',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'timeMax': _i1.ParameterDescription(
+              name: 'timeMax',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['calendar'] as _i4.CalendarEndpoint).syncCalendar(
+                    session,
+                    calendarId: params['calendarId'],
+                    timeMin: params['timeMin'],
+                    timeMax: params['timeMax'],
+                  ),
+        ),
+      },
+    );
     connectors['googleOAuth'] = _i1.EndpointConnector(
       name: 'googleOAuth',
       endpoint: endpoints['googleOAuth']!,
@@ -254,7 +364,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+              ) async => (endpoints['googleOAuth'] as _i5.GoogleOAuthEndpoint)
                   .initiateGoogleOAuth(session),
         ),
         'handleGoogleOAuthCallback': _i1.MethodConnector(
@@ -270,7 +380,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+              ) async => (endpoints['googleOAuth'] as _i5.GoogleOAuthEndpoint)
                   .handleGoogleOAuthCallback(
                     session,
                     params['code'],
@@ -283,7 +393,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+              ) async => (endpoints['googleOAuth'] as _i5.GoogleOAuthEndpoint)
                   .refreshGoogleTokens(session),
         ),
         'getGoogleConnectionStatus': _i1.MethodConnector(
@@ -293,7 +403,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+              ) async => (endpoints['googleOAuth'] as _i5.GoogleOAuthEndpoint)
                   .getGoogleConnectionStatus(session),
         ),
         'disconnectGoogle': _i1.MethodConnector(
@@ -303,7 +413,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['googleOAuth'] as _i4.GoogleOAuthEndpoint)
+              ) async => (endpoints['googleOAuth'] as _i5.GoogleOAuthEndpoint)
                   .disconnectGoogle(session),
         ),
       },
@@ -325,16 +435,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i5.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i6.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i6.Endpoints()
+    modules['serverpod_auth_idp'] = _i7.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i7.Endpoints()
+    modules['serverpod_auth_core'] = _i8.Endpoints()
       ..initializeEndpoints(server);
   }
 }

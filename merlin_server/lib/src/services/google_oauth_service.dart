@@ -43,6 +43,17 @@ class GoogleOAuthService {
       throw Exception('Google OAuth client ID not configured');
     }
 
+    // Get or create user profile to include in state
+    final profileService = UserProfileService(session);
+    final userProfile = await profileService.getOrCreateUserProfile();
+    if (userProfile == null || userProfile.id == null) {
+      throw Exception('User not authenticated');
+    }
+
+    // Create state parameter with user profile ID (encrypted for security)
+    final stateData = '${userProfile.id}';
+    final state = TokenEncryption.encrypt(stateData, session);
+
     final params = {
       'client_id': clientId,
       'redirect_uri': redirectUri,
@@ -50,6 +61,7 @@ class GoogleOAuthService {
       'scope': scopes.join(' '),
       'access_type': 'offline',
       'prompt': 'consent',
+      'state': state,
     };
 
     final queryString = params.entries
@@ -141,6 +153,94 @@ class GoogleOAuthService {
     } catch (e) {
       session.log(
         'Error exchanging code for tokens: $e',
+        level: LogLevel.error,
+      );
+      rethrow;
+    }
+  }
+
+  /// Exchange code for tokens using state parameter (for callback route)
+  /// This method decrypts the state to get the user profile ID
+  Future<GoogleOAuthToken> exchangeCodeForTokensWithState(
+    String code,
+    String state,
+  ) async {
+    final config = _getOAuthConfig();
+    final clientId = config['clientId'] as String? ?? '';
+    final clientSecret = config['clientSecret'] as String? ?? '';
+    final redirectUri = config['redirectUri'] as String? ?? '';
+
+    if (clientId.isEmpty || clientSecret.isEmpty) {
+      throw Exception('Google OAuth credentials not configured');
+    }
+
+    // Decrypt state to get user profile ID
+    final stateData = TokenEncryption.decrypt(state, session);
+    final userProfileId = int.tryParse(stateData);
+    if (userProfileId == null) {
+      throw Exception('Invalid state parameter');
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://oauth2.googleapis.com/token'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'code': code,
+          'client_id': clientId,
+          'client_secret': clientSecret,
+          'redirect_uri': redirectUri,
+          'grant_type': 'authorization_code',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to exchange code: ${response.body}');
+      }
+
+      final tokenData = json.decode(response.body) as Map<String, dynamic>;
+      final accessToken = tokenData['access_token'] as String;
+      final refreshToken = tokenData['refresh_token'] as String? ?? '';
+      final expiresIn = tokenData['expires_in'] as int? ?? 3600;
+      final expiresAt = DateTime.now().add(Duration(seconds: expiresIn));
+
+      final encryptedAccessToken = TokenEncryption.encrypt(
+        accessToken,
+        session,
+      );
+      final encryptedRefreshToken = refreshToken.isNotEmpty
+          ? TokenEncryption.encrypt(refreshToken, session)
+          : '';
+
+      final existingToken = await GoogleOAuthToken.db.findFirstRow(
+        session,
+        where: (t) => t.userProfileId.equals(userProfileId),
+      );
+
+      final now = DateTime.now();
+
+      if (existingToken != null) {
+        existingToken.accessToken = encryptedAccessToken;
+        existingToken.refreshToken = encryptedRefreshToken;
+        existingToken.expiresAt = expiresAt;
+        existingToken.updatedAt = now;
+        await GoogleOAuthToken.db.updateRow(session, existingToken);
+        return existingToken;
+      } else {
+        final token = GoogleOAuthToken(
+          userProfileId: userProfileId,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
+          expiresAt: expiresAt,
+          createdAt: now,
+          updatedAt: now,
+        );
+        await GoogleOAuthToken.db.insertRow(session, token);
+        return token;
+      }
+    } catch (e) {
+      session.log(
+        'Error exchanging code for tokens with state: $e',
         level: LogLevel.error,
       );
       rethrow;

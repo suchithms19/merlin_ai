@@ -291,7 +291,6 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  /// Creates a new calendar event (called by AI)
   _i3.Future<_i6.CalendarEvent> createCalendarEvent(
     String calendarId,
     String title,
@@ -318,7 +317,6 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  /// Updates an existing calendar event (called by AI)
   _i3.Future<_i6.CalendarEvent> updateCalendarEvent(
     String calendarId,
     String googleEventId, {
@@ -347,7 +345,6 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  /// Deletes a calendar event (called by AI)
   _i3.Future<void> deleteCalendarEvent(
     String calendarId,
     String googleEventId, {
@@ -362,7 +359,6 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  /// Finds available time slots for scheduling (called by AI)
   _i3.Future<List<Map<String, dynamic>>> findAvailableTimeSlots(
     String calendarId,
     int durationMinutes,

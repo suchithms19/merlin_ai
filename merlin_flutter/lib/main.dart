@@ -4,7 +4,7 @@ import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
 import 'config/app_config.dart';
-import 'screens/calendar_day_view.dart';
+import 'screens/main_screen.dart';
 import 'screens/sign_in_screen.dart';
 
 /// Sets up a global client object that can be used to talk to the server from
@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SignInScreen(
-        child: CalendarDayViewScreen(),
+        child: MainScreen(),
       ),
     );
   }

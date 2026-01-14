@@ -16,12 +16,17 @@ import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i4;
-import 'package:merlin_client/src/protocol/calendar/calendar.dart' as _i5;
-import 'package:merlin_client/src/protocol/calendar/calendar_event.dart' as _i6;
+import 'package:merlin_client/src/protocol/chat/chat_response.dart' as _i5;
+import 'package:merlin_client/src/protocol/chat/chat_message.dart' as _i6;
+import 'package:merlin_client/src/protocol/calendar/calendar.dart' as _i7;
+import 'package:merlin_client/src/protocol/calendar/calendar_event.dart' as _i8;
+import 'package:merlin_client/src/protocol/email/email_list_response.dart'
+    as _i9;
+import 'package:merlin_client/src/protocol/email/email.dart' as _i10;
 import 'package:merlin_client/src/protocol/google_oauth/google_oauth_token.dart'
-    as _i7;
-import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i8;
-import 'protocol.dart' as _i9;
+    as _i11;
+import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i12;
+import 'protocol.dart' as _i13;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -238,24 +243,87 @@ class EndpointJwtRefresh extends _i4.EndpointRefreshJwtTokens {
 }
 
 /// {@category Endpoint}
+class EndpointAiChat extends _i2.EndpointRef {
+  EndpointAiChat(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'aiChat';
+
+  /// Main chat endpoint - send message to AI and get response
+  /// Handles function calling for calendar and email operations
+  _i3.Future<_i5.ChatResponse> chat(
+    String message, {
+    required bool includeCalendarContext,
+    required bool includeEmailContext,
+  }) => caller.callServerEndpoint<_i5.ChatResponse>(
+    'aiChat',
+    'chat',
+    {
+      'message': message,
+      'includeCalendarContext': includeCalendarContext,
+      'includeEmailContext': includeEmailContext,
+    },
+  );
+
+  /// Get chat history for the current user
+  _i3.Future<List<_i6.ChatMessage>> getChatHistory({required int limit}) =>
+      caller.callServerEndpoint<List<_i6.ChatMessage>>(
+        'aiChat',
+        'getChatHistory',
+        {'limit': limit},
+      );
+
+  /// Clear chat history for the current user
+  _i3.Future<void> clearChatHistory() => caller.callServerEndpoint<void>(
+    'aiChat',
+    'clearChatHistory',
+    {},
+  );
+
+  /// Quick action: Summarize today's schedule
+  _i3.Future<_i5.ChatResponse> summarizeSchedule() =>
+      caller.callServerEndpoint<_i5.ChatResponse>(
+        'aiChat',
+        'summarizeSchedule',
+        {},
+      );
+
+  /// Quick action: Summarize unread emails
+  _i3.Future<_i5.ChatResponse> summarizeEmails() =>
+      caller.callServerEndpoint<_i5.ChatResponse>(
+        'aiChat',
+        'summarizeEmails',
+        {},
+      );
+
+  /// Quick action: Daily briefing (calendar + emails)
+  _i3.Future<_i5.ChatResponse> getDailyBriefing() =>
+      caller.callServerEndpoint<_i5.ChatResponse>(
+        'aiChat',
+        'getDailyBriefing',
+        {},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointCalendar extends _i2.EndpointRef {
   EndpointCalendar(_i2.EndpointCaller caller) : super(caller);
 
   @override
   String get name => 'calendar';
 
-  _i3.Future<List<_i5.Calendar>> getCalendars() =>
-      caller.callServerEndpoint<List<_i5.Calendar>>(
+  _i3.Future<List<_i7.Calendar>> getCalendars() =>
+      caller.callServerEndpoint<List<_i7.Calendar>>(
         'calendar',
         'getCalendars',
         {},
       );
 
-  _i3.Future<List<_i6.CalendarEvent>> getCalendarEvents(
+  _i3.Future<List<_i8.CalendarEvent>> getCalendarEvents(
     String calendarId,
     DateTime startTime,
     DateTime endTime,
-  ) => caller.callServerEndpoint<List<_i6.CalendarEvent>>(
+  ) => caller.callServerEndpoint<List<_i8.CalendarEvent>>(
     'calendar',
     'getCalendarEvents',
     {
@@ -265,10 +333,10 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i6.CalendarEvent?> getCalendarEvent(
+  _i3.Future<_i8.CalendarEvent?> getCalendarEvent(
     String calendarId,
     String googleEventId,
-  ) => caller.callServerEndpoint<_i6.CalendarEvent?>(
+  ) => caller.callServerEndpoint<_i8.CalendarEvent?>(
     'calendar',
     'getCalendarEvent',
     {
@@ -291,7 +359,7 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i6.CalendarEvent> createCalendarEvent(
+  _i3.Future<_i8.CalendarEvent> createCalendarEvent(
     String calendarId,
     String title,
     DateTime startTime,
@@ -301,7 +369,7 @@ class EndpointCalendar extends _i2.EndpointRef {
     List<String>? attendees,
     String? recurrenceRule,
     required bool sendNotifications,
-  }) => caller.callServerEndpoint<_i6.CalendarEvent>(
+  }) => caller.callServerEndpoint<_i8.CalendarEvent>(
     'calendar',
     'createCalendarEvent',
     {
@@ -317,7 +385,7 @@ class EndpointCalendar extends _i2.EndpointRef {
     },
   );
 
-  _i3.Future<_i6.CalendarEvent> updateCalendarEvent(
+  _i3.Future<_i8.CalendarEvent> updateCalendarEvent(
     String calendarId,
     String googleEventId, {
     String? title,
@@ -328,7 +396,7 @@ class EndpointCalendar extends _i2.EndpointRef {
     List<String>? attendees,
     String? recurrenceRule,
     required bool sendNotifications,
-  }) => caller.callServerEndpoint<_i6.CalendarEvent>(
+  }) => caller.callServerEndpoint<_i8.CalendarEvent>(
     'calendar',
     'updateCalendarEvent',
     {
@@ -385,6 +453,185 @@ class EndpointCalendar extends _i2.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointEmail extends _i2.EndpointRef {
+  EndpointEmail(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'email';
+
+  /// Fetches emails with optional pagination
+  /// Used by AI to read user emails
+  _i3.Future<_i9.EmailListResponse> getEmails({
+    required int maxResults,
+    String? pageToken,
+    List<String>? labelIds,
+    String? query,
+  }) => caller.callServerEndpoint<_i9.EmailListResponse>(
+    'email',
+    'getEmails',
+    {
+      'maxResults': maxResults,
+      'pageToken': pageToken,
+      'labelIds': labelIds,
+      'query': query,
+    },
+  );
+
+  /// Fetches a single email by message ID
+  /// Used by AI to read full email content
+  _i3.Future<_i10.Email?> getEmail(String messageId) =>
+      caller.callServerEndpoint<_i10.Email?>(
+        'email',
+        'getEmail',
+        {'messageId': messageId},
+      );
+
+  /// Fetches an email thread by thread ID
+  /// Used by AI to read email conversations
+  _i3.Future<List<_i10.Email>> getEmailThread(String threadId) =>
+      caller.callServerEndpoint<List<_i10.Email>>(
+        'email',
+        'getEmailThread',
+        {'threadId': threadId},
+      );
+
+  /// Searches emails with Gmail search syntax
+  /// Used by AI to find specific emails
+  _i3.Future<_i9.EmailListResponse> searchEmails(
+    String query, {
+    required int maxResults,
+    String? pageToken,
+  }) => caller.callServerEndpoint<_i9.EmailListResponse>(
+    'email',
+    'searchEmails',
+    {
+      'query': query,
+      'maxResults': maxResults,
+      'pageToken': pageToken,
+    },
+  );
+
+  /// Syncs emails from Gmail to local cache
+  _i3.Future<void> syncEmails({
+    required int maxResults,
+    List<String>? labelIds,
+  }) => caller.callServerEndpoint<void>(
+    'email',
+    'syncEmails',
+    {
+      'maxResults': maxResults,
+      'labelIds': labelIds,
+    },
+  );
+
+  /// Sends a new email
+  /// Called by AI when user asks to send an email
+  _i3.Future<_i10.Email?> sendEmail(
+    List<String> to,
+    String subject, {
+    List<String>? cc,
+    List<String>? bcc,
+    String? bodyPlainText,
+    String? bodyHtml,
+  }) => caller.callServerEndpoint<_i10.Email?>(
+    'email',
+    'sendEmail',
+    {
+      'to': to,
+      'subject': subject,
+      'cc': cc,
+      'bcc': bcc,
+      'bodyPlainText': bodyPlainText,
+      'bodyHtml': bodyHtml,
+    },
+  );
+
+  /// Replies to an existing email
+  /// Called by AI when user asks to reply to an email
+  _i3.Future<_i10.Email?> replyToEmail(
+    String originalMessageId, {
+    String? bodyPlainText,
+    String? bodyHtml,
+    required bool replyAll,
+  }) => caller.callServerEndpoint<_i10.Email?>(
+    'email',
+    'replyToEmail',
+    {
+      'originalMessageId': originalMessageId,
+      'bodyPlainText': bodyPlainText,
+      'bodyHtml': bodyHtml,
+      'replyAll': replyAll,
+    },
+  );
+
+  /// Forwards an email to new recipients
+  /// Called by AI when user asks to forward an email
+  _i3.Future<_i10.Email?> forwardEmail(
+    String originalMessageId,
+    List<String> to, {
+    List<String>? cc,
+    List<String>? bcc,
+    String? additionalMessage,
+  }) => caller.callServerEndpoint<_i10.Email?>(
+    'email',
+    'forwardEmail',
+    {
+      'originalMessageId': originalMessageId,
+      'to': to,
+      'cc': cc,
+      'bcc': bcc,
+      'additionalMessage': additionalMessage,
+    },
+  );
+
+  /// Marks an email as read or unread
+  /// Called by AI when user asks to mark email as read/unread
+  _i3.Future<void> markAsRead(
+    String messageId,
+    bool isRead,
+  ) => caller.callServerEndpoint<void>(
+    'email',
+    'markAsRead',
+    {
+      'messageId': messageId,
+      'isRead': isRead,
+    },
+  );
+
+  /// Archives an email
+  /// Called by AI when user asks to archive an email
+  _i3.Future<void> archiveEmail(String messageId) =>
+      caller.callServerEndpoint<void>(
+        'email',
+        'archiveEmail',
+        {'messageId': messageId},
+      );
+
+  /// Deletes an email (moves to Trash)
+  /// Called by AI when user asks to delete an email
+  _i3.Future<void> deleteEmail(String messageId) =>
+      caller.callServerEndpoint<void>(
+        'email',
+        'deleteEmail',
+        {'messageId': messageId},
+      );
+
+  /// Stars or unstars an email
+  /// Called by AI when user asks to star/unstar an email
+  _i3.Future<void> starEmail(
+    String messageId,
+    bool isStarred,
+  ) => caller.callServerEndpoint<void>(
+    'email',
+    'starEmail',
+    {
+      'messageId': messageId,
+      'isStarred': isStarred,
+    },
+  );
+}
+
+/// {@category Endpoint}
 class EndpointGoogleOAuth extends _i2.EndpointRef {
   EndpointGoogleOAuth(_i2.EndpointCaller caller) : super(caller);
 
@@ -397,15 +644,15 @@ class EndpointGoogleOAuth extends _i2.EndpointRef {
     {},
   );
 
-  _i3.Future<_i7.GoogleOAuthToken> handleGoogleOAuthCallback(String code) =>
-      caller.callServerEndpoint<_i7.GoogleOAuthToken>(
+  _i3.Future<_i11.GoogleOAuthToken> handleGoogleOAuthCallback(String code) =>
+      caller.callServerEndpoint<_i11.GoogleOAuthToken>(
         'googleOAuth',
         'handleGoogleOAuthCallback',
         {'code': code},
       );
 
-  _i3.Future<_i7.GoogleOAuthToken> refreshGoogleTokens() =>
-      caller.callServerEndpoint<_i7.GoogleOAuthToken>(
+  _i3.Future<_i11.GoogleOAuthToken> refreshGoogleTokens() =>
+      caller.callServerEndpoint<_i11.GoogleOAuthToken>(
         'googleOAuth',
         'refreshGoogleTokens',
         {},
@@ -435,8 +682,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i8.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i8.Greeting>(
+  _i3.Future<_i12.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i12.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -474,7 +721,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i9.Protocol(),
+         _i13.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -485,7 +732,9 @@ class Client extends _i2.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    aiChat = EndpointAiChat(this);
     calendar = EndpointCalendar(this);
+    email = EndpointEmail(this);
     googleOAuth = EndpointGoogleOAuth(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
@@ -495,7 +744,11 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointAiChat aiChat;
+
   late final EndpointCalendar calendar;
+
+  late final EndpointEmail email;
 
   late final EndpointGoogleOAuth googleOAuth;
 
@@ -507,7 +760,9 @@ class Client extends _i2.ServerpodClientShared {
   Map<String, _i2.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'aiChat': aiChat,
     'calendar': calendar,
+    'email': email,
     'googleOAuth': googleOAuth,
     'greeting': greeting,
   };

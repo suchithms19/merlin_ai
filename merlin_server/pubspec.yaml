@@ -13,6 +13,7 @@ dependencies:
   oauth2: ^2.0.0
   crypto: ^3.0.0
   http: ^1.1.0
+  google_generative_ai: ^0.4.6
 
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'

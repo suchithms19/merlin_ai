@@ -1,0 +1,10 @@
+class: ChatMessage
+table: chat_message
+fields:
+  userProfileId: int
+  role: String
+  content: String
+  functionName: String?
+  functionArgs: String?
+  functionResult: String?
+  createdAt: DateTime?

@@ -1,0 +1,6 @@
+class: ChatRequest
+fields:
+  message: String
+  conversationHistory: List<ChatMessage>?
+  includeCalendarContext: bool, default=true
+  includeEmailContext: bool, default=true

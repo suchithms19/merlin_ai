@@ -22,25 +22,33 @@ import 'calendar/create_event_request.dart' as _i7;
 import 'calendar/find_slots_request.dart' as _i8;
 import 'calendar/time_slot.dart' as _i9;
 import 'calendar/update_event_request.dart' as _i10;
-import 'email/email.dart' as _i11;
-import 'email/email_attachment.dart' as _i12;
-import 'email/email_list_response.dart' as _i13;
-import 'email/email_search_request.dart' as _i14;
-import 'email/forward_email_request.dart' as _i15;
-import 'email/reply_email_request.dart' as _i16;
-import 'email/send_email_request.dart' as _i17;
-import 'google_oauth/google_oauth_token.dart' as _i18;
-import 'greetings/greeting.dart' as _i19;
-import 'user_profile/user_profile.dart' as _i20;
-import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i21;
+import 'chat/chat_message.dart' as _i11;
+import 'chat/chat_request.dart' as _i12;
+import 'chat/chat_response.dart' as _i13;
+import 'email/email.dart' as _i14;
+import 'email/email_attachment.dart' as _i15;
+import 'email/email_list_response.dart' as _i16;
+import 'email/email_search_request.dart' as _i17;
+import 'email/forward_email_request.dart' as _i18;
+import 'email/reply_email_request.dart' as _i19;
+import 'email/send_email_request.dart' as _i20;
+import 'google_oauth/google_oauth_token.dart' as _i21;
+import 'greetings/greeting.dart' as _i22;
+import 'user_profile/user_profile.dart' as _i23;
+import 'package:merlin_server/src/generated/chat/chat_message.dart' as _i24;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i25;
 import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
-    as _i22;
+    as _i26;
+import 'package:merlin_server/src/generated/email/email.dart' as _i27;
 export 'calendar/calendar.dart';
 export 'calendar/calendar_event.dart';
 export 'calendar/create_event_request.dart';
 export 'calendar/find_slots_request.dart';
 export 'calendar/time_slot.dart';
 export 'calendar/update_event_request.dart';
+export 'chat/chat_message.dart';
+export 'chat/chat_request.dart';
+export 'chat/chat_response.dart';
 export 'email/email.dart';
 export 'email/email_attachment.dart';
 export 'email/email_list_response.dart';
@@ -242,6 +250,80 @@ class Protocol extends _i1.SerializationManagerServer {
       indexes: [
         _i2.IndexDefinition(
           indexName: 'calendar_event_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'chat_message',
+      dartName: 'ChatMessage',
+      schema: 'public',
+      module: 'merlin',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'chat_message_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userProfileId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'role',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'content',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'functionName',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'functionArgs',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'functionResult',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'chat_message_pkey',
           tableSpace: null,
           elements: [
             _i2.IndexElementDefinition(
@@ -653,35 +735,44 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i10.UpdateEventRequest) {
       return _i10.UpdateEventRequest.fromJson(data) as T;
     }
-    if (t == _i11.Email) {
-      return _i11.Email.fromJson(data) as T;
+    if (t == _i11.ChatMessage) {
+      return _i11.ChatMessage.fromJson(data) as T;
     }
-    if (t == _i12.EmailAttachment) {
-      return _i12.EmailAttachment.fromJson(data) as T;
+    if (t == _i12.ChatRequest) {
+      return _i12.ChatRequest.fromJson(data) as T;
     }
-    if (t == _i13.EmailListResponse) {
-      return _i13.EmailListResponse.fromJson(data) as T;
+    if (t == _i13.ChatResponse) {
+      return _i13.ChatResponse.fromJson(data) as T;
     }
-    if (t == _i14.EmailSearchRequest) {
-      return _i14.EmailSearchRequest.fromJson(data) as T;
+    if (t == _i14.Email) {
+      return _i14.Email.fromJson(data) as T;
     }
-    if (t == _i15.ForwardEmailRequest) {
-      return _i15.ForwardEmailRequest.fromJson(data) as T;
+    if (t == _i15.EmailAttachment) {
+      return _i15.EmailAttachment.fromJson(data) as T;
     }
-    if (t == _i16.ReplyEmailRequest) {
-      return _i16.ReplyEmailRequest.fromJson(data) as T;
+    if (t == _i16.EmailListResponse) {
+      return _i16.EmailListResponse.fromJson(data) as T;
     }
-    if (t == _i17.SendEmailRequest) {
-      return _i17.SendEmailRequest.fromJson(data) as T;
+    if (t == _i17.EmailSearchRequest) {
+      return _i17.EmailSearchRequest.fromJson(data) as T;
     }
-    if (t == _i18.GoogleOAuthToken) {
-      return _i18.GoogleOAuthToken.fromJson(data) as T;
+    if (t == _i18.ForwardEmailRequest) {
+      return _i18.ForwardEmailRequest.fromJson(data) as T;
     }
-    if (t == _i19.Greeting) {
-      return _i19.Greeting.fromJson(data) as T;
+    if (t == _i19.ReplyEmailRequest) {
+      return _i19.ReplyEmailRequest.fromJson(data) as T;
     }
-    if (t == _i20.UserProfile) {
-      return _i20.UserProfile.fromJson(data) as T;
+    if (t == _i20.SendEmailRequest) {
+      return _i20.SendEmailRequest.fromJson(data) as T;
+    }
+    if (t == _i21.GoogleOAuthToken) {
+      return _i21.GoogleOAuthToken.fromJson(data) as T;
+    }
+    if (t == _i22.Greeting) {
+      return _i22.Greeting.fromJson(data) as T;
+    }
+    if (t == _i23.UserProfile) {
+      return _i23.UserProfile.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.Calendar?>()) {
       return (data != null ? _i5.Calendar.fromJson(data) : null) as T;
@@ -702,37 +793,46 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data != null ? _i10.UpdateEventRequest.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i11.Email?>()) {
-      return (data != null ? _i11.Email.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.ChatMessage?>()) {
+      return (data != null ? _i11.ChatMessage.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.EmailAttachment?>()) {
-      return (data != null ? _i12.EmailAttachment.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.ChatRequest?>()) {
+      return (data != null ? _i12.ChatRequest.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.EmailListResponse?>()) {
-      return (data != null ? _i13.EmailListResponse.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.ChatResponse?>()) {
+      return (data != null ? _i13.ChatResponse.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i14.EmailSearchRequest?>()) {
-      return (data != null ? _i14.EmailSearchRequest.fromJson(data) : null)
+    if (t == _i1.getType<_i14.Email?>()) {
+      return (data != null ? _i14.Email.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i15.EmailAttachment?>()) {
+      return (data != null ? _i15.EmailAttachment.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i16.EmailListResponse?>()) {
+      return (data != null ? _i16.EmailListResponse.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i17.EmailSearchRequest?>()) {
+      return (data != null ? _i17.EmailSearchRequest.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i15.ForwardEmailRequest?>()) {
-      return (data != null ? _i15.ForwardEmailRequest.fromJson(data) : null)
+    if (t == _i1.getType<_i18.ForwardEmailRequest?>()) {
+      return (data != null ? _i18.ForwardEmailRequest.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i16.ReplyEmailRequest?>()) {
-      return (data != null ? _i16.ReplyEmailRequest.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.ReplyEmailRequest?>()) {
+      return (data != null ? _i19.ReplyEmailRequest.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i17.SendEmailRequest?>()) {
-      return (data != null ? _i17.SendEmailRequest.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.SendEmailRequest?>()) {
+      return (data != null ? _i20.SendEmailRequest.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i18.GoogleOAuthToken?>()) {
-      return (data != null ? _i18.GoogleOAuthToken.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i21.GoogleOAuthToken?>()) {
+      return (data != null ? _i21.GoogleOAuthToken.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i19.Greeting?>()) {
-      return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i22.Greeting?>()) {
+      return (data != null ? _i22.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.UserProfile?>()) {
-      return (data != null ? _i20.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i23.UserProfile?>()) {
+      return (data != null ? _i23.UserProfile.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
@@ -752,17 +852,37 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i11.Email>) {
-      return (data as List).map((e) => deserialize<_i11.Email>(e)).toList()
-          as T;
-    }
-    if (t == List<_i21.Calendar>) {
-      return (data as List).map((e) => deserialize<_i21.Calendar>(e)).toList()
-          as T;
-    }
-    if (t == List<_i22.CalendarEvent>) {
+    if (t == List<_i11.ChatMessage>) {
       return (data as List)
-              .map((e) => deserialize<_i22.CalendarEvent>(e))
+              .map((e) => deserialize<_i11.ChatMessage>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i11.ChatMessage>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i11.ChatMessage>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == List<_i14.Email>) {
+      return (data as List).map((e) => deserialize<_i14.Email>(e)).toList()
+          as T;
+    }
+    if (t == List<_i24.ChatMessage>) {
+      return (data as List)
+              .map((e) => deserialize<_i24.ChatMessage>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i25.Calendar>) {
+      return (data as List).map((e) => deserialize<_i25.Calendar>(e)).toList()
+          as T;
+    }
+    if (t == List<_i26.CalendarEvent>) {
+      return (data as List)
+              .map((e) => deserialize<_i26.CalendarEvent>(e))
               .toList()
           as T;
     }
@@ -796,6 +916,10 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
+    if (t == List<_i27.Email>) {
+      return (data as List).map((e) => deserialize<_i27.Email>(e)).toList()
+          as T;
+    }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
@@ -816,16 +940,19 @@ class Protocol extends _i1.SerializationManagerServer {
       _i8.FindSlotsRequest => 'FindSlotsRequest',
       _i9.TimeSlot => 'TimeSlot',
       _i10.UpdateEventRequest => 'UpdateEventRequest',
-      _i11.Email => 'Email',
-      _i12.EmailAttachment => 'EmailAttachment',
-      _i13.EmailListResponse => 'EmailListResponse',
-      _i14.EmailSearchRequest => 'EmailSearchRequest',
-      _i15.ForwardEmailRequest => 'ForwardEmailRequest',
-      _i16.ReplyEmailRequest => 'ReplyEmailRequest',
-      _i17.SendEmailRequest => 'SendEmailRequest',
-      _i18.GoogleOAuthToken => 'GoogleOAuthToken',
-      _i19.Greeting => 'Greeting',
-      _i20.UserProfile => 'UserProfile',
+      _i11.ChatMessage => 'ChatMessage',
+      _i12.ChatRequest => 'ChatRequest',
+      _i13.ChatResponse => 'ChatResponse',
+      _i14.Email => 'Email',
+      _i15.EmailAttachment => 'EmailAttachment',
+      _i16.EmailListResponse => 'EmailListResponse',
+      _i17.EmailSearchRequest => 'EmailSearchRequest',
+      _i18.ForwardEmailRequest => 'ForwardEmailRequest',
+      _i19.ReplyEmailRequest => 'ReplyEmailRequest',
+      _i20.SendEmailRequest => 'SendEmailRequest',
+      _i21.GoogleOAuthToken => 'GoogleOAuthToken',
+      _i22.Greeting => 'Greeting',
+      _i23.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -852,25 +979,31 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'TimeSlot';
       case _i10.UpdateEventRequest():
         return 'UpdateEventRequest';
-      case _i11.Email():
+      case _i11.ChatMessage():
+        return 'ChatMessage';
+      case _i12.ChatRequest():
+        return 'ChatRequest';
+      case _i13.ChatResponse():
+        return 'ChatResponse';
+      case _i14.Email():
         return 'Email';
-      case _i12.EmailAttachment():
+      case _i15.EmailAttachment():
         return 'EmailAttachment';
-      case _i13.EmailListResponse():
+      case _i16.EmailListResponse():
         return 'EmailListResponse';
-      case _i14.EmailSearchRequest():
+      case _i17.EmailSearchRequest():
         return 'EmailSearchRequest';
-      case _i15.ForwardEmailRequest():
+      case _i18.ForwardEmailRequest():
         return 'ForwardEmailRequest';
-      case _i16.ReplyEmailRequest():
+      case _i19.ReplyEmailRequest():
         return 'ReplyEmailRequest';
-      case _i17.SendEmailRequest():
+      case _i20.SendEmailRequest():
         return 'SendEmailRequest';
-      case _i18.GoogleOAuthToken():
+      case _i21.GoogleOAuthToken():
         return 'GoogleOAuthToken';
-      case _i19.Greeting():
+      case _i22.Greeting():
         return 'Greeting';
-      case _i20.UserProfile():
+      case _i23.UserProfile():
         return 'UserProfile';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -912,35 +1045,44 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'UpdateEventRequest') {
       return deserialize<_i10.UpdateEventRequest>(data['data']);
     }
+    if (dataClassName == 'ChatMessage') {
+      return deserialize<_i11.ChatMessage>(data['data']);
+    }
+    if (dataClassName == 'ChatRequest') {
+      return deserialize<_i12.ChatRequest>(data['data']);
+    }
+    if (dataClassName == 'ChatResponse') {
+      return deserialize<_i13.ChatResponse>(data['data']);
+    }
     if (dataClassName == 'Email') {
-      return deserialize<_i11.Email>(data['data']);
+      return deserialize<_i14.Email>(data['data']);
     }
     if (dataClassName == 'EmailAttachment') {
-      return deserialize<_i12.EmailAttachment>(data['data']);
+      return deserialize<_i15.EmailAttachment>(data['data']);
     }
     if (dataClassName == 'EmailListResponse') {
-      return deserialize<_i13.EmailListResponse>(data['data']);
+      return deserialize<_i16.EmailListResponse>(data['data']);
     }
     if (dataClassName == 'EmailSearchRequest') {
-      return deserialize<_i14.EmailSearchRequest>(data['data']);
+      return deserialize<_i17.EmailSearchRequest>(data['data']);
     }
     if (dataClassName == 'ForwardEmailRequest') {
-      return deserialize<_i15.ForwardEmailRequest>(data['data']);
+      return deserialize<_i18.ForwardEmailRequest>(data['data']);
     }
     if (dataClassName == 'ReplyEmailRequest') {
-      return deserialize<_i16.ReplyEmailRequest>(data['data']);
+      return deserialize<_i19.ReplyEmailRequest>(data['data']);
     }
     if (dataClassName == 'SendEmailRequest') {
-      return deserialize<_i17.SendEmailRequest>(data['data']);
+      return deserialize<_i20.SendEmailRequest>(data['data']);
     }
     if (dataClassName == 'GoogleOAuthToken') {
-      return deserialize<_i18.GoogleOAuthToken>(data['data']);
+      return deserialize<_i21.GoogleOAuthToken>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i19.Greeting>(data['data']);
+      return deserialize<_i22.Greeting>(data['data']);
     }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i20.UserProfile>(data['data']);
+      return deserialize<_i23.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -982,14 +1124,16 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i5.Calendar.t;
       case _i6.CalendarEvent:
         return _i6.CalendarEvent.t;
-      case _i11.Email:
-        return _i11.Email.t;
-      case _i12.EmailAttachment:
-        return _i12.EmailAttachment.t;
-      case _i18.GoogleOAuthToken:
-        return _i18.GoogleOAuthToken.t;
-      case _i20.UserProfile:
-        return _i20.UserProfile.t;
+      case _i11.ChatMessage:
+        return _i11.ChatMessage.t;
+      case _i14.Email:
+        return _i14.Email.t;
+      case _i15.EmailAttachment:
+        return _i15.EmailAttachment.t;
+      case _i21.GoogleOAuthToken:
+        return _i21.GoogleOAuthToken.t;
+      case _i23.UserProfile:
+        return _i23.UserProfile.t;
     }
     return null;
   }

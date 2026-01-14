@@ -8,6 +8,13 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+aiChat:
+  - chat:
+  - getChatHistory:
+  - clearChatHistory:
+  - summarizeSchedule:
+  - summarizeEmails:
+  - getDailyBriefing:
 calendar:
   - getCalendars:
   - getCalendarEvents:
@@ -17,6 +24,19 @@ calendar:
   - updateCalendarEvent:
   - deleteCalendarEvent:
   - findAvailableTimeSlots:
+email:
+  - getEmails:
+  - getEmail:
+  - getEmailThread:
+  - searchEmails:
+  - syncEmails:
+  - sendEmail:
+  - replyToEmail:
+  - forwardEmail:
+  - markAsRead:
+  - archiveEmail:
+  - deleteEmail:
+  - starEmail:
 googleOAuth:
   - initiateGoogleOAuth:
   - handleGoogleOAuthCallback:

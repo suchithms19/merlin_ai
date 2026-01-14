@@ -1,0 +1,7 @@
+class: ChatResponse
+fields:
+  message: String
+  functionsCalled: List<String>?
+  calendarEventsAffected: List<String>?
+  emailsAffected: List<String>?
+  error: String?

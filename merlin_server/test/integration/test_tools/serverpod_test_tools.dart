@@ -17,12 +17,17 @@ import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
-import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i5;
+import 'package:merlin_server/src/generated/chat/chat_response.dart' as _i5;
+import 'package:merlin_server/src/generated/chat/chat_message.dart' as _i6;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i7;
 import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
-    as _i6;
+    as _i8;
+import 'package:merlin_server/src/generated/email/email_list_response.dart'
+    as _i9;
+import 'package:merlin_server/src/generated/email/email.dart' as _i10;
 import 'package:merlin_server/src/generated/google_oauth/google_oauth_token.dart'
-    as _i7;
-import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i8;
+    as _i11;
+import 'package:merlin_server/src/generated/greetings/greeting.dart' as _i12;
 import 'package:merlin_server/src/generated/protocol.dart';
 import 'package:merlin_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -134,7 +139,11 @@ class TestEndpoints {
 
   late final _JwtRefreshEndpoint jwtRefresh;
 
+  late final _AiChatEndpoint aiChat;
+
   late final _CalendarEndpoint calendar;
+
+  late final _EmailEndpoint email;
 
   late final _GoogleOAuthEndpoint googleOAuth;
 
@@ -156,7 +165,15 @@ class _InternalTestEndpoints extends TestEndpoints
       endpoints,
       serializationManager,
     );
+    aiChat = _AiChatEndpoint(
+      endpoints,
+      serializationManager,
+    );
     calendar = _CalendarEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    email = _EmailEndpoint(
       endpoints,
       serializationManager,
     );
@@ -461,6 +478,205 @@ class _JwtRefreshEndpoint {
   }
 }
 
+class _AiChatEndpoint {
+  _AiChatEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i5.ChatResponse> chat(
+    _i1.TestSessionBuilder sessionBuilder,
+    String message, {
+    required bool includeCalendarContext,
+    required bool includeEmailContext,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'chat',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'chat',
+          parameters: _i1.testObjectToJson({
+            'message': message,
+            'includeCalendarContext': includeCalendarContext,
+            'includeEmailContext': includeEmailContext,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i5.ChatResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i6.ChatMessage>> getChatHistory(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required int limit,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'getChatHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'getChatHistory',
+          parameters: _i1.testObjectToJson({'limit': limit}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i6.ChatMessage>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> clearChatHistory(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'clearChatHistory',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'clearChatHistory',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i5.ChatResponse> summarizeSchedule(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'summarizeSchedule',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'summarizeSchedule',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i5.ChatResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i5.ChatResponse> summarizeEmails(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'summarizeEmails',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'summarizeEmails',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i5.ChatResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i5.ChatResponse> getDailyBriefing(
+    _i1.TestSessionBuilder sessionBuilder,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'aiChat',
+            method: 'getDailyBriefing',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'aiChat',
+          methodName: 'getDailyBriefing',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i5.ChatResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _CalendarEndpoint {
   _CalendarEndpoint(
     this._endpointDispatch,
@@ -471,7 +687,7 @@ class _CalendarEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i5.Calendar>> getCalendars(
+  _i3.Future<List<_i7.Calendar>> getCalendars(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -493,7 +709,7 @@ class _CalendarEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i5.Calendar>>);
+                as _i3.Future<List<_i7.Calendar>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -501,7 +717,7 @@ class _CalendarEndpoint {
     });
   }
 
-  _i3.Future<List<_i6.CalendarEvent>> getCalendarEvents(
+  _i3.Future<List<_i8.CalendarEvent>> getCalendarEvents(
     _i1.TestSessionBuilder sessionBuilder,
     String calendarId,
     DateTime startTime,
@@ -530,7 +746,7 @@ class _CalendarEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<List<_i6.CalendarEvent>>);
+                as _i3.Future<List<_i8.CalendarEvent>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -538,7 +754,7 @@ class _CalendarEndpoint {
     });
   }
 
-  _i3.Future<_i6.CalendarEvent?> getCalendarEvent(
+  _i3.Future<_i8.CalendarEvent?> getCalendarEvent(
     _i1.TestSessionBuilder sessionBuilder,
     String calendarId,
     String googleEventId,
@@ -565,7 +781,7 @@ class _CalendarEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.CalendarEvent?>);
+                as _i3.Future<_i8.CalendarEvent?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -610,7 +826,7 @@ class _CalendarEndpoint {
     });
   }
 
-  _i3.Future<_i6.CalendarEvent> createCalendarEvent(
+  _i3.Future<_i8.CalendarEvent> createCalendarEvent(
     _i1.TestSessionBuilder sessionBuilder,
     String calendarId,
     String title,
@@ -651,7 +867,7 @@ class _CalendarEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.CalendarEvent>);
+                as _i3.Future<_i8.CalendarEvent>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -659,7 +875,7 @@ class _CalendarEndpoint {
     });
   }
 
-  _i3.Future<_i6.CalendarEvent> updateCalendarEvent(
+  _i3.Future<_i8.CalendarEvent> updateCalendarEvent(
     _i1.TestSessionBuilder sessionBuilder,
     String calendarId,
     String googleEventId, {
@@ -702,7 +918,7 @@ class _CalendarEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i6.CalendarEvent>);
+                as _i3.Future<_i8.CalendarEvent>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -795,6 +1011,445 @@ class _CalendarEndpoint {
   }
 }
 
+class _EmailEndpoint {
+  _EmailEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i9.EmailListResponse> getEmails(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required int maxResults,
+    String? pageToken,
+    List<String>? labelIds,
+    String? query,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'getEmails',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'getEmails',
+          parameters: _i1.testObjectToJson({
+            'maxResults': maxResults,
+            'pageToken': pageToken,
+            'labelIds': labelIds,
+            'query': query,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i9.EmailListResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Email?> getEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String messageId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'getEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'getEmail',
+          parameters: _i1.testObjectToJson({'messageId': messageId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Email?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i10.Email>> getEmailThread(
+    _i1.TestSessionBuilder sessionBuilder,
+    String threadId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'getEmailThread',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'getEmailThread',
+          parameters: _i1.testObjectToJson({'threadId': threadId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<_i10.Email>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i9.EmailListResponse> searchEmails(
+    _i1.TestSessionBuilder sessionBuilder,
+    String query, {
+    required int maxResults,
+    String? pageToken,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'searchEmails',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'searchEmails',
+          parameters: _i1.testObjectToJson({
+            'query': query,
+            'maxResults': maxResults,
+            'pageToken': pageToken,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i9.EmailListResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> syncEmails(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required int maxResults,
+    List<String>? labelIds,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'syncEmails',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'syncEmails',
+          parameters: _i1.testObjectToJson({
+            'maxResults': maxResults,
+            'labelIds': labelIds,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Email?> sendEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    List<String> to,
+    String subject, {
+    List<String>? cc,
+    List<String>? bcc,
+    String? bodyPlainText,
+    String? bodyHtml,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'sendEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'sendEmail',
+          parameters: _i1.testObjectToJson({
+            'to': to,
+            'subject': subject,
+            'cc': cc,
+            'bcc': bcc,
+            'bodyPlainText': bodyPlainText,
+            'bodyHtml': bodyHtml,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Email?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Email?> replyToEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String originalMessageId, {
+    String? bodyPlainText,
+    String? bodyHtml,
+    required bool replyAll,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'replyToEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'replyToEmail',
+          parameters: _i1.testObjectToJson({
+            'originalMessageId': originalMessageId,
+            'bodyPlainText': bodyPlainText,
+            'bodyHtml': bodyHtml,
+            'replyAll': replyAll,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Email?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i10.Email?> forwardEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String originalMessageId,
+    List<String> to, {
+    List<String>? cc,
+    List<String>? bcc,
+    String? additionalMessage,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'forwardEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'forwardEmail',
+          parameters: _i1.testObjectToJson({
+            'originalMessageId': originalMessageId,
+            'to': to,
+            'cc': cc,
+            'bcc': bcc,
+            'additionalMessage': additionalMessage,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i10.Email?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> markAsRead(
+    _i1.TestSessionBuilder sessionBuilder,
+    String messageId,
+    bool isRead,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'markAsRead',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'markAsRead',
+          parameters: _i1.testObjectToJson({
+            'messageId': messageId,
+            'isRead': isRead,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> archiveEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String messageId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'archiveEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'archiveEmail',
+          parameters: _i1.testObjectToJson({'messageId': messageId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> deleteEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String messageId,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'deleteEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'deleteEmail',
+          parameters: _i1.testObjectToJson({'messageId': messageId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> starEmail(
+    _i1.TestSessionBuilder sessionBuilder,
+    String messageId,
+    bool isStarred,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'email',
+            method: 'starEmail',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'email',
+          methodName: 'starEmail',
+          parameters: _i1.testObjectToJson({
+            'messageId': messageId,
+            'isStarred': isStarred,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _GoogleOAuthEndpoint {
   _GoogleOAuthEndpoint(
     this._endpointDispatch,
@@ -835,7 +1490,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<_i7.GoogleOAuthToken> handleGoogleOAuthCallback(
+  _i3.Future<_i11.GoogleOAuthToken> handleGoogleOAuthCallback(
     _i1.TestSessionBuilder sessionBuilder,
     String code,
   ) async {
@@ -858,7 +1513,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i7.GoogleOAuthToken>);
+                as _i3.Future<_i11.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -866,7 +1521,7 @@ class _GoogleOAuthEndpoint {
     });
   }
 
-  _i3.Future<_i7.GoogleOAuthToken> refreshGoogleTokens(
+  _i3.Future<_i11.GoogleOAuthToken> refreshGoogleTokens(
     _i1.TestSessionBuilder sessionBuilder,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -888,7 +1543,7 @@ class _GoogleOAuthEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i7.GoogleOAuthToken>);
+                as _i3.Future<_i11.GoogleOAuthToken>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -967,7 +1622,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.Greeting> hello(
+  _i3.Future<_i12.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -990,7 +1645,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.Greeting>);
+                as _i3.Future<_i12.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

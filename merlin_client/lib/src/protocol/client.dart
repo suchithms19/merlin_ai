@@ -290,6 +290,102 @@ class EndpointCalendar extends _i2.EndpointRef {
       'timeMax': timeMax,
     },
   );
+
+  /// Creates a new calendar event (called by AI)
+  _i3.Future<_i6.CalendarEvent> createCalendarEvent(
+    String calendarId,
+    String title,
+    DateTime startTime,
+    DateTime endTime, {
+    String? description,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    required bool sendNotifications,
+  }) => caller.callServerEndpoint<_i6.CalendarEvent>(
+    'calendar',
+    'createCalendarEvent',
+    {
+      'calendarId': calendarId,
+      'title': title,
+      'startTime': startTime,
+      'endTime': endTime,
+      'description': description,
+      'location': location,
+      'attendees': attendees,
+      'recurrenceRule': recurrenceRule,
+      'sendNotifications': sendNotifications,
+    },
+  );
+
+  /// Updates an existing calendar event (called by AI)
+  _i3.Future<_i6.CalendarEvent> updateCalendarEvent(
+    String calendarId,
+    String googleEventId, {
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    required bool sendNotifications,
+  }) => caller.callServerEndpoint<_i6.CalendarEvent>(
+    'calendar',
+    'updateCalendarEvent',
+    {
+      'calendarId': calendarId,
+      'googleEventId': googleEventId,
+      'title': title,
+      'description': description,
+      'startTime': startTime,
+      'endTime': endTime,
+      'location': location,
+      'attendees': attendees,
+      'recurrenceRule': recurrenceRule,
+      'sendNotifications': sendNotifications,
+    },
+  );
+
+  /// Deletes a calendar event (called by AI)
+  _i3.Future<void> deleteCalendarEvent(
+    String calendarId,
+    String googleEventId, {
+    required bool sendNotifications,
+  }) => caller.callServerEndpoint<void>(
+    'calendar',
+    'deleteCalendarEvent',
+    {
+      'calendarId': calendarId,
+      'googleEventId': googleEventId,
+      'sendNotifications': sendNotifications,
+    },
+  );
+
+  /// Finds available time slots for scheduling (called by AI)
+  _i3.Future<List<Map<String, dynamic>>> findAvailableTimeSlots(
+    String calendarId,
+    int durationMinutes,
+    DateTime searchStartTime,
+    DateTime searchEndTime, {
+    int? workingHoursStart,
+    int? workingHoursEnd,
+    List<int>? preferredDays,
+    required int maxResults,
+  }) => caller.callServerEndpoint<List<Map<String, dynamic>>>(
+    'calendar',
+    'findAvailableTimeSlots',
+    {
+      'calendarId': calendarId,
+      'durationMinutes': durationMinutes,
+      'searchStartTime': searchStartTime,
+      'searchEndTime': searchEndTime,
+      'workingHoursStart': workingHoursStart,
+      'workingHoursEnd': workingHoursEnd,
+      'preferredDays': preferredDays,
+      'maxResults': maxResults,
+    },
+  );
 }
 
 /// {@category Endpoint}

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Callback</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success {
+            color: #10b981;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: #ef4444;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .close-btn {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .close-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <h2>Connecting to Google...</h2>
+            <p>Please wait while we complete the authentication.</p>
+        </div>
+        <div id="success" style="display: none;">
+            <div class="success">✓</div>
+            <h2>Successfully Connected!</h2>
+            <p>Your Google account has been connected. You can close this window now.</p>
+            <button class="close-btn" onclick="window.close()">Close Window</button>
+        </div>
+        <div id="error" style="display: none;">
+            <div class="error">✗</div>
+            <h2>Connection Failed</h2>
+            <p id="error-message">An error occurred during authentication.</p>
+            <button class="close-btn" onclick="window.close()">Close Window</button>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+
+        async function handleCallback() {
+            if (error) {
+                showError(`Authentication failed: ${error}`);
+                return;
+            }
+
+            if (!code) {
+                showError('No authorization code received');
+                return;
+            }
+
+            try {
+                // Extract session info from localStorage (if available from Flutter web)
+                const sessionJson = localStorage.getItem('serverpod_session');
+                let headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (sessionJson) {
+                    const session = JSON.parse(sessionJson);
+                    if (session.token) {
+                        headers['Authorization'] = `Bearer ${session.token}`;
+                    }
+                }
+
+                // Call the backend endpoint to exchange code for tokens
+                const response = await fetch('/serverpod/googleOAuth/handleGoogleOAuthCallback', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        method: 'handleGoogleOAuthCallback',
+                        params: {
+                            code: code
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to exchange OAuth code');
+                }
+
+                // Send message to Flutter app if running in web view
+                if (window.flutter_inappwebview) {
+                    window.flutter_inappwebview.callHandler('googleOAuthCallback', { code: code });
+                }
+
+                // Post message to opener (if opened in new window)
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'googleOAuthCallback',
+                        code: code,
+                        success: true
+                    }, '*');
+                }
+
+                // Show success message
+                showSuccess();
+
+                // Auto-close after 2 seconds
+                setTimeout(() => {
+                    window.close();
+                }, 2000);
+            } catch (err) {
+                console.error('OAuth callback error:', err);
+                showError(err.message);
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // Execute callback handler
+        handleCallback();
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+class: TimeSlot
+fields:
+  startTime: DateTime
+  endTime: DateTime
+  durationMinutes: int
+  dayOfWeek: int

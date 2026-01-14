@@ -288,4 +288,317 @@ class GoogleCalendarService {
       orderBy: (t) => t.startTime,
     );
   }
+
+  /// Creates a new calendar event
+  /// Used by AI to create events based on user requests
+  Future<CalendarEvent> createEvent({
+    required int userProfileId,
+    required String calendarId,
+    required String title,
+    required DateTime startTime,
+    required DateTime endTime,
+    String? description,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    bool sendNotifications = true,
+  }) async {
+    try {
+      final api = await _getCalendarApi(userProfileId);
+      
+      // Build the event
+      final event = gcal.Event()
+        ..summary = title
+        ..description = description
+        ..location = location
+        ..start = gcal.EventDateTime(dateTime: startTime.toUtc())
+        ..end = gcal.EventDateTime(dateTime: endTime.toUtc());
+      
+      if (attendees != null && attendees.isNotEmpty) {
+        event.attendees = attendees
+            .map((email) => gcal.EventAttendee()..email = email)
+            .toList();
+      }
+      
+      if (recurrenceRule != null && recurrenceRule.isNotEmpty) {
+        event.recurrence = [recurrenceRule];
+      }
+      
+      final createdEvent = await api.events.insert(
+        event,
+        calendarId,
+        sendNotifications: sendNotifications,
+      );
+      
+      if (createdEvent.id == null) {
+        throw Exception('Failed to create event: no event ID returned');
+      }
+      
+      final mappedEvent = _mapEvent(
+        userProfileId: userProfileId,
+        calendarId: calendarId,
+        event: createdEvent,
+      );
+      
+      await _cacheEvents([mappedEvent]);
+      
+      session.log(
+        'Created event "$title" in calendar $calendarId',
+        level: LogLevel.info,
+      );
+      
+      return mappedEvent;
+    } catch (error, stackTrace) {
+      session.log(
+        'Failed to create calendar event: $error',
+        level: LogLevel.error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Updates an existing calendar event
+  /// Used by AI to modify events based on user requests
+  Future<CalendarEvent> updateEvent({
+    required int userProfileId,
+    required String calendarId,
+    required String googleEventId,
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    bool sendNotifications = true,
+  }) async {
+    try {
+      final api = await _getCalendarApi(userProfileId);
+      
+      final existingEvent = await api.events.get(calendarId, googleEventId);
+      
+      if (title != null) existingEvent.summary = title;
+      if (description != null) existingEvent.description = description;
+      if (location != null) existingEvent.location = location;
+      
+      if (startTime != null) {
+        existingEvent.start = gcal.EventDateTime(dateTime: startTime.toUtc());
+      }
+      
+      if (endTime != null) {
+        existingEvent.end = gcal.EventDateTime(dateTime: endTime.toUtc());
+      }
+      
+      if (attendees != null) {
+        existingEvent.attendees = attendees
+            .map((email) => gcal.EventAttendee()..email = email)
+            .toList();
+      }
+      
+      if (recurrenceRule != null) {
+        existingEvent.recurrence = 
+            recurrenceRule.isNotEmpty ? [recurrenceRule] : null;
+      }
+      
+      final updatedEvent = await api.events.update(
+        existingEvent,
+        calendarId,
+        googleEventId,
+        sendNotifications: sendNotifications,
+      );
+      
+      final mappedEvent = _mapEvent(
+        userProfileId: userProfileId,
+        calendarId: calendarId,
+        event: updatedEvent,
+      );
+      
+      await _cacheEvents([mappedEvent]);
+      
+      session.log(
+        'Updated event $googleEventId in calendar $calendarId',
+        level: LogLevel.info,
+      );
+      
+      return mappedEvent;
+    } catch (error, stackTrace) {
+      session.log(
+        'Failed to update calendar event: $error',
+        level: LogLevel.error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Deletes a calendar event
+  /// Used by AI to remove events based on user requests
+  Future<void> deleteEvent({
+    required int userProfileId,
+    required String calendarId,
+    required String googleEventId,
+    bool sendNotifications = true,
+  }) async {
+    try {
+      final api = await _getCalendarApi(userProfileId);
+      
+      await api.events.delete(
+        calendarId,
+        googleEventId,
+        sendNotifications: sendNotifications,
+      );
+      
+      await CalendarEvent.db.deleteWhere(
+        session,
+        where: (t) =>
+            t.userProfileId.equals(userProfileId) &
+            t.googleEventId.equals(googleEventId),
+      );
+      
+      session.log(
+        'Deleted event $googleEventId from calendar $calendarId',
+        level: LogLevel.info,
+      );
+    } catch (error, stackTrace) {
+      session.log(
+        'Failed to delete calendar event: $error',
+        level: LogLevel.error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Finds available time slots in the calendar
+  /// Used by AI to suggest meeting times
+  Future<List<Map<String, dynamic>>> findAvailableTimeSlots({
+    required int userProfileId,
+    required String calendarId,
+    required int durationMinutes,
+    required DateTime searchStartTime,
+    required DateTime searchEndTime,
+    int? workingHoursStart,
+    int? workingHoursEnd,
+    List<int>? preferredDays,
+    int maxResults = 10,
+  }) async {
+    try {
+      final events = await getCalendarEvents(
+        userProfileId: userProfileId,
+        calendarId: calendarId,
+        startTime: searchStartTime,
+        endTime: searchEndTime,
+      );
+      
+      events.sort((a, b) => a.startTime.compareTo(b.startTime));
+      
+      final availableSlots = <Map<String, dynamic>>[];
+      final duration = Duration(minutes: durationMinutes);
+      
+      final workStart = workingHoursStart ?? 9;
+      final workEnd = workingHoursEnd ?? 17;
+      var currentDay = DateTime(
+        searchStartTime.year,
+        searchStartTime.month,
+        searchStartTime.day,
+        workStart,
+      );
+      
+      while (currentDay.isBefore(searchEndTime) && 
+             availableSlots.length < maxResults) {
+        final dayOfWeek = currentDay.weekday;
+        if (preferredDays != null && 
+            preferredDays.isNotEmpty && 
+            !preferredDays.contains(dayOfWeek)) {
+          currentDay = currentDay.add(const Duration(days: 1));
+          currentDay = DateTime(
+            currentDay.year,
+            currentDay.month,
+            currentDay.day,
+            workStart,
+          );
+          continue;
+        }
+        
+        final dayStart = DateTime(
+          currentDay.year,
+          currentDay.month,
+          currentDay.day,
+          workStart,
+        );
+        final dayEnd = DateTime(
+          currentDay.year,
+          currentDay.month,
+          currentDay.day,
+          workEnd,
+        );
+        
+        final dayEvents = events
+            .where((e) =>
+                e.startTime.year == currentDay.year &&
+                e.startTime.month == currentDay.month &&
+                e.startTime.day == currentDay.day)
+            .toList();
+        
+        var slotStart = dayStart;
+        
+        for (final event in dayEvents) {
+          final eventStart = event.startTime;
+          final eventEnd = event.endTime;
+          
+          if (slotStart.add(duration).isBefore(eventStart) ||
+              slotStart.add(duration).isAtSameMomentAs(eventStart)) {
+            final slotEnd = slotStart.add(duration);
+            
+            if (slotEnd.isBefore(eventStart) || 
+                slotEnd.isAtSameMomentAs(eventStart)) {
+              availableSlots.add({
+                'start_time': slotStart,
+                'end_time': slotEnd,
+                'duration_minutes': durationMinutes,
+                'day_of_week': dayOfWeek,
+              });
+              
+              if (availableSlots.length >= maxResults) break;
+            }
+          }
+          
+          slotStart = eventEnd.isAfter(slotStart) ? eventEnd : slotStart;
+        }
+        
+        if (availableSlots.length < maxResults &&
+            slotStart.add(duration).isBefore(dayEnd)) {
+          availableSlots.add({
+            'start_time': slotStart,
+            'end_time': slotStart.add(duration),
+            'duration_minutes': durationMinutes,
+            'day_of_week': dayOfWeek,
+          });
+        }
+        
+        currentDay = currentDay.add(const Duration(days: 1));
+        currentDay = DateTime(
+          currentDay.year,
+          currentDay.month,
+          currentDay.day,
+          workStart,
+        );
+      }
+      
+      session.log(
+        'Found ${availableSlots.length} available time slots',
+        level: LogLevel.info,
+      );
+      
+      return availableSlots;
+    } catch (error, stackTrace) {
+      session.log(
+        'Failed to find available time slots: $error',
+        level: LogLevel.error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
 }

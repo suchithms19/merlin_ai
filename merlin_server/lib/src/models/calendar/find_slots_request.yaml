@@ -1,0 +1,10 @@
+class: FindSlotsRequest
+fields:
+  calendarId: String
+  durationMinutes: int
+  searchStartTime: DateTime
+  searchEndTime: DateTime
+  workingHoursStart: int?
+  workingHoursEnd: int?
+  preferredDays: List<int>?
+  maxResults: int, default=10

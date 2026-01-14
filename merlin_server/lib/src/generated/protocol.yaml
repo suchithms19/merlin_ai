@@ -13,6 +13,10 @@ calendar:
   - getCalendarEvents:
   - getCalendarEvent:
   - syncCalendar:
+  - createCalendarEvent:
+  - updateCalendarEvent:
+  - deleteCalendarEvent:
+  - findAvailableTimeSlots:
 googleOAuth:
   - initiateGoogleOAuth:
   - handleGoogleOAuthCallback:

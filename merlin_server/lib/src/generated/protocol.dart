@@ -18,14 +18,22 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
 import 'calendar/calendar.dart' as _i5;
 import 'calendar/calendar_event.dart' as _i6;
-import 'google_oauth/google_oauth_token.dart' as _i7;
-import 'greetings/greeting.dart' as _i8;
-import 'user_profile/user_profile.dart' as _i9;
-import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i10;
+import 'calendar/create_event_request.dart' as _i7;
+import 'calendar/find_slots_request.dart' as _i8;
+import 'calendar/time_slot.dart' as _i9;
+import 'calendar/update_event_request.dart' as _i10;
+import 'google_oauth/google_oauth_token.dart' as _i11;
+import 'greetings/greeting.dart' as _i12;
+import 'user_profile/user_profile.dart' as _i13;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i14;
 import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
-    as _i11;
+    as _i15;
 export 'calendar/calendar.dart';
 export 'calendar/calendar_event.dart';
+export 'calendar/create_event_request.dart';
+export 'calendar/find_slots_request.dart';
+export 'calendar/time_slot.dart';
+export 'calendar/update_event_request.dart';
 export 'google_oauth/google_oauth_token.dart';
 export 'greetings/greeting.dart';
 export 'user_profile/user_profile.dart';
@@ -402,14 +410,26 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i6.CalendarEvent) {
       return _i6.CalendarEvent.fromJson(data) as T;
     }
-    if (t == _i7.GoogleOAuthToken) {
-      return _i7.GoogleOAuthToken.fromJson(data) as T;
+    if (t == _i7.CreateEventRequest) {
+      return _i7.CreateEventRequest.fromJson(data) as T;
     }
-    if (t == _i8.Greeting) {
-      return _i8.Greeting.fromJson(data) as T;
+    if (t == _i8.FindSlotsRequest) {
+      return _i8.FindSlotsRequest.fromJson(data) as T;
     }
-    if (t == _i9.UserProfile) {
-      return _i9.UserProfile.fromJson(data) as T;
+    if (t == _i9.TimeSlot) {
+      return _i9.TimeSlot.fromJson(data) as T;
+    }
+    if (t == _i10.UpdateEventRequest) {
+      return _i10.UpdateEventRequest.fromJson(data) as T;
+    }
+    if (t == _i11.GoogleOAuthToken) {
+      return _i11.GoogleOAuthToken.fromJson(data) as T;
+    }
+    if (t == _i12.Greeting) {
+      return _i12.Greeting.fromJson(data) as T;
+    }
+    if (t == _i13.UserProfile) {
+      return _i13.UserProfile.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.Calendar?>()) {
       return (data != null ? _i5.Calendar.fromJson(data) : null) as T;
@@ -417,26 +437,84 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i6.CalendarEvent?>()) {
       return (data != null ? _i6.CalendarEvent.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i7.GoogleOAuthToken?>()) {
-      return (data != null ? _i7.GoogleOAuthToken.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i7.CreateEventRequest?>()) {
+      return (data != null ? _i7.CreateEventRequest.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i8.Greeting?>()) {
-      return (data != null ? _i8.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.FindSlotsRequest?>()) {
+      return (data != null ? _i8.FindSlotsRequest.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.UserProfile?>()) {
-      return (data != null ? _i9.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.TimeSlot?>()) {
+      return (data != null ? _i9.TimeSlot.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i10.UpdateEventRequest?>()) {
+      return (data != null ? _i10.UpdateEventRequest.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i11.GoogleOAuthToken?>()) {
+      return (data != null ? _i11.GoogleOAuthToken.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i12.Greeting?>()) {
+      return (data != null ? _i12.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i13.UserProfile?>()) {
+      return (data != null ? _i13.UserProfile.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
-    if (t == List<_i10.Calendar>) {
-      return (data as List).map((e) => deserialize<_i10.Calendar>(e)).toList()
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
           as T;
     }
-    if (t == List<_i11.CalendarEvent>) {
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
+          as T;
+    }
+    if (t == List<_i14.Calendar>) {
+      return (data as List).map((e) => deserialize<_i14.Calendar>(e)).toList()
+          as T;
+    }
+    if (t == List<_i15.CalendarEvent>) {
       return (data as List)
-              .map((e) => deserialize<_i11.CalendarEvent>(e))
+              .map((e) => deserialize<_i15.CalendarEvent>(e))
               .toList()
+          as T;
+    }
+    if (t == List<String>) {
+      return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<String>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<String>(e)).toList()
+              : null)
+          as T;
+    }
+    if (t == List<Map<String, dynamic>>) {
+      return (data as List)
+              .map((e) => deserialize<Map<String, dynamic>>(e))
+              .toList()
+          as T;
+    }
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map(
+            (k, v) => MapEntry(deserialize<String>(k), deserialize<dynamic>(v)),
+          )
+          as T;
+    }
+    if (t == List<int>) {
+      return (data as List).map((e) => deserialize<int>(e)).toList() as T;
+    }
+    if (t == _i1.getType<List<int>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<int>(e)).toList()
+              : null)
           as T;
     }
     try {
@@ -455,9 +533,13 @@ class Protocol extends _i1.SerializationManagerServer {
     return switch (type) {
       _i5.Calendar => 'Calendar',
       _i6.CalendarEvent => 'CalendarEvent',
-      _i7.GoogleOAuthToken => 'GoogleOAuthToken',
-      _i8.Greeting => 'Greeting',
-      _i9.UserProfile => 'UserProfile',
+      _i7.CreateEventRequest => 'CreateEventRequest',
+      _i8.FindSlotsRequest => 'FindSlotsRequest',
+      _i9.TimeSlot => 'TimeSlot',
+      _i10.UpdateEventRequest => 'UpdateEventRequest',
+      _i11.GoogleOAuthToken => 'GoogleOAuthToken',
+      _i12.Greeting => 'Greeting',
+      _i13.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -476,11 +558,19 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'Calendar';
       case _i6.CalendarEvent():
         return 'CalendarEvent';
-      case _i7.GoogleOAuthToken():
+      case _i7.CreateEventRequest():
+        return 'CreateEventRequest';
+      case _i8.FindSlotsRequest():
+        return 'FindSlotsRequest';
+      case _i9.TimeSlot():
+        return 'TimeSlot';
+      case _i10.UpdateEventRequest():
+        return 'UpdateEventRequest';
+      case _i11.GoogleOAuthToken():
         return 'GoogleOAuthToken';
-      case _i8.Greeting():
+      case _i12.Greeting():
         return 'Greeting';
-      case _i9.UserProfile():
+      case _i13.UserProfile():
         return 'UserProfile';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -510,14 +600,26 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'CalendarEvent') {
       return deserialize<_i6.CalendarEvent>(data['data']);
     }
+    if (dataClassName == 'CreateEventRequest') {
+      return deserialize<_i7.CreateEventRequest>(data['data']);
+    }
+    if (dataClassName == 'FindSlotsRequest') {
+      return deserialize<_i8.FindSlotsRequest>(data['data']);
+    }
+    if (dataClassName == 'TimeSlot') {
+      return deserialize<_i9.TimeSlot>(data['data']);
+    }
+    if (dataClassName == 'UpdateEventRequest') {
+      return deserialize<_i10.UpdateEventRequest>(data['data']);
+    }
     if (dataClassName == 'GoogleOAuthToken') {
-      return deserialize<_i7.GoogleOAuthToken>(data['data']);
+      return deserialize<_i11.GoogleOAuthToken>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i8.Greeting>(data['data']);
+      return deserialize<_i12.Greeting>(data['data']);
     }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i9.UserProfile>(data['data']);
+      return deserialize<_i13.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -559,10 +661,10 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i5.Calendar.t;
       case _i6.CalendarEvent:
         return _i6.CalendarEvent.t;
-      case _i7.GoogleOAuthToken:
-        return _i7.GoogleOAuthToken.t;
-      case _i9.UserProfile:
-        return _i9.UserProfile.t;
+      case _i11.GoogleOAuthToken:
+        return _i11.GoogleOAuthToken.t;
+      case _i13.UserProfile:
+        return _i13.UserProfile.t;
     }
     return null;
   }

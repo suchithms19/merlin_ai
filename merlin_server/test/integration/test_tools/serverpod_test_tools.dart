@@ -609,6 +609,190 @@ class _CalendarEndpoint {
       }
     });
   }
+
+  _i3.Future<_i6.CalendarEvent> createCalendarEvent(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    String title,
+    DateTime startTime,
+    DateTime endTime, {
+    String? description,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    required bool sendNotifications,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'createCalendarEvent',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'createCalendarEvent',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'title': title,
+            'startTime': startTime,
+            'endTime': endTime,
+            'description': description,
+            'location': location,
+            'attendees': attendees,
+            'recurrenceRule': recurrenceRule,
+            'sendNotifications': sendNotifications,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.CalendarEvent>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i6.CalendarEvent> updateCalendarEvent(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    String googleEventId, {
+    String? title,
+    String? description,
+    DateTime? startTime,
+    DateTime? endTime,
+    String? location,
+    List<String>? attendees,
+    String? recurrenceRule,
+    required bool sendNotifications,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'updateCalendarEvent',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'updateCalendarEvent',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'googleEventId': googleEventId,
+            'title': title,
+            'description': description,
+            'startTime': startTime,
+            'endTime': endTime,
+            'location': location,
+            'attendees': attendees,
+            'recurrenceRule': recurrenceRule,
+            'sendNotifications': sendNotifications,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i6.CalendarEvent>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<void> deleteCalendarEvent(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    String googleEventId, {
+    required bool sendNotifications,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'deleteCalendarEvent',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'deleteCalendarEvent',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'googleEventId': googleEventId,
+            'sendNotifications': sendNotifications,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<void>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<Map<String, dynamic>>> findAvailableTimeSlots(
+    _i1.TestSessionBuilder sessionBuilder,
+    String calendarId,
+    int durationMinutes,
+    DateTime searchStartTime,
+    DateTime searchEndTime, {
+    int? workingHoursStart,
+    int? workingHoursEnd,
+    List<int>? preferredDays,
+    required int maxResults,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'calendar',
+            method: 'findAvailableTimeSlots',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'calendar',
+          methodName: 'findAvailableTimeSlots',
+          parameters: _i1.testObjectToJson({
+            'calendarId': calendarId,
+            'durationMinutes': durationMinutes,
+            'searchStartTime': searchStartTime,
+            'searchEndTime': searchEndTime,
+            'workingHoursStart': workingHoursStart,
+            'workingHoursEnd': workingHoursEnd,
+            'preferredDays': preferredDays,
+            'maxResults': maxResults,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<List<Map<String, dynamic>>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
 }
 
 class _GoogleOAuthEndpoint {

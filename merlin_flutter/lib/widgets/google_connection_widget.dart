@@ -60,15 +60,13 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
 
       final uri = Uri.parse(authUrl);
       if (await canLaunchUrl(uri)) {
+        // Launch OAuth URL in external browser
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
         );
 
-        // TODO: Set up web redirect handler to capture callback
-
-        await Future.delayed(const Duration(seconds: 2));
-        await _checkConnectionStatus();
+        _setupOAuthCallbackListener();
       } else {
         throw Exception('Could not launch OAuth URL');
       }
@@ -78,6 +76,44 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
         _errorMessage = 'Failed to connect: $e';
       });
     }
+  }
+
+  void _setupOAuthCallbackListener() {
+    // Poll for connection status every 2 seconds for up to 2 minutes
+    Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      try {
+        final isConnected = await widget.client.googleOAuth
+            .getGoogleConnectionStatus();
+        
+        if (isConnected) {
+          timer.cancel();
+          setState(() {
+            _isConnected = true;
+            _isLoading = false;
+            _lastSyncTime = DateTime.now();
+          });
+        } else {
+          if (timer.tick >= 60) {
+            timer.cancel();
+            setState(() {
+              _isLoading = false;
+              _errorMessage = 'Connection timeout. Please try again.';
+            });
+          }
+        }
+      } catch (e) {
+        timer.cancel();
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Failed to verify connection: $e';
+        });
+      }
+    });
   }
 
   Future<void> _disconnectGoogle() async {

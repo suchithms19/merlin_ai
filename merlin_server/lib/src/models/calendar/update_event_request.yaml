@@ -1,0 +1,12 @@
+class: UpdateEventRequest
+fields:
+  calendarId: String
+  googleEventId: String 
+  title: String?
+  description: String?
+  startTime: DateTime?
+  endTime: DateTime?
+  location: String?
+  attendees: List<String>?  
+  recurrenceRule: String?
+  sendNotifications: bool, default=true

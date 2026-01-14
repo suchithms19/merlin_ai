@@ -351,6 +351,238 @@ class Endpoints extends _i1.EndpointDispatch {
                     timeMax: params['timeMax'],
                   ),
         ),
+        'createCalendarEvent': _i1.MethodConnector(
+          name: 'createCalendarEvent',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'title': _i1.ParameterDescription(
+              name: 'title',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'startTime': _i1.ParameterDescription(
+              name: 'startTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+            'endTime': _i1.ParameterDescription(
+              name: 'endTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+            'description': _i1.ParameterDescription(
+              name: 'description',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'location': _i1.ParameterDescription(
+              name: 'location',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'attendees': _i1.ParameterDescription(
+              name: 'attendees',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'recurrenceRule': _i1.ParameterDescription(
+              name: 'recurrenceRule',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'sendNotifications': _i1.ParameterDescription(
+              name: 'sendNotifications',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .createCalendarEvent(
+                    session,
+                    params['calendarId'],
+                    params['title'],
+                    params['startTime'],
+                    params['endTime'],
+                    description: params['description'],
+                    location: params['location'],
+                    attendees: params['attendees'],
+                    recurrenceRule: params['recurrenceRule'],
+                    sendNotifications: params['sendNotifications'],
+                  ),
+        ),
+        'updateCalendarEvent': _i1.MethodConnector(
+          name: 'updateCalendarEvent',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'googleEventId': _i1.ParameterDescription(
+              name: 'googleEventId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'title': _i1.ParameterDescription(
+              name: 'title',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'description': _i1.ParameterDescription(
+              name: 'description',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'startTime': _i1.ParameterDescription(
+              name: 'startTime',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'endTime': _i1.ParameterDescription(
+              name: 'endTime',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'location': _i1.ParameterDescription(
+              name: 'location',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'attendees': _i1.ParameterDescription(
+              name: 'attendees',
+              type: _i1.getType<List<String>?>(),
+              nullable: true,
+            ),
+            'recurrenceRule': _i1.ParameterDescription(
+              name: 'recurrenceRule',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'sendNotifications': _i1.ParameterDescription(
+              name: 'sendNotifications',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .updateCalendarEvent(
+                    session,
+                    params['calendarId'],
+                    params['googleEventId'],
+                    title: params['title'],
+                    description: params['description'],
+                    startTime: params['startTime'],
+                    endTime: params['endTime'],
+                    location: params['location'],
+                    attendees: params['attendees'],
+                    recurrenceRule: params['recurrenceRule'],
+                    sendNotifications: params['sendNotifications'],
+                  ),
+        ),
+        'deleteCalendarEvent': _i1.MethodConnector(
+          name: 'deleteCalendarEvent',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'googleEventId': _i1.ParameterDescription(
+              name: 'googleEventId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'sendNotifications': _i1.ParameterDescription(
+              name: 'sendNotifications',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .deleteCalendarEvent(
+                    session,
+                    params['calendarId'],
+                    params['googleEventId'],
+                    sendNotifications: params['sendNotifications'],
+                  ),
+        ),
+        'findAvailableTimeSlots': _i1.MethodConnector(
+          name: 'findAvailableTimeSlots',
+          params: {
+            'calendarId': _i1.ParameterDescription(
+              name: 'calendarId',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'durationMinutes': _i1.ParameterDescription(
+              name: 'durationMinutes',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'searchStartTime': _i1.ParameterDescription(
+              name: 'searchStartTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+            'searchEndTime': _i1.ParameterDescription(
+              name: 'searchEndTime',
+              type: _i1.getType<DateTime>(),
+              nullable: false,
+            ),
+            'workingHoursStart': _i1.ParameterDescription(
+              name: 'workingHoursStart',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'workingHoursEnd': _i1.ParameterDescription(
+              name: 'workingHoursEnd',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'preferredDays': _i1.ParameterDescription(
+              name: 'preferredDays',
+              type: _i1.getType<List<int>?>(),
+              nullable: true,
+            ),
+            'maxResults': _i1.ParameterDescription(
+              name: 'maxResults',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['calendar'] as _i4.CalendarEndpoint)
+                  .findAvailableTimeSlots(
+                    session,
+                    params['calendarId'],
+                    params['durationMinutes'],
+                    params['searchStartTime'],
+                    params['searchEndTime'],
+                    workingHoursStart: params['workingHoursStart'],
+                    workingHoursEnd: params['workingHoursEnd'],
+                    preferredDays: params['preferredDays'],
+                    maxResults: params['maxResults'],
+                  ),
+        ),
       },
     );
     connectors['googleOAuth'] = _i1.EndpointConnector(

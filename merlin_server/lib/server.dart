@@ -6,6 +6,7 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
+import 'src/web/routes/google_oauth_callback_route.dart';
 import 'src/web/routes/root.dart';
 
 /// The starting point of the Serverpod server.
@@ -34,6 +35,12 @@ void run(List<String> args) async {
   // These are used by the default page.
   pod.webServer.addRoute(RootRoute(), '/');
   pod.webServer.addRoute(RootRoute(), '/index.html');
+
+  // Setup Google OAuth callback route
+  pod.webServer.addRoute(
+    GoogleOAuthCallbackRoute(),
+    '/auth/google/callback',
+  );
 
   // Serve all files in the web/static relative directory under /.
   // These are used by the default web page.

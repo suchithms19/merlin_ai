@@ -1,0 +1,8 @@
+class: SendEmailRequest
+fields:
+  to: List<String>
+  cc: List<String>?
+  bcc: List<String>?
+  subject: String
+  bodyPlainText: String?
+  bodyHtml: String?

@@ -1,0 +1,6 @@
+class: ReplyEmailRequest
+fields:
+  originalMessageId: String
+  bodyPlainText: String?
+  bodyHtml: String?
+  replyAll: bool, default=false

@@ -1,0 +1,6 @@
+class: EmailSearchRequest
+fields:
+  query: String
+  maxResults: int, default=20
+  pageToken: String?
+  labelIds: List<String>?

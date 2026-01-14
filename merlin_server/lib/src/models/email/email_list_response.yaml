@@ -1,0 +1,5 @@
+class: EmailListResponse
+fields:
+  emails: List<Email>
+  nextPageToken: String?
+  totalEstimate: int?

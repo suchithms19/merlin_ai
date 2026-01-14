@@ -1,0 +1,9 @@
+class: EmailAttachment
+table: email_attachment
+fields:
+  emailId: int
+  attachmentId: String
+  filename: String
+  mimeType: String
+  size: int
+  createdAt: DateTime?

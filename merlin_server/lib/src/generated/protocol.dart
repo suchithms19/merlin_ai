@@ -22,18 +22,32 @@ import 'calendar/create_event_request.dart' as _i7;
 import 'calendar/find_slots_request.dart' as _i8;
 import 'calendar/time_slot.dart' as _i9;
 import 'calendar/update_event_request.dart' as _i10;
-import 'google_oauth/google_oauth_token.dart' as _i11;
-import 'greetings/greeting.dart' as _i12;
-import 'user_profile/user_profile.dart' as _i13;
-import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i14;
+import 'email/email.dart' as _i11;
+import 'email/email_attachment.dart' as _i12;
+import 'email/email_list_response.dart' as _i13;
+import 'email/email_search_request.dart' as _i14;
+import 'email/forward_email_request.dart' as _i15;
+import 'email/reply_email_request.dart' as _i16;
+import 'email/send_email_request.dart' as _i17;
+import 'google_oauth/google_oauth_token.dart' as _i18;
+import 'greetings/greeting.dart' as _i19;
+import 'user_profile/user_profile.dart' as _i20;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i21;
 import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
-    as _i15;
+    as _i22;
 export 'calendar/calendar.dart';
 export 'calendar/calendar_event.dart';
 export 'calendar/create_event_request.dart';
 export 'calendar/find_slots_request.dart';
 export 'calendar/time_slot.dart';
 export 'calendar/update_event_request.dart';
+export 'email/email.dart';
+export 'email/email_attachment.dart';
+export 'email/email_list_response.dart';
+export 'email/email_search_request.dart';
+export 'email/forward_email_request.dart';
+export 'email/reply_email_request.dart';
+export 'email/send_email_request.dart';
 export 'google_oauth/google_oauth_token.dart';
 export 'greetings/greeting.dart';
 export 'user_profile/user_profile.dart';
@@ -243,6 +257,223 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'email',
+      dartName: 'Email',
+      schema: 'public',
+      module: 'merlin',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'email_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userProfileId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'googleMessageId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'googleThreadId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'subject',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'fromEmail',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'fromName',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'toEmails',
+          columnType: _i2.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<String>',
+        ),
+        _i2.ColumnDefinition(
+          name: 'ccEmails',
+          columnType: _i2.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'bccEmails',
+          columnType: _i2.ColumnType.json,
+          isNullable: true,
+          dartType: 'List<String>?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'snippet',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'bodyPlainText',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'bodyHtml',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'isRead',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _i2.ColumnDefinition(
+          name: 'isStarred',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _i2.ColumnDefinition(
+          name: 'hasAttachments',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+          columnDefault: 'false',
+        ),
+        _i2.ColumnDefinition(
+          name: 'labels',
+          columnType: _i2.ColumnType.json,
+          isNullable: false,
+          dartType: 'List<String>',
+        ),
+        _i2.ColumnDefinition(
+          name: 'receivedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'email_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'email_attachment',
+      dartName: 'EmailAttachment',
+      schema: 'public',
+      module: 'merlin',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'email_attachment_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'emailId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'attachmentId',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'filename',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'mimeType',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'size',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'email_attachment_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'google_oauth_token',
       dartName: 'GoogleOAuthToken',
       schema: 'public',
@@ -422,14 +653,35 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i10.UpdateEventRequest) {
       return _i10.UpdateEventRequest.fromJson(data) as T;
     }
-    if (t == _i11.GoogleOAuthToken) {
-      return _i11.GoogleOAuthToken.fromJson(data) as T;
+    if (t == _i11.Email) {
+      return _i11.Email.fromJson(data) as T;
     }
-    if (t == _i12.Greeting) {
-      return _i12.Greeting.fromJson(data) as T;
+    if (t == _i12.EmailAttachment) {
+      return _i12.EmailAttachment.fromJson(data) as T;
     }
-    if (t == _i13.UserProfile) {
-      return _i13.UserProfile.fromJson(data) as T;
+    if (t == _i13.EmailListResponse) {
+      return _i13.EmailListResponse.fromJson(data) as T;
+    }
+    if (t == _i14.EmailSearchRequest) {
+      return _i14.EmailSearchRequest.fromJson(data) as T;
+    }
+    if (t == _i15.ForwardEmailRequest) {
+      return _i15.ForwardEmailRequest.fromJson(data) as T;
+    }
+    if (t == _i16.ReplyEmailRequest) {
+      return _i16.ReplyEmailRequest.fromJson(data) as T;
+    }
+    if (t == _i17.SendEmailRequest) {
+      return _i17.SendEmailRequest.fromJson(data) as T;
+    }
+    if (t == _i18.GoogleOAuthToken) {
+      return _i18.GoogleOAuthToken.fromJson(data) as T;
+    }
+    if (t == _i19.Greeting) {
+      return _i19.Greeting.fromJson(data) as T;
+    }
+    if (t == _i20.UserProfile) {
+      return _i20.UserProfile.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.Calendar?>()) {
       return (data != null ? _i5.Calendar.fromJson(data) : null) as T;
@@ -450,14 +702,37 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data != null ? _i10.UpdateEventRequest.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i11.GoogleOAuthToken?>()) {
-      return (data != null ? _i11.GoogleOAuthToken.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.Email?>()) {
+      return (data != null ? _i11.Email.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.Greeting?>()) {
-      return (data != null ? _i12.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.EmailAttachment?>()) {
+      return (data != null ? _i12.EmailAttachment.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.UserProfile?>()) {
-      return (data != null ? _i13.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.EmailListResponse?>()) {
+      return (data != null ? _i13.EmailListResponse.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i14.EmailSearchRequest?>()) {
+      return (data != null ? _i14.EmailSearchRequest.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i15.ForwardEmailRequest?>()) {
+      return (data != null ? _i15.ForwardEmailRequest.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i16.ReplyEmailRequest?>()) {
+      return (data != null ? _i16.ReplyEmailRequest.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i17.SendEmailRequest?>()) {
+      return (data != null ? _i17.SendEmailRequest.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i18.GoogleOAuthToken?>()) {
+      return (data != null ? _i18.GoogleOAuthToken.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i19.Greeting?>()) {
+      return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i20.UserProfile?>()) {
+      return (data != null ? _i20.UserProfile.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
@@ -477,13 +752,17 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i14.Calendar>) {
-      return (data as List).map((e) => deserialize<_i14.Calendar>(e)).toList()
+    if (t == List<_i11.Email>) {
+      return (data as List).map((e) => deserialize<_i11.Email>(e)).toList()
           as T;
     }
-    if (t == List<_i15.CalendarEvent>) {
+    if (t == List<_i21.Calendar>) {
+      return (data as List).map((e) => deserialize<_i21.Calendar>(e)).toList()
+          as T;
+    }
+    if (t == List<_i22.CalendarEvent>) {
       return (data as List)
-              .map((e) => deserialize<_i15.CalendarEvent>(e))
+              .map((e) => deserialize<_i22.CalendarEvent>(e))
               .toList()
           as T;
     }
@@ -537,9 +816,16 @@ class Protocol extends _i1.SerializationManagerServer {
       _i8.FindSlotsRequest => 'FindSlotsRequest',
       _i9.TimeSlot => 'TimeSlot',
       _i10.UpdateEventRequest => 'UpdateEventRequest',
-      _i11.GoogleOAuthToken => 'GoogleOAuthToken',
-      _i12.Greeting => 'Greeting',
-      _i13.UserProfile => 'UserProfile',
+      _i11.Email => 'Email',
+      _i12.EmailAttachment => 'EmailAttachment',
+      _i13.EmailListResponse => 'EmailListResponse',
+      _i14.EmailSearchRequest => 'EmailSearchRequest',
+      _i15.ForwardEmailRequest => 'ForwardEmailRequest',
+      _i16.ReplyEmailRequest => 'ReplyEmailRequest',
+      _i17.SendEmailRequest => 'SendEmailRequest',
+      _i18.GoogleOAuthToken => 'GoogleOAuthToken',
+      _i19.Greeting => 'Greeting',
+      _i20.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -566,11 +852,25 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'TimeSlot';
       case _i10.UpdateEventRequest():
         return 'UpdateEventRequest';
-      case _i11.GoogleOAuthToken():
+      case _i11.Email():
+        return 'Email';
+      case _i12.EmailAttachment():
+        return 'EmailAttachment';
+      case _i13.EmailListResponse():
+        return 'EmailListResponse';
+      case _i14.EmailSearchRequest():
+        return 'EmailSearchRequest';
+      case _i15.ForwardEmailRequest():
+        return 'ForwardEmailRequest';
+      case _i16.ReplyEmailRequest():
+        return 'ReplyEmailRequest';
+      case _i17.SendEmailRequest():
+        return 'SendEmailRequest';
+      case _i18.GoogleOAuthToken():
         return 'GoogleOAuthToken';
-      case _i12.Greeting():
+      case _i19.Greeting():
         return 'Greeting';
-      case _i13.UserProfile():
+      case _i20.UserProfile():
         return 'UserProfile';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -612,14 +912,35 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'UpdateEventRequest') {
       return deserialize<_i10.UpdateEventRequest>(data['data']);
     }
+    if (dataClassName == 'Email') {
+      return deserialize<_i11.Email>(data['data']);
+    }
+    if (dataClassName == 'EmailAttachment') {
+      return deserialize<_i12.EmailAttachment>(data['data']);
+    }
+    if (dataClassName == 'EmailListResponse') {
+      return deserialize<_i13.EmailListResponse>(data['data']);
+    }
+    if (dataClassName == 'EmailSearchRequest') {
+      return deserialize<_i14.EmailSearchRequest>(data['data']);
+    }
+    if (dataClassName == 'ForwardEmailRequest') {
+      return deserialize<_i15.ForwardEmailRequest>(data['data']);
+    }
+    if (dataClassName == 'ReplyEmailRequest') {
+      return deserialize<_i16.ReplyEmailRequest>(data['data']);
+    }
+    if (dataClassName == 'SendEmailRequest') {
+      return deserialize<_i17.SendEmailRequest>(data['data']);
+    }
     if (dataClassName == 'GoogleOAuthToken') {
-      return deserialize<_i11.GoogleOAuthToken>(data['data']);
+      return deserialize<_i18.GoogleOAuthToken>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i12.Greeting>(data['data']);
+      return deserialize<_i19.Greeting>(data['data']);
     }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i13.UserProfile>(data['data']);
+      return deserialize<_i20.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -661,10 +982,14 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i5.Calendar.t;
       case _i6.CalendarEvent:
         return _i6.CalendarEvent.t;
-      case _i11.GoogleOAuthToken:
-        return _i11.GoogleOAuthToken.t;
-      case _i13.UserProfile:
-        return _i13.UserProfile.t;
+      case _i11.Email:
+        return _i11.Email.t;
+      case _i12.EmailAttachment:
+        return _i12.EmailAttachment.t;
+      case _i18.GoogleOAuthToken:
+        return _i18.GoogleOAuthToken.t;
+      case _i20.UserProfile:
+        return _i20.UserProfile.t;
     }
     return null;
   }

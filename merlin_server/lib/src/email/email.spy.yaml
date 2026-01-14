@@ -1,0 +1,22 @@
+class: Email
+table: email
+fields:
+  userProfileId: int
+  googleMessageId: String
+  googleThreadId: String
+  subject: String?
+  fromEmail: String
+  fromName: String?
+  toEmails: List<String>
+  ccEmails: List<String>?
+  bccEmails: List<String>?
+  snippet: String?
+  bodyPlainText: String?
+  bodyHtml: String?
+  isRead: bool, default=false
+  isStarred: bool, default=false
+  hasAttachments: bool, default=false
+  labels: List<String>
+  receivedAt: DateTime
+  createdAt: DateTime?
+  updatedAt: DateTime?

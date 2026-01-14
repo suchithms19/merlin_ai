@@ -1,0 +1,7 @@
+class: ForwardEmailRequest
+fields:
+  originalMessageId: String
+  to: List<String>
+  cc: List<String>?
+  bcc: List<String>?
+  additionalMessage: String?

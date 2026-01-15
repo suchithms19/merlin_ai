@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:merlin_client/merlin_client.dart';
 import 'chat_message_widget.dart';
 
+/// Chat history display widget with modern dark mode design
+/// Shows conversation history with empty state
 class ChatHistoryWidget extends StatefulWidget {
   final Client client;
   final ScrollController? scrollController;
@@ -23,7 +25,6 @@ class ChatHistoryWidget extends StatefulWidget {
 class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
   @override
   Widget build(BuildContext context) {
-    
     if (widget.messages.isEmpty && !widget.isLoading) {
       return _buildEmptyState(context);
     }
@@ -36,7 +37,7 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
         if (index == widget.messages.length && widget.isLoading) {
           return _buildLoadingIndicator(context);
         }
-        
+
         final message = widget.messages[index];
         return ChatMessageWidget(
           content: message.content,
@@ -51,29 +52,30 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
 
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Animated logo
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
+                color: theme.colorScheme.primaryContainer.withOpacity(0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.auto_awesome,
+                Icons.auto_awesome_rounded,
                 size: 40,
-                color: theme.colorScheme.onPrimaryContainer,
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Hello! I\'m Merlin',
+              "Hello! I'm Merlin",
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -82,56 +84,82 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
             Text(
               'Your AI personal assistant',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
-            const SizedBox(height: 32),
-            Text(
-              'I can help you with:',
-              style: theme.textTheme.titleMedium,
+            const SizedBox(height: 40),
+            
+            // Feature list
+            _buildFeatureItem(
+              context,
+              Icons.calendar_today_rounded,
+              'Manage your calendar',
             ),
-            const SizedBox(height: 16),
-            _buildFeatureChip(context, Icons.calendar_today, 'Manage your calendar'),
-            const SizedBox(height: 8),
-            _buildFeatureChip(context, Icons.email, 'Read and send emails'),
-            const SizedBox(height: 8),
-            _buildFeatureChip(context, Icons.schedule, 'Schedule meetings'),
-            const SizedBox(height: 8),
-            _buildFeatureChip(context, Icons.summarize, 'Summarize your day'),
-            const SizedBox(height: 32),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              context,
+              Icons.email_rounded,
+              'Read and send emails',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              context,
+              Icons.schedule_rounded,
+              'Schedule meetings',
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              context,
+              Icons.summarize_rounded,
+              'Summarize your day',
+            ),
+            
+            const SizedBox(height: 40),
+            
+            // Suggestions
             Text(
               'Try asking:',
               style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             _buildSuggestionChip(context, '"What\'s on my schedule today?"'),
             const SizedBox(height: 8),
             _buildSuggestionChip(context, '"Summarize my unread emails"'),
             const SizedBox(height: 8),
-            _buildSuggestionChip(context, '"Schedule a meeting tomorrow at 2pm"'),
+            _buildSuggestionChip(context, '"Schedule a meeting tomorrow"'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureChip(BuildContext context, IconData icon, String text) {
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
     final theme = Theme.of(context);
-    
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: theme.colorScheme.primary),
+          Icon(
+            icon,
+            size: 20,
+            color: theme.colorScheme.primary,
+          ),
           const SizedBox(width: 12),
-          Text(text, style: theme.textTheme.bodyMedium),
+          Text(
+            text,
+            style: theme.textTheme.bodyMedium,
+          ),
         ],
       ),
     );
@@ -139,19 +167,19 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
 
   Widget _buildSuggestionChip(BuildContext context, String text) {
     final theme = Theme.of(context);
-    
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.3),
+          color: theme.colorScheme.outline.withOpacity(0.2),
         ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.7),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
           fontStyle: FontStyle.italic,
         ),
       ),
@@ -160,45 +188,45 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
 
   Widget _buildLoadingIndicator(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: theme.colorScheme.tertiaryContainer,
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              Icons.auto_awesome,
-              size: 20,
+              Icons.auto_awesome_rounded,
+              size: 18,
               color: theme.colorScheme.onTertiaryContainer,
             ),
           ),
           const SizedBox(width: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
+              color: theme.colorScheme.surfaceContainerHigh,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(18),
+                topRight: Radius.circular(18),
                 bottomLeft: Radius.circular(4),
-                bottomRight: Radius.circular(20),
+                bottomRight: Radius.circular(18),
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildTypingDot(0),
+                _buildTypingDot(context, 0),
                 const SizedBox(width: 4),
-                _buildTypingDot(1),
+                _buildTypingDot(context, 1),
                 const SizedBox(width: 4),
-                _buildTypingDot(2),
+                _buildTypingDot(context, 2),
               ],
             ),
           ),
@@ -207,7 +235,9 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
     );
   }
 
-  Widget _buildTypingDot(int index) {
+  Widget _buildTypingDot(BuildContext context, int index) {
+    final theme = Theme.of(context);
+    
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: Duration(milliseconds: 600 + (index * 200)),
@@ -216,10 +246,8 @@ class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withOpacity(0.3 + (0.3 * (1 - (value - value.floor())))),
+            color: theme.colorScheme.primary
+                .withOpacity(0.3 + (0.4 * (1 - (value - value.floor())))),
             shape: BoxShape.circle,
           ),
         );

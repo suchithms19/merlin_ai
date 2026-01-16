@@ -7,9 +7,8 @@ class HtmlWidget extends WebWidget {
 
   HtmlWidget(this.html);
 
-  Future<String> render(Session session, Request request) async {
-    return html;
-  }
+  @override
+  String toString() => html;
 }
 
 /// Route handler for Google OAuth callback.

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../main.dart';
 import 'calendar_day_view.dart';
-import 'chat_screen.dart';
+import 'full_chat_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const CalendarDayViewScreen(),
-    ChatScreen(client: client),
+    const FullChatScreen(),
   ];
 
   @override

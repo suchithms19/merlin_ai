@@ -7,8 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/calendar_day_view.dart';
 import '../widgets/event_detail_dialog.dart';
-import '../widgets/ai_input_field.dart';
-import '../widgets/chat_history_widget.dart';
+import 'full_chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,11 +25,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<CalendarEvent> _events = [];
   String? _selectedCalendarId;
 
-  // Chat state
-  final ScrollController _chatScrollController = ScrollController();
-  final List<ChatMessageData> _messages = [];
-  bool _isChatLoading = false;
-
   // UI state
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -38,12 +32,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadCalendars();
-    _loadChatHistory();
   }
 
   @override
   void dispose() {
-    _chatScrollController.dispose();
     super.dispose();
   }
 
@@ -132,81 +124,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _loadEvents();
   }
 
-  Future<void> _loadChatHistory() async {
-    try {
-      final history = await client.aiChat.getChatHistory(limit: 50);
-      setState(() {
-        _messages.clear();
-        _messages.addAll(history.map((msg) => ChatMessageData(
-          content: msg.content,
-          role: msg.role,
-          timestamp: msg.createdAt,
-        )));
-      });
-      _scrollChatToBottom();
-    } catch (e) {
-    }
-  }
-
-  Future<void> _sendMessage(String message) async {
-    if (message.trim().isEmpty) return;
-
-    setState(() {
-      _messages.add(ChatMessageData(
-        content: message,
-        role: 'user',
-        timestamp: DateTime.now(),
-      ));
-      _isChatLoading = true;
-    });
-    _scrollChatToBottom();
-
-    try {
-      final response = await client.aiChat.chat(
-        message,
-        includeCalendarContext: true,
-        includeEmailContext: true,
-      );
-
-      setState(() {
-        _messages.add(ChatMessageData(
-          content: response.message,
-          role: 'model',
-          timestamp: DateTime.now(),
-          functionsExecuted: response.functionsCalled,
-          isError: response.error != null,
-        ));
-        _isChatLoading = false;
-      });
-      _scrollChatToBottom();
-      
-      if (response.functionsCalled?.any((f) => f.contains('Calendar') || f.contains('Event')) ?? false) {
-        _loadEvents();
-      }
-    } catch (e) {
-      setState(() {
-        _messages.add(ChatMessageData(
-          content: 'Sorry, I encountered an error: $e',
-          role: 'model',
-          timestamp: DateTime.now(),
-          isError: true,
-        ));
-        _isChatLoading = false;
-      });
-      _scrollChatToBottom();
-    }
-  }
-
-  void _scrollChatToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_chatScrollController.hasClients) {
-        _chatScrollController.animateTo(
-          _chatScrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+  void _openChatScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullChatScreen(
+          onMessagesChanged: (messages) {
+            if (messages.isNotEmpty) {
+              final lastMsg = messages.last;
+              if (lastMsg.functionsExecuted?.any((f) => 
+                  f.contains('Calendar') || f.contains('Event')) ?? false) {
+                _loadEvents();
+              }
+            }
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -500,142 +434,105 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildMobileAIInput(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return GestureDetector(
-      onTap: () => _showChatBottomSheet(context),
-      child: AbsorbPointer(
-        child: AIInputField(
-          onSend: _sendMessage,
-          isLoading: _isChatLoading,
-          hintText: 'Ask Merlin',
+      onTap: _openChatScreen,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Ask Merlin...',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: theme.colorScheme.onSurface.withOpacity(0.3),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _showChatBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      isDismissible: true,
-      enableDrag: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.75,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        snap: true,
-        snapSizes: const [0.5, 0.75, 0.95],
-        builder: (context, scrollController) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Chat with Merlin',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (_messages.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20),
-                          onPressed: () => _clearChat(),
-                          tooltip: 'Clear chat',
-                        ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                Expanded(
-                  child: ChatHistoryWidget(
-                    client: client,
-                    messages: _messages,
-                    scrollController: scrollController,
-                    isLoading: _isChatLoading,
-                  ),
-                ),
-                AIInputField(
-                  onSend: (message) {
-                    _sendMessage(message);
-                    FocusScope.of(context).unfocus();
-                  },
-                  isLoading: _isChatLoading,
-                  hintText: 'Ask Merlin',
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> _clearChat() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Chat'),
-        content: const Text('Are you sure you want to clear all chat history?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      try {
-        await client.aiChat.clearChatHistory();
-        setState(() {
-          _messages.clear();
-        });
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to clear chat: $e')),
-          );
-        }
-      }
-    }
-  }
-
   Widget _buildDesktopAIInput(BuildContext context) {
-    return AIInputField(
-      onSend: _sendMessage,
-      isLoading: _isChatLoading,
-      hintText: 'Ask Merlin',
-      onFocus: () => _showChatBottomSheet(context),
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTap: _openChatScreen,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Ask Merlin...',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: theme.colorScheme.onSurface.withOpacity(0.3),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

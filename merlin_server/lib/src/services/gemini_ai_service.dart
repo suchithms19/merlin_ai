@@ -504,7 +504,11 @@ Today's date and time will be provided in the context. Use it to understand rela
     Map<String, Object?> args,
   ) async {
     final startDate = DateTime.parse(args['startDate'] as String);
-    final endDate = DateTime.parse(args['endDate'] as String);
+    var endDate = DateTime.parse(args['endDate'] as String);
+    
+    if (endDate.hour == 0 && endDate.minute == 0 && endDate.second == 0) {
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    }
     
     final calendarService = GoogleCalendarService(session);
     final calendars = await calendarService.getCalendars(userProfileId);
@@ -513,11 +517,22 @@ Today's date and time will be provided in the context. Use it to understand rela
       return {'events': [], 'message': 'No calendars found'};
     }
     
+    // Use primary calendar
+    final primaryCalendar = calendars.firstWhere(
+      (cal) => cal.isPrimary,
+      orElse: () => calendars.first,
+    );
+    
     final events = await calendarService.getCalendarEvents(
       userProfileId: userProfileId,
-      calendarId: calendars.first.googleCalendarId,
+      calendarId: primaryCalendar.googleCalendarId,
       startTime: startDate,
       endTime: endDate,
+    );
+    
+    session.log(
+      'Retrieved ${events.length} events from ${startDate.toIso8601String()} to ${endDate.toIso8601String()}',
+      level: LogLevel.info,
     );
     
     return {

@@ -179,10 +179,37 @@ class GoogleCalendarService {
     required String calendarId,
     required gcal.Event event,
   }) {
-    final startDateTime =
-        event.start?.dateTime ?? event.start?.date?.toUtc() ?? DateTime.now();
-    final endDateTime =
-        event.end?.dateTime ?? event.end?.date?.toUtc() ?? startDateTime;
+
+    DateTime startDateTime;
+    DateTime endDateTime;
+    
+    if (event.start?.dateTime != null) {
+      // Convert UTC to local time
+      startDateTime = event.start!.dateTime!.toLocal();
+    } else if (event.start?.date != null) {
+      // All-day event - use local midnight
+      startDateTime = DateTime(
+        event.start!.date!.year,
+        event.start!.date!.month,
+        event.start!.date!.day,
+      );
+    } else {
+      startDateTime = DateTime.now();
+    }
+    
+    if (event.end?.dateTime != null) {
+      // Convert UTC to local time
+      endDateTime = event.end!.dateTime!.toLocal();
+    } else if (event.end?.date != null) {
+      // All-day event - use local midnight
+      endDateTime = DateTime(
+        event.end!.date!.year,
+        event.end!.date!.month,
+        event.end!.date!.day,
+      );
+    } else {
+      endDateTime = startDateTime;
+    }
 
     final attendees = (event.attendees ?? [])
         .map((a) => a.email)
@@ -306,7 +333,6 @@ class GoogleCalendarService {
     try {
       final api = await _getCalendarApi(userProfileId);
       
-      // Build the event
       final event = gcal.Event()
         ..summary = title
         ..description = description

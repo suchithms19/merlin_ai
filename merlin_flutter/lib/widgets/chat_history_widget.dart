@@ -4,7 +4,7 @@ import 'chat_message_widget.dart';
 
 /// Chat history display widget with modern dark mode design
 /// Shows conversation history with empty state
-class ChatHistoryWidget extends StatefulWidget {
+class ChatHistoryWidget extends StatelessWidget {
   final Client client;
   final ScrollController? scrollController;
   final List<ChatMessageData> messages;
@@ -19,34 +19,30 @@ class ChatHistoryWidget extends StatefulWidget {
   });
 
   @override
-  State<ChatHistoryWidget> createState() => _ChatHistoryWidgetState();
-}
-
-class _ChatHistoryWidgetState extends State<ChatHistoryWidget> {
-  @override
   Widget build(BuildContext context) {
-    if (widget.messages.isEmpty && !widget.isLoading) {
+    if (messages.isEmpty && !isLoading) {
       return _buildEmptyState(context);
     }
 
-    return ListView.builder(
-      controller: widget.scrollController,
+    return ListView(
+      key: PageStorageKey('chat_messages_${messages.length}'),
+      controller: scrollController,
       padding: const EdgeInsets.only(top: 16, bottom: 100),
-      itemCount: widget.messages.length + (widget.isLoading ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == widget.messages.length && widget.isLoading) {
-          return _buildLoadingIndicator(context);
-        }
-
-        final message = widget.messages[index];
-        return ChatMessageWidget(
-          content: message.content,
-          role: message.role == 'user' ? MessageRole.user : MessageRole.assistant,
-          timestamp: message.timestamp,
-          functionsExecuted: message.functionsExecuted,
-          isError: message.isError,
-        );
-      },
+      children: [
+        ...messages.asMap().entries.map((entry) {
+          final index = entry.key;
+          final message = entry.value;
+          return ChatMessageWidget(
+            key: ValueKey('msg_${message.timestamp?.millisecondsSinceEpoch}_$index'),
+            content: message.content,
+            role: message.role == 'user' ? MessageRole.user : MessageRole.assistant,
+            timestamp: message.timestamp,
+            functionsExecuted: message.functionsExecuted,
+            isError: message.isError,
+          );
+        }),
+        if (isLoading) _buildLoadingIndicator(context),
+      ],
     );
   }
 

@@ -20,7 +20,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessageData> _messages = [];
   bool _isLoading = false;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -63,7 +62,6 @@ class _ChatScreenState extends State<ChatScreen> {
         timestamp: DateTime.now(),
       ));
       _isLoading = true;
-      _errorMessage = null;
     });
     
     _scrollToBottom();
@@ -78,6 +76,10 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       
       setState(() {
+        _isLoading = false;
+      });
+      
+      setState(() {
         _messages.add(ChatMessageData(
           content: response.message,
           role: 'model',
@@ -85,14 +87,15 @@ class _ChatScreenState extends State<ChatScreen> {
           functionsExecuted: response.functionsCalled,
           isError: response.error != null,
         ));
-        _isLoading = false;
       });
       
-      // Force a frame to be scheduled
-      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;
+      
+      setState(() {
+        _isLoading = false;
+      });
       
       setState(() {
         _messages.add(ChatMessageData(
@@ -101,11 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
           timestamp: DateTime.now(),
           isError: true,
         ));
-        _isLoading = false;
-        _errorMessage = e.toString();
       });
       
-      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     }
   }
@@ -210,8 +210,9 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: ChatHistoryWidget(
+              key: ValueKey('chat_${_messages.length}_${_isLoading}'),
               client: widget.client,
-              messages: _messages,
+              messages: List.from(_messages), // Create new list to force rebuild
               scrollController: _scrollController,
               isLoading: _isLoading,
             ),
@@ -256,6 +257,10 @@ class _ChatScreenState extends State<ChatScreen> {
       if (!mounted) return;
       
       setState(() {
+        _isLoading = false;
+      });
+      
+      setState(() {
         _messages.add(ChatMessageData(
           content: userMessage,
           role: 'user',
@@ -267,10 +272,8 @@ class _ChatScreenState extends State<ChatScreen> {
           timestamp: DateTime.now(),
           functionsExecuted: response.functionsCalled,
         ));
-        _isLoading = false;
       });
       
-      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;

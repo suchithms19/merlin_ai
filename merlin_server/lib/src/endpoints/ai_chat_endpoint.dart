@@ -16,13 +16,13 @@ class AiChatEndpoint extends Endpoint {
   }) async {
     final userProfileId = await _requireUserProfileId(session);
     final aiService = GeminiAIService(session);
-    
+
     // Get conversation history
     final history = await aiService.getConversationHistory(
       userProfileId,
       limit: 10,
     );
-    
+
     return aiService.chat(
       userProfileId: userProfileId,
       message: message,

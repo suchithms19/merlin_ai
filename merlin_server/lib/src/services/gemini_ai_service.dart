@@ -13,7 +13,7 @@ class GeminiAIService {
 
   final Session session;
   GenerativeModel? _model;
-  
+
   static const String _systemPrompt = '''
 You are Merlin, an intelligent AI personal assistant that helps users manage their calendar and emails. You have access to the user's Google Calendar and Gmail.
 
@@ -41,12 +41,14 @@ Today's date and time will be provided in the context. Use it to understand rela
 
   Future<GenerativeModel> _getModel() async {
     if (_model != null) return _model!;
-    
+
     final apiKey = session.passwords['geminiApiKey'] ?? '';
     if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY_HERE') {
-      throw Exception('Gemini API key not configured. Please set geminiApiKey in passwords.yaml');
+      throw Exception(
+        'Gemini API key not configured. Please set geminiApiKey in passwords.yaml',
+      );
     }
-    
+
     _model = GenerativeModel(
       model: 'gemini-2.5-flash',
       apiKey: apiKey,
@@ -59,7 +61,7 @@ Today's date and time will be provided in the context. Use it to understand rela
       ],
       systemInstruction: Content.system(_systemPrompt),
     );
-    
+
     return _model!;
   }
 
@@ -71,8 +73,12 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Get calendar events for a specific date range',
         Schema.object(
           properties: {
-            'startDate': Schema.string(description: 'Start date in ISO 8601 format (YYYY-MM-DD)'),
-            'endDate': Schema.string(description: 'End date in ISO 8601 format (YYYY-MM-DD)'),
+            'startDate': Schema.string(
+              description: 'Start date in ISO 8601 format (YYYY-MM-DD)',
+            ),
+            'endDate': Schema.string(
+              description: 'End date in ISO 8601 format (YYYY-MM-DD)',
+            ),
           },
           requiredProperties: ['startDate', 'endDate'],
         ),
@@ -83,11 +89,18 @@ Today's date and time will be provided in the context. Use it to understand rela
         Schema.object(
           properties: {
             'title': Schema.string(description: 'Event title'),
-            'startTime': Schema.string(description: 'Start time in ISO 8601 format'),
-            'endTime': Schema.string(description: 'End time in ISO 8601 format'),
+            'startTime': Schema.string(
+              description: 'Start time in ISO 8601 format',
+            ),
+            'endTime': Schema.string(
+              description: 'End time in ISO 8601 format',
+            ),
             'description': Schema.string(description: 'Event description'),
             'location': Schema.string(description: 'Event location'),
-            'attendees': Schema.array(items: Schema.string(), description: 'List of attendee email addresses'),
+            'attendees': Schema.array(
+              items: Schema.string(),
+              description: 'List of attendee email addresses',
+            ),
           },
           requiredProperties: ['title', 'startTime', 'endTime'],
         ),
@@ -97,10 +110,16 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Update an existing calendar event',
         Schema.object(
           properties: {
-            'eventId': Schema.string(description: 'The Google event ID to update'),
+            'eventId': Schema.string(
+              description: 'The Google event ID to update',
+            ),
             'title': Schema.string(description: 'New event title'),
-            'startTime': Schema.string(description: 'New start time in ISO 8601 format'),
-            'endTime': Schema.string(description: 'New end time in ISO 8601 format'),
+            'startTime': Schema.string(
+              description: 'New start time in ISO 8601 format',
+            ),
+            'endTime': Schema.string(
+              description: 'New end time in ISO 8601 format',
+            ),
             'description': Schema.string(description: 'New event description'),
             'location': Schema.string(description: 'New event location'),
           },
@@ -112,7 +131,9 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Delete a calendar event',
         Schema.object(
           properties: {
-            'eventId': Schema.string(description: 'The Google event ID to delete'),
+            'eventId': Schema.string(
+              description: 'The Google event ID to delete',
+            ),
           },
           requiredProperties: ['eventId'],
         ),
@@ -122,24 +143,39 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Find available time slots for scheduling a meeting',
         Schema.object(
           properties: {
-            'durationMinutes': Schema.integer(description: 'Duration of the meeting in minutes'),
-            'startDate': Schema.string(description: 'Start date to search from (ISO 8601)'),
-            'endDate': Schema.string(description: 'End date to search until (ISO 8601)'),
-            'workingHoursStart': Schema.integer(description: 'Working hours start (0-23), default 9'),
-            'workingHoursEnd': Schema.integer(description: 'Working hours end (0-23), default 17'),
+            'durationMinutes': Schema.integer(
+              description: 'Duration of the meeting in minutes',
+            ),
+            'startDate': Schema.string(
+              description: 'Start date to search from (ISO 8601)',
+            ),
+            'endDate': Schema.string(
+              description: 'End date to search until (ISO 8601)',
+            ),
+            'workingHoursStart': Schema.integer(
+              description: 'Working hours start (0-23), default 9',
+            ),
+            'workingHoursEnd': Schema.integer(
+              description: 'Working hours end (0-23), default 17',
+            ),
           },
           requiredProperties: ['durationMinutes', 'startDate', 'endDate'],
         ),
       ),
-      
+
       // Email Functions
       FunctionDeclaration(
         'getEmails',
         'Get recent emails from inbox',
         Schema.object(
           properties: {
-            'maxResults': Schema.integer(description: 'Maximum number of emails to return'),
-            'query': Schema.string(description: 'Gmail search query (e.g., "from:john@example.com", "is:unread")'),
+            'maxResults': Schema.integer(
+              description: 'Maximum number of emails to return',
+            ),
+            'query': Schema.string(
+              description:
+                  'Gmail search query (e.g., "from:john@example.com", "is:unread")',
+            ),
           },
         ),
       ),
@@ -148,8 +184,12 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Search for emails using Gmail search syntax',
         Schema.object(
           properties: {
-            'query': Schema.string(description: 'Search query using Gmail syntax'),
-            'maxResults': Schema.integer(description: 'Maximum results to return'),
+            'query': Schema.string(
+              description: 'Search query using Gmail syntax',
+            ),
+            'maxResults': Schema.integer(
+              description: 'Maximum results to return',
+            ),
           },
           requiredProperties: ['query'],
         ),
@@ -159,10 +199,16 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Send a new email',
         Schema.object(
           properties: {
-            'to': Schema.array(items: Schema.string(), description: 'Recipient email addresses'),
+            'to': Schema.array(
+              items: Schema.string(),
+              description: 'Recipient email addresses',
+            ),
             'subject': Schema.string(description: 'Email subject'),
             'body': Schema.string(description: 'Email body content'),
-            'cc': Schema.array(items: Schema.string(), description: 'CC recipients'),
+            'cc': Schema.array(
+              items: Schema.string(),
+              description: 'CC recipients',
+            ),
           },
           requiredProperties: ['to', 'subject', 'body'],
         ),
@@ -172,9 +218,13 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Reply to an existing email',
         Schema.object(
           properties: {
-            'messageId': Schema.string(description: 'The Gmail message ID to reply to'),
+            'messageId': Schema.string(
+              description: 'The Gmail message ID to reply to',
+            ),
             'body': Schema.string(description: 'Reply body content'),
-            'replyAll': Schema.boolean(description: 'Whether to reply to all recipients'),
+            'replyAll': Schema.boolean(
+              description: 'Whether to reply to all recipients',
+            ),
           },
           requiredProperties: ['messageId', 'body'],
         ),
@@ -184,9 +234,16 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Forward an email to new recipients',
         Schema.object(
           properties: {
-            'messageId': Schema.string(description: 'The Gmail message ID to forward'),
-            'to': Schema.array(items: Schema.string(), description: 'Recipients to forward to'),
-            'additionalMessage': Schema.string(description: 'Additional message to include'),
+            'messageId': Schema.string(
+              description: 'The Gmail message ID to forward',
+            ),
+            'to': Schema.array(
+              items: Schema.string(),
+              description: 'Recipients to forward to',
+            ),
+            'additionalMessage': Schema.string(
+              description: 'Additional message to include',
+            ),
           },
           requiredProperties: ['messageId', 'to'],
         ),
@@ -196,7 +253,9 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Archive an email (remove from inbox)',
         Schema.object(
           properties: {
-            'messageId': Schema.string(description: 'The Gmail message ID to archive'),
+            'messageId': Schema.string(
+              description: 'The Gmail message ID to archive',
+            ),
           },
           requiredProperties: ['messageId'],
         ),
@@ -206,7 +265,9 @@ Today's date and time will be provided in the context. Use it to understand rela
         'Delete an email (move to trash)',
         Schema.object(
           properties: {
-            'messageId': Schema.string(description: 'The Gmail message ID to delete'),
+            'messageId': Schema.string(
+              description: 'The Gmail message ID to delete',
+            ),
           },
           requiredProperties: ['messageId'],
         ),
@@ -217,7 +278,9 @@ Today's date and time will be provided in the context. Use it to understand rela
         Schema.object(
           properties: {
             'messageId': Schema.string(description: 'The Gmail message ID'),
-            'isRead': Schema.boolean(description: 'true to mark as read, false for unread'),
+            'isRead': Schema.boolean(
+              description: 'true to mark as read, false for unread',
+            ),
           },
           requiredProperties: ['messageId', 'isRead'],
         ),
@@ -235,34 +298,40 @@ Today's date and time will be provided in the context. Use it to understand rela
   }) async {
     try {
       final model = await _getModel();
-      
+
       // Build context
       final contextParts = <String>[];
-      contextParts.add('Current date and time: ${DateTime.now().toIso8601String()}');
-      
+      contextParts.add(
+        'Current date and time: ${DateTime.now().toIso8601String()}',
+      );
+
       if (includeCalendarContext) {
         final calendarContext = await _getCalendarContext(userProfileId);
         if (calendarContext.isNotEmpty) {
           contextParts.add('Today\'s calendar events:\n$calendarContext');
         }
       }
-      
+
       if (includeEmailContext) {
         final emailContext = await _getEmailContext(userProfileId);
         if (emailContext.isNotEmpty) {
           contextParts.add('Recent unread emails:\n$emailContext');
         }
       }
-      
+
       // Build conversation
       final contents = <Content>[];
-      
+
       // Add context as first user message
       if (contextParts.isNotEmpty) {
         contents.add(Content.text('[Context]\n${contextParts.join("\n\n")}'));
-        contents.add(Content.model([TextPart('I understand the context. How can I help you today?')]));
+        contents.add(
+          Content.model([
+            TextPart('I understand the context. How can I help you today?'),
+          ]),
+        );
       }
-      
+
       // Add conversation history
       if (conversationHistory != null) {
         for (final msg in conversationHistory) {
@@ -273,32 +342,34 @@ Today's date and time will be provided in the context. Use it to understand rela
           }
         }
       }
-      
+
       // Add current message
       contents.add(Content.text(message));
-      
+
       // Start chat
-      final chat = model.startChat(history: contents.take(contents.length - 1).toList());
-      
+      final chat = model.startChat(
+        history: contents.take(contents.length - 1).toList(),
+      );
+
       // Send message and handle function calls
       var response = await chat.sendMessage(Content.text(message));
-      
+
       final functionsCalled = <String>[];
       final calendarEventsAffected = <String>[];
       final emailsAffected = <String>[];
-      
+
       // Handle function calls in a loop
       while (response.functionCalls.isNotEmpty) {
         final functionResponses = <FunctionResponse>[];
-        
+
         for (final call in response.functionCalls) {
           session.log(
             'AI calling function: ${call.name} with args: ${call.args}',
             level: LogLevel.info,
           );
-          
+
           functionsCalled.add(call.name);
-          
+
           final result = await _executeFunction(
             userProfileId: userProfileId,
             functionName: call.name,
@@ -306,27 +377,30 @@ Today's date and time will be provided in the context. Use it to understand rela
             calendarEventsAffected: calendarEventsAffected,
             emailsAffected: emailsAffected,
           );
-          
+
           functionResponses.add(FunctionResponse(call.name, result));
         }
-        
+
         // Send function responses back to model
         response = await chat.sendMessage(
           Content.functionResponses(functionResponses),
         );
       }
-      
+
       // Get final text response
-      final responseText = response.text ?? 'I apologize, but I couldn\'t generate a response.';
-      
+      final responseText =
+          response.text ?? 'I apologize, but I couldn\'t generate a response.';
+
       // Save messages to history
       await _saveMessage(userProfileId, 'user', message);
       await _saveMessage(userProfileId, 'model', responseText);
-      
+
       return ChatResponse(
         message: responseText,
         functionsCalled: functionsCalled.isNotEmpty ? functionsCalled : null,
-        calendarEventsAffected: calendarEventsAffected.isNotEmpty ? calendarEventsAffected : null,
+        calendarEventsAffected: calendarEventsAffected.isNotEmpty
+            ? calendarEventsAffected
+            : null,
         emailsAffected: emailsAffected.isNotEmpty ? emailsAffected : null,
       );
     } catch (e, stackTrace) {
@@ -335,9 +409,10 @@ Today's date and time will be provided in the context. Use it to understand rela
         level: LogLevel.error,
         stackTrace: stackTrace,
       );
-      
+
       return ChatResponse(
-        message: 'I apologize, but I encountered an error processing your request. Please try again.',
+        message:
+            'I apologize, but I encountered an error processing your request. Please try again.',
         error: e.toString(),
       );
     }
@@ -347,25 +422,28 @@ Today's date and time will be provided in the context. Use it to understand rela
     try {
       final calendarService = GoogleCalendarService(session);
       final calendars = await calendarService.getCalendars(userProfileId);
-      
+
       if (calendars.isEmpty) return '';
-      
+
       final now = DateTime.now();
       final startOfDay = DateTime(now.year, now.month, now.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
-      
+
       final events = await calendarService.getCalendarEvents(
         userProfileId: userProfileId,
         calendarId: calendars.first.googleCalendarId,
         startTime: startOfDay,
         endTime: endOfDay,
       );
-      
+
       if (events.isEmpty) return 'No events scheduled for today.';
-      
-      return events.map((e) => 
-        '- ${e.title} at ${_formatTime(e.startTime)} - ${_formatTime(e.endTime)}${e.location != null ? " (${e.location})" : ""}'
-      ).join('\n');
+
+      return events
+          .map(
+            (e) =>
+                '- ${e.title} at ${_formatTime(e.startTime)} - ${_formatTime(e.endTime)}${e.location != null ? " (${e.location})" : ""}',
+          )
+          .join('\n');
     } catch (e) {
       return '';
     }
@@ -379,12 +457,15 @@ Today's date and time will be provided in the context. Use it to understand rela
         maxResults: 5,
         query: 'is:unread',
       );
-      
+
       if (result.emails.isEmpty) return 'No unread emails.';
-      
-      return result.emails.map((e) => 
-        '- From: ${e.fromName ?? e.fromEmail} | Subject: ${e.subject ?? "(no subject)"} | ${_formatRelativeTime(e.receivedAt)}'
-      ).join('\n');
+
+      return result.emails
+          .map(
+            (e) =>
+                '- From: ${e.fromName ?? e.fromEmail} | Subject: ${e.subject ?? "(no subject)"} | ${_formatRelativeTime(e.receivedAt)}',
+          )
+          .join('\n');
     } catch (e) {
       return '';
     }
@@ -415,85 +496,88 @@ Today's date and time will be provided in the context. Use it to understand rela
         // Calendar functions
         case 'getCalendarEvents':
           return await _handleGetCalendarEvents(userProfileId, args);
-          
+
         case 'createCalendarEvent':
           final result = await _handleCreateCalendarEvent(userProfileId, args);
           if (result['eventId'] != null) {
             calendarEventsAffected.add(result['eventId'] as String);
           }
           return result;
-          
+
         case 'updateCalendarEvent':
           final result = await _handleUpdateCalendarEvent(userProfileId, args);
           if (args['eventId'] != null) {
             calendarEventsAffected.add(args['eventId'] as String);
           }
           return result;
-          
+
         case 'deleteCalendarEvent':
           await _handleDeleteCalendarEvent(userProfileId, args);
           if (args['eventId'] != null) {
             calendarEventsAffected.add(args['eventId'] as String);
           }
           return {'success': true};
-          
+
         case 'findAvailableTimeSlots':
           return await _handleFindAvailableSlots(userProfileId, args);
-          
+
         // Email functions
         case 'getEmails':
           return await _handleGetEmails(userProfileId, args);
-          
+
         case 'searchEmails':
           return await _handleSearchEmails(userProfileId, args);
-          
+
         case 'sendEmail':
           final result = await _handleSendEmail(userProfileId, args);
           if (result['messageId'] != null) {
             emailsAffected.add(result['messageId'] as String);
           }
           return result;
-          
+
         case 'replyToEmail':
           final result = await _handleReplyToEmail(userProfileId, args);
           if (result['messageId'] != null) {
             emailsAffected.add(result['messageId'] as String);
           }
           return result;
-          
+
         case 'forwardEmail':
           final result = await _handleForwardEmail(userProfileId, args);
           if (result['messageId'] != null) {
             emailsAffected.add(result['messageId'] as String);
           }
           return result;
-          
+
         case 'archiveEmail':
           await _handleArchiveEmail(userProfileId, args);
           if (args['messageId'] != null) {
             emailsAffected.add(args['messageId'] as String);
           }
           return {'success': true};
-          
+
         case 'deleteEmail':
           await _handleDeleteEmail(userProfileId, args);
           if (args['messageId'] != null) {
             emailsAffected.add(args['messageId'] as String);
           }
           return {'success': true};
-          
+
         case 'markEmailAsRead':
           await _handleMarkEmailAsRead(userProfileId, args);
           if (args['messageId'] != null) {
             emailsAffected.add(args['messageId'] as String);
           }
           return {'success': true};
-          
+
         default:
           return {'error': 'Unknown function: $functionName'};
       }
     } catch (e) {
-      session.log('Error executing function $functionName: $e', level: LogLevel.error);
+      session.log(
+        'Error executing function $functionName: $e',
+        level: LogLevel.error,
+      );
       return {'error': e.toString()};
     }
   }
@@ -505,36 +589,36 @@ Today's date and time will be provided in the context. Use it to understand rela
   ) async {
     final startDate = DateTime.parse(args['startDate'] as String);
     var endDate = DateTime.parse(args['endDate'] as String);
-    
+
     if (endDate.hour == 0 && endDate.minute == 0 && endDate.second == 0) {
       endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
     }
-    
+
     final calendarService = GoogleCalendarService(session);
     final calendars = await calendarService.getCalendars(userProfileId);
-    
+
     if (calendars.isEmpty) {
       return {'events': [], 'message': 'No calendars found'};
     }
-    
+
     // Use primary calendar
     final primaryCalendar = calendars.firstWhere(
       (cal) => cal.isPrimary,
       orElse: () => calendars.first,
     );
-    
+
     final events = await calendarService.getCalendarEvents(
       userProfileId: userProfileId,
       calendarId: primaryCalendar.googleCalendarId,
       startTime: startDate,
       endTime: endDate,
     );
-    
+
     session.log(
       'Retrieved ${events.length} events from ${startDate.toIso8601String()} to ${endDate.toIso8601String()}',
       level: LogLevel.info,
     );
-    
+
     return {
       'events': events.map((e) => _eventToMap(e)).toList(),
       'count': events.length,
@@ -548,21 +632,24 @@ Today's date and time will be provided in the context. Use it to understand rela
     try {
       final calendarService = GoogleCalendarService(session);
       final calendars = await calendarService.getCalendars(userProfileId);
-      
+
       if (calendars.isEmpty) {
-        return {'error': 'No calendars found. Please connect your Google Calendar first.'};
+        return {
+          'error':
+              'No calendars found. Please connect your Google Calendar first.',
+        };
       }
-      
+
       // Find the primary calendar (or first writable calendar)
       final primaryCalendar = calendars.firstWhere(
         (cal) => cal.isPrimary,
         orElse: () => calendars.first,
       );
-      
-      final attendees = args['attendees'] != null 
+
+      final attendees = args['attendees'] != null
           ? (args['attendees'] as List).cast<String>()
           : null;
-      
+
       final event = await calendarService.createEvent(
         userProfileId: userProfileId,
         calendarId: primaryCalendar.googleCalendarId,
@@ -573,7 +660,7 @@ Today's date and time will be provided in the context. Use it to understand rela
         location: args['location'] as String?,
         attendees: attendees,
       );
-      
+
       return {
         'success': true,
         'eventId': event.googleEventId,
@@ -581,9 +668,11 @@ Today's date and time will be provided in the context. Use it to understand rela
       };
     } catch (e) {
       // Check if it's a permission error
-      if (e.toString().contains('403') || e.toString().contains('writer access')) {
+      if (e.toString().contains('403') ||
+          e.toString().contains('writer access')) {
         return {
-          'error': 'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
+          'error':
+              'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
           'needsReauth': true,
         };
       }
@@ -598,35 +687,44 @@ Today's date and time will be provided in the context. Use it to understand rela
     try {
       final calendarService = GoogleCalendarService(session);
       final calendars = await calendarService.getCalendars(userProfileId);
-      
+
       if (calendars.isEmpty) {
-        return {'error': 'No calendars found. Please connect your Google Calendar first.'};
+        return {
+          'error':
+              'No calendars found. Please connect your Google Calendar first.',
+        };
       }
-      
+
       final primaryCalendar = calendars.firstWhere(
         (cal) => cal.isPrimary,
         orElse: () => calendars.first,
       );
-      
+
       final event = await calendarService.updateEvent(
         userProfileId: userProfileId,
         calendarId: primaryCalendar.googleCalendarId,
         googleEventId: args['eventId'] as String,
         title: args['title'] as String?,
-        startTime: args['startTime'] != null ? DateTime.parse(args['startTime'] as String) : null,
-        endTime: args['endTime'] != null ? DateTime.parse(args['endTime'] as String) : null,
+        startTime: args['startTime'] != null
+            ? DateTime.parse(args['startTime'] as String)
+            : null,
+        endTime: args['endTime'] != null
+            ? DateTime.parse(args['endTime'] as String)
+            : null,
         description: args['description'] as String?,
         location: args['location'] as String?,
       );
-      
+
       return {
         'success': true,
         'event': _eventToMap(event),
       };
     } catch (e) {
-      if (e.toString().contains('403') || e.toString().contains('writer access')) {
+      if (e.toString().contains('403') ||
+          e.toString().contains('writer access')) {
         return {
-          'error': 'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
+          'error':
+              'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
           'needsReauth': true,
         };
       }
@@ -641,24 +739,29 @@ Today's date and time will be provided in the context. Use it to understand rela
     try {
       final calendarService = GoogleCalendarService(session);
       final calendars = await calendarService.getCalendars(userProfileId);
-      
+
       if (calendars.isEmpty) {
-        throw Exception('No calendars found. Please connect your Google Calendar first.');
+        throw Exception(
+          'No calendars found. Please connect your Google Calendar first.',
+        );
       }
-      
+
       final primaryCalendar = calendars.firstWhere(
         (cal) => cal.isPrimary,
         orElse: () => calendars.first,
       );
-      
+
       await calendarService.deleteEvent(
         userProfileId: userProfileId,
         calendarId: primaryCalendar.googleCalendarId,
         googleEventId: args['eventId'] as String,
       );
     } catch (e) {
-      if (e.toString().contains('403') || e.toString().contains('writer access')) {
-        throw Exception('Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.');
+      if (e.toString().contains('403') ||
+          e.toString().contains('writer access')) {
+        throw Exception(
+          'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
+        );
       }
       rethrow;
     }
@@ -670,11 +773,11 @@ Today's date and time will be provided in the context. Use it to understand rela
   ) async {
     final calendarService = GoogleCalendarService(session);
     final calendars = await calendarService.getCalendars(userProfileId);
-    
+
     if (calendars.isEmpty) {
       return {'slots': [], 'message': 'No calendars found'};
     }
-    
+
     final slots = await calendarService.findAvailableTimeSlots(
       userProfileId: userProfileId,
       calendarId: calendars.first.googleCalendarId,
@@ -684,13 +787,17 @@ Today's date and time will be provided in the context. Use it to understand rela
       workingHoursStart: args['workingHoursStart'] as int?,
       workingHoursEnd: args['workingHoursEnd'] as int?,
     );
-    
+
     return {
-      'slots': slots.map((s) => {
-        'startTime': (s['start_time'] as DateTime).toIso8601String(),
-        'endTime': (s['end_time'] as DateTime).toIso8601String(),
-        'durationMinutes': s['duration_minutes'],
-      }).toList(),
+      'slots': slots
+          .map(
+            (s) => {
+              'startTime': (s['start_time'] as DateTime).toIso8601String(),
+              'endTime': (s['end_time'] as DateTime).toIso8601String(),
+              'durationMinutes': s['duration_minutes'],
+            },
+          )
+          .toList(),
       'count': slots.length,
     };
   }
@@ -706,7 +813,7 @@ Today's date and time will be provided in the context. Use it to understand rela
       maxResults: args['maxResults'] as int? ?? 10,
       query: args['query'] as String?,
     );
-    
+
     return {
       'emails': result.emails.map((e) => _emailToMap(e)).toList(),
       'count': result.emails.length,
@@ -723,7 +830,7 @@ Today's date and time will be provided in the context. Use it to understand rela
       query: args['query'] as String,
       maxResults: args['maxResults'] as int? ?? 10,
     );
-    
+
     return {
       'emails': result.emails.map((e) => _emailToMap(e)).toList(),
       'count': result.emails.length,
@@ -735,10 +842,10 @@ Today's date and time will be provided in the context. Use it to understand rela
     Map<String, Object?> args,
   ) async {
     final emailService = GoogleGmailService(session);
-    
+
     final to = (args['to'] as List).cast<String>();
     final cc = args['cc'] != null ? (args['cc'] as List).cast<String>() : null;
-    
+
     final email = await emailService.sendEmail(
       userProfileId: userProfileId,
       to: to,
@@ -746,7 +853,7 @@ Today's date and time will be provided in the context. Use it to understand rela
       subject: args['subject'] as String,
       bodyPlainText: args['body'] as String,
     );
-    
+
     return {
       'success': true,
       'messageId': email?.googleMessageId,
@@ -758,14 +865,14 @@ Today's date and time will be provided in the context. Use it to understand rela
     Map<String, Object?> args,
   ) async {
     final emailService = GoogleGmailService(session);
-    
+
     final email = await emailService.replyToEmail(
       userProfileId: userProfileId,
       originalMessageId: args['messageId'] as String,
       bodyPlainText: args['body'] as String,
       replyAll: args['replyAll'] as bool? ?? false,
     );
-    
+
     return {
       'success': true,
       'messageId': email?.googleMessageId,
@@ -777,16 +884,16 @@ Today's date and time will be provided in the context. Use it to understand rela
     Map<String, Object?> args,
   ) async {
     final emailService = GoogleGmailService(session);
-    
+
     final to = (args['to'] as List).cast<String>();
-    
+
     final email = await emailService.forwardEmail(
       userProfileId: userProfileId,
       originalMessageId: args['messageId'] as String,
       to: to,
       additionalMessage: args['additionalMessage'] as String?,
     );
-    
+
     return {
       'success': true,
       'messageId': email?.googleMessageId,
@@ -846,7 +953,9 @@ Today's date and time will be provided in the context. Use it to understand rela
       'messageId': email.googleMessageId,
       'threadId': email.googleThreadId,
       'subject': email.subject,
-      'from': email.fromName != null ? '${email.fromName} <${email.fromEmail}>' : email.fromEmail,
+      'from': email.fromName != null
+          ? '${email.fromName} <${email.fromEmail}>'
+          : email.fromEmail,
       'to': email.toEmails,
       'snippet': email.snippet,
       'isRead': email.isRead,
@@ -855,7 +964,11 @@ Today's date and time will be provided in the context. Use it to understand rela
     };
   }
 
-  Future<void> _saveMessage(int userProfileId, String role, String content) async {
+  Future<void> _saveMessage(
+    int userProfileId,
+    String role,
+    String content,
+  ) async {
     try {
       final message = ChatMessage(
         userProfileId: userProfileId,
@@ -874,13 +987,15 @@ Today's date and time will be provided in the context. Use it to understand rela
     int userProfileId, {
     int limit = 20,
   }) async {
-    return ChatMessage.db.find(
-      session,
-      where: (t) => t.userProfileId.equals(userProfileId),
-      orderBy: (t) => t.createdAt,
-      orderDescending: true,
-      limit: limit,
-    ).then((list) => list.reversed.toList());
+    return ChatMessage.db
+        .find(
+          session,
+          where: (t) => t.userProfileId.equals(userProfileId),
+          orderBy: (t) => t.createdAt,
+          orderDescending: true,
+          limit: limit,
+        )
+        .then((list) => list.reversed.toList());
   }
 
   /// Clear conversation history for a user

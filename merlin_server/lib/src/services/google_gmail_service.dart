@@ -43,7 +43,7 @@ class GoogleGmailService {
 
   /// Fetches emails from Gmail with optional pagination
   Future<({List<Email> emails, String? nextPageToken, int? totalEstimate})>
-      getEmails({
+  getEmails({
     required int userProfileId,
     int maxResults = 20,
     String? pageToken,
@@ -385,7 +385,8 @@ class GoogleGmailService {
           : 'Fwd: $originalSubject';
 
       // Build forward body with original message
-      final forwardHeader = '''
+      final forwardHeader =
+          '''
 ---------- Forwarded message ---------
 From: $originalFrom
 Date: $originalDate

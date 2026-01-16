@@ -179,10 +179,9 @@ class GoogleCalendarService {
     required String calendarId,
     required gcal.Event event,
   }) {
-
     DateTime startDateTime;
     DateTime endDateTime;
-    
+
     if (event.start?.dateTime != null) {
       // Convert UTC to local time
       startDateTime = event.start!.dateTime!.toLocal();
@@ -196,7 +195,7 @@ class GoogleCalendarService {
     } else {
       startDateTime = DateTime.now();
     }
-    
+
     if (event.end?.dateTime != null) {
       // Convert UTC to local time
       endDateTime = event.end!.dateTime!.toLocal();
@@ -332,47 +331,47 @@ class GoogleCalendarService {
   }) async {
     try {
       final api = await _getCalendarApi(userProfileId);
-      
+
       final event = gcal.Event()
         ..summary = title
         ..description = description
         ..location = location
         ..start = gcal.EventDateTime(dateTime: startTime.toUtc())
         ..end = gcal.EventDateTime(dateTime: endTime.toUtc());
-      
+
       if (attendees != null && attendees.isNotEmpty) {
         event.attendees = attendees
             .map((email) => gcal.EventAttendee()..email = email)
             .toList();
       }
-      
+
       if (recurrenceRule != null && recurrenceRule.isNotEmpty) {
         event.recurrence = [recurrenceRule];
       }
-      
+
       final createdEvent = await api.events.insert(
         event,
         calendarId,
         sendNotifications: sendNotifications,
       );
-      
+
       if (createdEvent.id == null) {
         throw Exception('Failed to create event: no event ID returned');
       }
-      
+
       final mappedEvent = _mapEvent(
         userProfileId: userProfileId,
         calendarId: calendarId,
         event: createdEvent,
       );
-      
+
       await _cacheEvents([mappedEvent]);
-      
+
       session.log(
         'Created event "$title" in calendar $calendarId',
         level: LogLevel.info,
       );
-      
+
       return mappedEvent;
     } catch (error, stackTrace) {
       session.log(
@@ -401,52 +400,53 @@ class GoogleCalendarService {
   }) async {
     try {
       final api = await _getCalendarApi(userProfileId);
-      
+
       final existingEvent = await api.events.get(calendarId, googleEventId);
-      
+
       if (title != null) existingEvent.summary = title;
       if (description != null) existingEvent.description = description;
       if (location != null) existingEvent.location = location;
-      
+
       if (startTime != null) {
         existingEvent.start = gcal.EventDateTime(dateTime: startTime.toUtc());
       }
-      
+
       if (endTime != null) {
         existingEvent.end = gcal.EventDateTime(dateTime: endTime.toUtc());
       }
-      
+
       if (attendees != null) {
         existingEvent.attendees = attendees
             .map((email) => gcal.EventAttendee()..email = email)
             .toList();
       }
-      
+
       if (recurrenceRule != null) {
-        existingEvent.recurrence = 
-            recurrenceRule.isNotEmpty ? [recurrenceRule] : null;
+        existingEvent.recurrence = recurrenceRule.isNotEmpty
+            ? [recurrenceRule]
+            : null;
       }
-      
+
       final updatedEvent = await api.events.update(
         existingEvent,
         calendarId,
         googleEventId,
         sendNotifications: sendNotifications,
       );
-      
+
       final mappedEvent = _mapEvent(
         userProfileId: userProfileId,
         calendarId: calendarId,
         event: updatedEvent,
       );
-      
+
       await _cacheEvents([mappedEvent]);
-      
+
       session.log(
         'Updated event $googleEventId in calendar $calendarId',
         level: LogLevel.info,
       );
-      
+
       return mappedEvent;
     } catch (error, stackTrace) {
       session.log(
@@ -468,20 +468,20 @@ class GoogleCalendarService {
   }) async {
     try {
       final api = await _getCalendarApi(userProfileId);
-      
+
       await api.events.delete(
         calendarId,
         googleEventId,
         sendNotifications: sendNotifications,
       );
-      
+
       await CalendarEvent.db.deleteWhere(
         session,
         where: (t) =>
             t.userProfileId.equals(userProfileId) &
             t.googleEventId.equals(googleEventId),
       );
-      
+
       session.log(
         'Deleted event $googleEventId from calendar $calendarId',
         level: LogLevel.info,
@@ -516,12 +516,12 @@ class GoogleCalendarService {
         startTime: searchStartTime,
         endTime: searchEndTime,
       );
-      
+
       events.sort((a, b) => a.startTime.compareTo(b.startTime));
-      
+
       final availableSlots = <Map<String, dynamic>>[];
       final duration = Duration(minutes: durationMinutes);
-      
+
       final workStart = workingHoursStart ?? 9;
       final workEnd = workingHoursEnd ?? 17;
       var currentDay = DateTime(
@@ -530,12 +530,12 @@ class GoogleCalendarService {
         searchStartTime.day,
         workStart,
       );
-      
-      while (currentDay.isBefore(searchEndTime) && 
-             availableSlots.length < maxResults) {
+
+      while (currentDay.isBefore(searchEndTime) &&
+          availableSlots.length < maxResults) {
         final dayOfWeek = currentDay.weekday;
-        if (preferredDays != null && 
-            preferredDays.isNotEmpty && 
+        if (preferredDays != null &&
+            preferredDays.isNotEmpty &&
             !preferredDays.contains(dayOfWeek)) {
           currentDay = currentDay.add(const Duration(days: 1));
           currentDay = DateTime(
@@ -546,7 +546,7 @@ class GoogleCalendarService {
           );
           continue;
         }
-        
+
         final dayStart = DateTime(
           currentDay.year,
           currentDay.month,
@@ -559,25 +559,27 @@ class GoogleCalendarService {
           currentDay.day,
           workEnd,
         );
-        
+
         final dayEvents = events
-            .where((e) =>
-                e.startTime.year == currentDay.year &&
-                e.startTime.month == currentDay.month &&
-                e.startTime.day == currentDay.day)
+            .where(
+              (e) =>
+                  e.startTime.year == currentDay.year &&
+                  e.startTime.month == currentDay.month &&
+                  e.startTime.day == currentDay.day,
+            )
             .toList();
-        
+
         var slotStart = dayStart;
-        
+
         for (final event in dayEvents) {
           final eventStart = event.startTime;
           final eventEnd = event.endTime;
-          
+
           if (slotStart.add(duration).isBefore(eventStart) ||
               slotStart.add(duration).isAtSameMomentAs(eventStart)) {
             final slotEnd = slotStart.add(duration);
-            
-            if (slotEnd.isBefore(eventStart) || 
+
+            if (slotEnd.isBefore(eventStart) ||
                 slotEnd.isAtSameMomentAs(eventStart)) {
               availableSlots.add({
                 'start_time': slotStart,
@@ -585,14 +587,14 @@ class GoogleCalendarService {
                 'duration_minutes': durationMinutes,
                 'day_of_week': dayOfWeek,
               });
-              
+
               if (availableSlots.length >= maxResults) break;
             }
           }
-          
+
           slotStart = eventEnd.isAfter(slotStart) ? eventEnd : slotStart;
         }
-        
+
         if (availableSlots.length < maxResults &&
             slotStart.add(duration).isBefore(dayEnd)) {
           availableSlots.add({
@@ -602,7 +604,7 @@ class GoogleCalendarService {
             'day_of_week': dayOfWeek,
           });
         }
-        
+
         currentDay = currentDay.add(const Duration(days: 1));
         currentDay = DateTime(
           currentDay.year,
@@ -611,12 +613,12 @@ class GoogleCalendarService {
           workStart,
         );
       }
-      
+
       session.log(
         'Found ${availableSlots.length} available time slots',
         level: LogLevel.info,
       );
-      
+
       return availableSlots;
     } catch (error, stackTrace) {
       session.log(

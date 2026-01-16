@@ -216,12 +216,19 @@ class _AppDrawerState extends State<AppDrawer> {
     );
 
     if (confirm == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sign out functionality coming soon. Please restart the app.'),
-        ),
-      );
-      Navigator.of(context).pop();
+      try {
+        await client.auth.signOutDevice();
+
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to sign out: $e')),
+          );
+        }
+      }
     }
   }
 

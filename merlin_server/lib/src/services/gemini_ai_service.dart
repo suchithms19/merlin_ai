@@ -530,79 +530,123 @@ Today's date and time will be provided in the context. Use it to understand rela
     int userProfileId,
     Map<String, Object?> args,
   ) async {
-    final calendarService = GoogleCalendarService(session);
-    final calendars = await calendarService.getCalendars(userProfileId);
-    
-    if (calendars.isEmpty) {
-      return {'error': 'No calendars found'};
+    try {
+      final calendarService = GoogleCalendarService(session);
+      final calendars = await calendarService.getCalendars(userProfileId);
+      
+      if (calendars.isEmpty) {
+        return {'error': 'No calendars found. Please connect your Google Calendar first.'};
+      }
+      
+      // Find the primary calendar (or first writable calendar)
+      final primaryCalendar = calendars.firstWhere(
+        (cal) => cal.isPrimary,
+        orElse: () => calendars.first,
+      );
+      
+      final attendees = args['attendees'] != null 
+          ? (args['attendees'] as List).cast<String>()
+          : null;
+      
+      final event = await calendarService.createEvent(
+        userProfileId: userProfileId,
+        calendarId: primaryCalendar.googleCalendarId,
+        title: args['title'] as String,
+        startTime: DateTime.parse(args['startTime'] as String),
+        endTime: DateTime.parse(args['endTime'] as String),
+        description: args['description'] as String?,
+        location: args['location'] as String?,
+        attendees: attendees,
+      );
+      
+      return {
+        'success': true,
+        'eventId': event.googleEventId,
+        'event': _eventToMap(event),
+      };
+    } catch (e) {
+      // Check if it's a permission error
+      if (e.toString().contains('403') || e.toString().contains('writer access')) {
+        return {
+          'error': 'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
+          'needsReauth': true,
+        };
+      }
+      rethrow;
     }
-    
-    final attendees = args['attendees'] != null 
-        ? (args['attendees'] as List).cast<String>()
-        : null;
-    
-    final event = await calendarService.createEvent(
-      userProfileId: userProfileId,
-      calendarId: calendars.first.googleCalendarId,
-      title: args['title'] as String,
-      startTime: DateTime.parse(args['startTime'] as String),
-      endTime: DateTime.parse(args['endTime'] as String),
-      description: args['description'] as String?,
-      location: args['location'] as String?,
-      attendees: attendees,
-    );
-    
-    return {
-      'success': true,
-      'eventId': event.googleEventId,
-      'event': _eventToMap(event),
-    };
   }
 
   Future<Map<String, Object?>> _handleUpdateCalendarEvent(
     int userProfileId,
     Map<String, Object?> args,
   ) async {
-    final calendarService = GoogleCalendarService(session);
-    final calendars = await calendarService.getCalendars(userProfileId);
-    
-    if (calendars.isEmpty) {
-      return {'error': 'No calendars found'};
+    try {
+      final calendarService = GoogleCalendarService(session);
+      final calendars = await calendarService.getCalendars(userProfileId);
+      
+      if (calendars.isEmpty) {
+        return {'error': 'No calendars found. Please connect your Google Calendar first.'};
+      }
+      
+      final primaryCalendar = calendars.firstWhere(
+        (cal) => cal.isPrimary,
+        orElse: () => calendars.first,
+      );
+      
+      final event = await calendarService.updateEvent(
+        userProfileId: userProfileId,
+        calendarId: primaryCalendar.googleCalendarId,
+        googleEventId: args['eventId'] as String,
+        title: args['title'] as String?,
+        startTime: args['startTime'] != null ? DateTime.parse(args['startTime'] as String) : null,
+        endTime: args['endTime'] != null ? DateTime.parse(args['endTime'] as String) : null,
+        description: args['description'] as String?,
+        location: args['location'] as String?,
+      );
+      
+      return {
+        'success': true,
+        'event': _eventToMap(event),
+      };
+    } catch (e) {
+      if (e.toString().contains('403') || e.toString().contains('writer access')) {
+        return {
+          'error': 'Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.',
+          'needsReauth': true,
+        };
+      }
+      rethrow;
     }
-    
-    final event = await calendarService.updateEvent(
-      userProfileId: userProfileId,
-      calendarId: calendars.first.googleCalendarId,
-      googleEventId: args['eventId'] as String,
-      title: args['title'] as String?,
-      startTime: args['startTime'] != null ? DateTime.parse(args['startTime'] as String) : null,
-      endTime: args['endTime'] != null ? DateTime.parse(args['endTime'] as String) : null,
-      description: args['description'] as String?,
-      location: args['location'] as String?,
-    );
-    
-    return {
-      'success': true,
-      'event': _eventToMap(event),
-    };
   }
 
   Future<void> _handleDeleteCalendarEvent(
     int userProfileId,
     Map<String, Object?> args,
   ) async {
-    final calendarService = GoogleCalendarService(session);
-    final calendars = await calendarService.getCalendars(userProfileId);
-    
-    if (calendars.isEmpty) {
-      throw Exception('No calendars found');
+    try {
+      final calendarService = GoogleCalendarService(session);
+      final calendars = await calendarService.getCalendars(userProfileId);
+      
+      if (calendars.isEmpty) {
+        throw Exception('No calendars found. Please connect your Google Calendar first.');
+      }
+      
+      final primaryCalendar = calendars.firstWhere(
+        (cal) => cal.isPrimary,
+        orElse: () => calendars.first,
+      );
+      
+      await calendarService.deleteEvent(
+        userProfileId: userProfileId,
+        calendarId: primaryCalendar.googleCalendarId,
+        googleEventId: args['eventId'] as String,
+      );
+    } catch (e) {
+      if (e.toString().contains('403') || e.toString().contains('writer access')) {
+        throw Exception('Insufficient calendar permissions. Please disconnect and reconnect your Google account to grant calendar write access.');
+      }
+      rethrow;
     }
-    
-    await calendarService.deleteEvent(
-      userProfileId: userProfileId,
-      calendarId: calendars.first.googleCalendarId,
-      googleEventId: args['eventId'] as String,
-    );
   }
 
   Future<Map<String, Object?>> _handleFindAvailableSlots(

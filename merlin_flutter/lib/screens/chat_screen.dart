@@ -54,6 +54,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _sendMessage(String message) async {
     if (message.trim().isEmpty) return;
 
+    if (!mounted) return;
+    
     setState(() {
       _messages.add(ChatMessageData(
         content: message,
@@ -73,6 +75,8 @@ class _ChatScreenState extends State<ChatScreen> {
         includeEmailContext: true,
       );
       
+      if (!mounted) return;
+      
       setState(() {
         _messages.add(ChatMessageData(
           content: response.message,
@@ -84,8 +88,12 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoading = false;
       });
       
+      // Force a frame to be scheduled
+      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _messages.add(ChatMessageData(
           content: 'Sorry, I encountered an error: $e',
@@ -96,6 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoading = false;
         _errorMessage = e.toString();
       });
+      
+      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     }
   }
@@ -216,6 +226,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _handleQuickAction(String action) async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
     });
@@ -241,6 +253,8 @@ class _ChatScreenState extends State<ChatScreen> {
           return;
       }
 
+      if (!mounted) return;
+      
       setState(() {
         _messages.add(ChatMessageData(
           content: userMessage,
@@ -256,11 +270,15 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoading = false;
       });
       
+      WidgetsBinding.instance.scheduleFrame();
       _scrollToBottom();
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _isLoading = false;
       });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),

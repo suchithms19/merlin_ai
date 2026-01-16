@@ -89,7 +89,7 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
       try {
         final isConnected = await widget.client.googleOAuth
             .getGoogleConnectionStatus();
-        
+
         if (isConnected) {
           timer.cancel();
           setState(() {

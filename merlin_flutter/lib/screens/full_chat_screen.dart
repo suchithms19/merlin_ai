@@ -54,11 +54,15 @@ class _FullChatScreenState extends State<FullChatScreen> {
       if (mounted) {
         setState(() {
           _messages.clear();
-          _messages.addAll(history.map((msg) => ChatMessageData(
-            content: msg.content,
-            role: msg.role,
-            timestamp: msg.createdAt,
-          )));
+          _messages.addAll(
+            history.map(
+              (msg) => ChatMessageData(
+                content: msg.content,
+                role: msg.role,
+                timestamp: msg.createdAt,
+              ),
+            ),
+          );
         });
         _scrollToBottom();
       }
@@ -74,11 +78,13 @@ class _FullChatScreenState extends State<FullChatScreen> {
     _textController.clear();
 
     setState(() {
-      _messages.add(ChatMessageData(
-        content: message,
-        role: 'user',
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessageData(
+          content: message,
+          role: 'user',
+          timestamp: DateTime.now(),
+        ),
+      );
       _isLoading = true;
     });
     _notifyMessagesChanged();
@@ -94,13 +100,15 @@ class _FullChatScreenState extends State<FullChatScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _messages.add(ChatMessageData(
-            content: response.message,
-            role: 'model',
-            timestamp: DateTime.now(),
-            functionsExecuted: response.functionsCalled,
-            isError: response.error != null,
-          ));
+          _messages.add(
+            ChatMessageData(
+              content: response.message,
+              role: 'model',
+              timestamp: DateTime.now(),
+              functionsExecuted: response.functionsCalled,
+              isError: response.error != null,
+            ),
+          );
         });
         _notifyMessagesChanged();
         _scrollToBottom();
@@ -109,12 +117,14 @@ class _FullChatScreenState extends State<FullChatScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _messages.add(ChatMessageData(
-            content: 'Sorry, I encountered an error: $e',
-            role: 'model',
-            timestamp: DateTime.now(),
-            isError: true,
-          ));
+          _messages.add(
+            ChatMessageData(
+              content: 'Sorry, I encountered an error: $e',
+              role: 'model',
+              timestamp: DateTime.now(),
+              isError: true,
+            ),
+          );
         });
         _notifyMessagesChanged();
         _scrollToBottom();
@@ -270,7 +280,11 @@ class _FullChatScreenState extends State<FullChatScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            _buildQuickAction(context, Icons.calendar_today, 'Schedule a meeting'),
+            _buildQuickAction(
+              context,
+              Icons.calendar_today,
+              'Schedule a meeting',
+            ),
             const SizedBox(height: 12),
             _buildQuickAction(context, Icons.email, 'Check my emails'),
             const SizedBox(height: 12),
@@ -327,9 +341,13 @@ class _FullChatScreenState extends State<FullChatScreen> {
         }
         final message = _messages[index];
         return ChatMessageWidget(
-          key: ValueKey('msg_${message.timestamp?.millisecondsSinceEpoch}_$index'),
+          key: ValueKey(
+            'msg_${message.timestamp?.millisecondsSinceEpoch}_$index',
+          ),
           content: message.content,
-          role: message.role == 'user' ? MessageRole.user : MessageRole.assistant,
+          role: message.role == 'user'
+              ? MessageRole.user
+              : MessageRole.assistant,
           timestamp: message.timestamp,
           functionsExecuted: message.functionsExecuted,
           isError: message.isError,
@@ -518,7 +536,9 @@ class _TypingDotsState extends State<_TypingDots>
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withOpacity(0.4 + bounce * 0.6),
+                color: theme.colorScheme.primary.withOpacity(
+                  0.4 + bounce * 0.6,
+                ),
                 shape: BoxShape.circle,
               ),
             );

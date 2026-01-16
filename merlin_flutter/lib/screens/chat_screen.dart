@@ -38,11 +38,15 @@ class _ChatScreenState extends State<ChatScreen> {
       final history = await widget.client.aiChat.getChatHistory(limit: 50);
       setState(() {
         _messages.clear();
-        _messages.addAll(history.map((msg) => ChatMessageData(
-          content: msg.content,
-          role: msg.role,
-          timestamp: msg.createdAt,
-        )));
+        _messages.addAll(
+          history.map(
+            (msg) => ChatMessageData(
+              content: msg.content,
+              role: msg.role,
+              timestamp: msg.createdAt,
+            ),
+          ),
+        );
       });
       _scrollToBottom();
     } catch (e) {
@@ -54,16 +58,18 @@ class _ChatScreenState extends State<ChatScreen> {
     if (message.trim().isEmpty) return;
 
     if (!mounted) return;
-    
+
     setState(() {
-      _messages.add(ChatMessageData(
-        content: message,
-        role: 'user',
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessageData(
+          content: message,
+          role: 'user',
+          timestamp: DateTime.now(),
+        ),
+      );
       _isLoading = true;
     });
-    
+
     _scrollToBottom();
 
     try {
@@ -72,40 +78,44 @@ class _ChatScreenState extends State<ChatScreen> {
         includeCalendarContext: true,
         includeEmailContext: true,
       );
-      
+
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       setState(() {
-        _messages.add(ChatMessageData(
-          content: response.message,
-          role: 'model',
-          timestamp: DateTime.now(),
-          functionsExecuted: response.functionsCalled,
-          isError: response.error != null,
-        ));
+        _messages.add(
+          ChatMessageData(
+            content: response.message,
+            role: 'model',
+            timestamp: DateTime.now(),
+            functionsExecuted: response.functionsCalled,
+            isError: response.error != null,
+          ),
+        );
       });
-      
+
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       setState(() {
-        _messages.add(ChatMessageData(
-          content: 'Sorry, I encountered an error: $e',
-          role: 'model',
-          timestamp: DateTime.now(),
-          isError: true,
-        ));
+        _messages.add(
+          ChatMessageData(
+            content: 'Sorry, I encountered an error: $e',
+            role: 'model',
+            timestamp: DateTime.now(),
+            isError: true,
+          ),
+        );
       });
-      
+
       _scrollToBottom();
     }
   }
@@ -212,7 +222,9 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ChatHistoryWidget(
               key: ValueKey('chat_${_messages.length}_${_isLoading}'),
               client: widget.client,
-              messages: List.from(_messages), // Create new list to force rebuild
+              messages: List.from(
+                _messages,
+              ), // Create new list to force rebuild
               scrollController: _scrollController,
               isLoading: _isLoading,
             ),
@@ -228,7 +240,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _handleQuickAction(String action) async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -236,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       ChatResponse response;
       String userMessage;
-      
+
       switch (action) {
         case 'briefing':
           userMessage = 'Give me my daily briefing';
@@ -255,33 +267,37 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       setState(() {
-        _messages.add(ChatMessageData(
-          content: userMessage,
-          role: 'user',
-          timestamp: DateTime.now(),
-        ));
-        _messages.add(ChatMessageData(
-          content: response.message,
-          role: 'model',
-          timestamp: DateTime.now(),
-          functionsExecuted: response.functionsCalled,
-        ));
+        _messages.add(
+          ChatMessageData(
+            content: userMessage,
+            role: 'user',
+            timestamp: DateTime.now(),
+          ),
+        );
+        _messages.add(
+          ChatMessageData(
+            content: response.message,
+            role: 'model',
+            timestamp: DateTime.now(),
+            functionsExecuted: response.functionsCalled,
+          ),
+        );
       });
-      
+
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),

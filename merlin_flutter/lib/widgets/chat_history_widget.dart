@@ -33,9 +33,13 @@ class ChatHistoryWidget extends StatelessWidget {
           final index = entry.key;
           final message = entry.value;
           return ChatMessageWidget(
-            key: ValueKey('msg_${message.timestamp?.millisecondsSinceEpoch}_$index'),
+            key: ValueKey(
+              'msg_${message.timestamp?.millisecondsSinceEpoch}_$index',
+            ),
             content: message.content,
-            role: message.role == 'user' ? MessageRole.user : MessageRole.assistant,
+            role: message.role == 'user'
+                ? MessageRole.user
+                : MessageRole.assistant,
             timestamp: message.timestamp,
             functionsExecuted: message.functionsExecuted,
             isError: message.isError,
@@ -84,7 +88,7 @@ class ChatHistoryWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            
+
             // Feature list
             _buildFeatureItem(
               context,
@@ -109,9 +113,9 @@ class ChatHistoryWidget extends StatelessWidget {
               Icons.summarize_rounded,
               'Summarize your day',
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             // Suggestions
             Text(
               'Try asking:',
@@ -233,7 +237,7 @@ class ChatHistoryWidget extends StatelessWidget {
 
   Widget _buildTypingDot(BuildContext context, int index) {
     final theme = Theme.of(context);
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: Duration(milliseconds: 600 + (index * 200)),
@@ -242,8 +246,9 @@ class ChatHistoryWidget extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary
-                .withOpacity(0.3 + (0.4 * (1 - (value - value.floor())))),
+            color: theme.colorScheme.primary.withOpacity(
+              0.3 + (0.4 * (1 - (value - value.floor()))),
+            ),
             shape: BoxShape.circle,
           ),
         );

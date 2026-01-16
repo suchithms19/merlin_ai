@@ -33,7 +33,7 @@ class EventDetailDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final dateFormatter = DateFormat('EEEE, MMM d');
     final timeFormatter = DateFormat('h:mm a');
-    
+
     final startDate = dateFormatter.format(event.startTime.toLocal());
     final startTime = timeFormatter.format(event.startTime.toLocal());
     final endTime = timeFormatter.format(event.endTime.toLocal());
@@ -62,7 +62,7 @@ class EventDetailDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              
+
               // Content
               Expanded(
                 child: ListView(
@@ -106,7 +106,7 @@ class EventDetailDialog extends StatelessWidget {
                           ],
                         ),
                       ),
-                    
+
                     // Title
                     Text(
                       event.title,
@@ -114,27 +114,29 @@ class EventDetailDialog extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Time info
                     _InfoSection(
                       icon: Icons.access_time_rounded,
                       title: startDate,
                       subtitle: '$startTime - $endTime',
                     ),
-                    
+
                     // Location
-                    if (event.location != null && event.location!.isNotEmpty) ...[
+                    if (event.location != null &&
+                        event.location!.isNotEmpty) ...[
                       const SizedBox(height: 16),
                       _InfoSection(
                         icon: Icons.place_outlined,
                         title: event.location!,
                       ),
                     ],
-                    
+
                     // Description
-                    if (event.description != null && event.description!.isNotEmpty) ...[
+                    if (event.description != null &&
+                        event.description!.isNotEmpty) ...[
                       const SizedBox(height: 24),
                       Text(
                         'Description',
@@ -150,7 +152,7 @@ class EventDetailDialog extends StatelessWidget {
                         ),
                       ),
                     ],
-                    
+
                     // Attendees
                     if (event.attendees.isNotEmpty) ...[
                       const SizedBox(height: 24),
@@ -161,45 +163,50 @@ class EventDetailDialog extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...event.attendees.map((email) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest,
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                _getInitial(email),
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      ...event.attendees.map(
+                        (email) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.colorScheme.surfaceContainerHighest,
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  _getInitial(email),
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.7),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                email,
-                                style: theme.textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  email,
+                                  style: theme.textTheme.bodyMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )),
+                      ),
                     ],
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Info note
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withOpacity(0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: theme.colorScheme.outline.withOpacity(0.2),
@@ -217,7 +224,9 @@ class EventDetailDialog extends StatelessWidget {
                             child: Text(
                               'Ask Merlin to modify or delete this event',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                color: theme.colorScheme.onSurface.withOpacity(
+                                  0.5,
+                                ),
                               ),
                             ),
                           ),
@@ -256,7 +265,7 @@ class _InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

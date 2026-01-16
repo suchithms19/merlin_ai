@@ -41,8 +41,7 @@ class _AppDrawerState extends State<AppDrawer> {
           _isGoogleConnected = true;
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> _checkGoogleConnection() async {
@@ -111,7 +110,8 @@ class _AppDrawerState extends State<AppDrawer> {
         return;
       }
       try {
-        final isConnected = await client.googleOAuth.getGoogleConnectionStatus();
+        final isConnected = await client.googleOAuth
+            .getGoogleConnectionStatus();
         if (isConnected) {
           timer.cancel();
           try {
@@ -232,7 +232,6 @@ class _AppDrawerState extends State<AppDrawer> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -338,8 +337,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   },
                 ),
                 if (_showAccountsExpanded) ...[
-                  if (_isGoogleConnected)
-                    _buildGoogleAccountStatus(context),
+                  if (_isGoogleConnected) _buildGoogleAccountStatus(context),
                   _buildAddAccountButton(context),
                 ],
               ],
@@ -388,7 +386,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-
   Widget _buildExpandableMenuItem(
     BuildContext context, {
     required IconData icon,
@@ -408,7 +405,6 @@ class _AppDrawerState extends State<AppDrawer> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
     );
   }
-
 
   Widget _buildGoogleAccountStatus(BuildContext context) {
     final theme = Theme.of(context);

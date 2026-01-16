@@ -42,36 +42,36 @@ class AppTheme {
         onPrimary: Color(0xFF003322),
         primaryContainer: Color(0xFF1A4D3A),
         onPrimaryContainer: _primaryTeal,
-        
+
         secondary: _secondaryPeach,
         onSecondary: Color(0xFF3D2315),
         secondaryContainer: Color(0xFF5C3B2A),
         onSecondaryContainer: _secondaryPeach,
-        
+
         tertiary: _accentLavender,
         onTertiary: Color(0xFF2D2539),
         tertiaryContainer: Color(0xFF4A3D5C),
         onTertiaryContainer: _accentLavender,
-        
+
         error: _accentRed,
         onError: Color(0xFF3D1515),
         errorContainer: Color(0xFF5C2A2A),
         onErrorContainer: Color(0xFFFFB3B3),
-        
+
         surface: _surfaceDark,
         onSurface: _textPrimary,
         surfaceContainerHighest: _surfaceContainerHigh,
         surfaceContainerHigh: _surfaceContainer,
         surfaceContainerLow: Color(0xFF121212),
         surfaceContainerLowest: _backgroundDark,
-        
+
         outline: Color(0xFF3A3A3A),
         outlineVariant: Color(0xFF2A2A2A),
-        
+
         inverseSurface: Color(0xFFE5E5E5),
         onInverseSurface: Color(0xFF1A1A1A),
         inversePrimary: Color(0xFF00785A),
-        
+
         shadow: Colors.black,
         scrim: Colors.black,
       ),
@@ -164,7 +164,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: _surfaceContainer,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF3A3A3A), width: 1),

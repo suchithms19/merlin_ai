@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:merlin_client/merlin_client.dart';
 
-
 class CalendarDayView extends StatelessWidget {
   const CalendarDayView({
     super.key,
@@ -21,17 +20,19 @@ class CalendarDayView extends StatelessWidget {
   Widget build(BuildContext context) {
     final dayStart = DateTime(date.year, date.month, date.day);
     final now = DateTime.now();
-    final isToday = date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day;
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
 
     // Sort events by start time
-    final dayEvents = events
-        .where((e) =>
-            e.startTime.isBefore(dayStart.add(const Duration(days: 1))) &&
-            e.endTime.isAfter(dayStart))
-        .toList()
-      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    final dayEvents =
+        events
+            .where(
+              (e) =>
+                  e.startTime.isBefore(dayStart.add(const Duration(days: 1))) &&
+                  e.endTime.isAfter(dayStart),
+            )
+            .toList()
+          ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
     return ListView.builder(
       padding: const EdgeInsets.only(top: 8, bottom: 100),
@@ -41,12 +42,15 @@ class CalendarDayView extends StatelessWidget {
         final hourEnd = hourStart.add(const Duration(hours: 1));
 
         // Get events that overlap with this hour
-        final hourEvents = dayEvents.where((event) =>
-            event.startTime.isBefore(hourEnd) &&
-            event.endTime.isAfter(hourStart));
+        final hourEvents = dayEvents.where(
+          (event) =>
+              event.startTime.isBefore(hourEnd) &&
+              event.endTime.isAfter(hourStart),
+        );
 
         // Check if current time is in this hour
-        final showCurrentTime = isToday &&
+        final showCurrentTime =
+            isToday &&
             now.hour == index &&
             now.isAfter(hourStart) &&
             now.isBefore(hourEnd);
@@ -58,9 +62,7 @@ class CalendarDayView extends StatelessWidget {
           onEventTap: onEventTap,
           calendarColors: calendarColors,
           showCurrentTimeLine: showCurrentTime,
-          currentTimeOffset: showCurrentTime
-              ? (now.minute / 60.0)
-              : null,
+          currentTimeOffset: showCurrentTime ? (now.minute / 60.0) : null,
         );
       },
     );
@@ -193,7 +195,8 @@ class _HourRow extends StatelessWidget {
     if (events.length == 1) {
       return _EventCard(
         event: events[0],
-        color: calendarColors?[events[0].calendarId] ?? theme.colorScheme.primary,
+        color:
+            calendarColors?[events[0].calendarId] ?? theme.colorScheme.primary,
         onTap: onEventTap != null ? () => onEventTap(events[0]) : null,
       );
     }
@@ -206,7 +209,9 @@ class _HourRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 4),
             child: _EventCard(
               event: event,
-              color: calendarColors?[event.calendarId] ?? theme.colorScheme.primary,
+              color:
+                  calendarColors?[event.calendarId] ??
+                  theme.colorScheme.primary,
               onTap: onEventTap != null ? () => onEventTap(event) : null,
             ),
           ),

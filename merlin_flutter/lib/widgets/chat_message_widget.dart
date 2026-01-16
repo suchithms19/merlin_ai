@@ -29,8 +29,9 @@ class ChatMessageWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
@@ -39,8 +40,9 @@ class ChatMessageWidget extends StatelessWidget {
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment:
-                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isUser
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -51,8 +53,8 @@ class ChatMessageWidget extends StatelessWidget {
                     color: isUser
                         ? theme.colorScheme.primary.withOpacity(0.15)
                         : isError
-                            ? theme.colorScheme.errorContainer.withOpacity(0.3)
-                            : theme.colorScheme.surfaceContainerHigh,
+                        ? theme.colorScheme.errorContainer.withOpacity(0.3)
+                        : theme.colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(18),
                       topRight: const Radius.circular(18),
@@ -103,7 +105,8 @@ class ChatMessageWidget extends StatelessWidget {
                               color: theme.colorScheme.onSurface,
                             ),
                             code: TextStyle(
-                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainerHighest,
                               color: theme.colorScheme.primary,
                               fontSize: 13,
                               fontFamily: 'monospace',
@@ -116,7 +119,9 @@ class ChatMessageWidget extends StatelessWidget {
                             blockquoteDecoration: BoxDecoration(
                               border: Border(
                                 left: BorderSide(
-                                  color: theme.colorScheme.primary.withOpacity(0.5),
+                                  color: theme.colorScheme.primary.withOpacity(
+                                    0.5,
+                                  ),
                                   width: 3,
                                 ),
                               ),
@@ -128,9 +133,10 @@ class ChatMessageWidget extends StatelessWidget {
                           ),
                         ),
                 ),
-                
+
                 // Functions executed badges
-                if (functionsExecuted != null && functionsExecuted!.isNotEmpty) ...[
+                if (functionsExecuted != null &&
+                    functionsExecuted!.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
@@ -142,7 +148,8 @@ class ChatMessageWidget extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                          color: theme.colorScheme.secondaryContainer
+                              .withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: theme.colorScheme.secondary.withOpacity(0.3),
@@ -170,7 +177,7 @@ class ChatMessageWidget extends StatelessWidget {
                     }).toList(),
                   ),
                 ],
-                
+
                 // Timestamp
                 if (timestamp != null) ...[
                   const SizedBox(height: 4),
@@ -217,7 +224,9 @@ class ChatMessageWidget extends StatelessWidget {
 
   IconData _getFunctionIcon(String functionName) {
     final fn = functionName.toLowerCase();
-    if (fn.contains('calendar') || fn.contains('event') || fn.contains('schedule')) {
+    if (fn.contains('calendar') ||
+        fn.contains('event') ||
+        fn.contains('schedule')) {
       return Icons.calendar_today_rounded;
     } else if (fn.contains('email') || fn.contains('mail')) {
       return Icons.email_rounded;

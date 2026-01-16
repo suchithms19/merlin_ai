@@ -16,7 +16,8 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
   bool _isSignedIn = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -29,23 +30,23 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0, 0.6, curve: Curves.easeOut),
       ),
     );
-    
+
     _slideAnimation = Tween<double>(begin: 30, end: 0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.2, 1, curve: Curves.easeOut),
       ),
     );
-    
+
     _animationController.forward();
-    
+
     client.auth.authInfoListenable.addListener(_updateSignedInState);
     _isSignedIn = client.auth.isAuthenticated;
   }
@@ -105,29 +106,29 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     final screenWidth = constraints.maxWidth;
     final isWideScreen = screenWidth > AppTheme.mobileBreakpoint;
     final contentMaxWidth = AppTheme.responsiveMaxWidth(context);
-    
+
     return Padding(
       padding: AppTheme.responsivePadding(context),
       child: Column(
         children: [
           SizedBox(height: constraints.maxHeight * 0.12),
-          
+
           // Logo
           Center(
             child: _MerlinLogo(
               size: isWideScreen ? 120 : 100,
             ),
           ),
-          
+
           SizedBox(height: constraints.maxHeight * 0.04),
-          
+
           // Title
           Center(
             child: _buildTitle(context),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Tagline
           Center(
             child: Text(
@@ -138,9 +139,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               textAlign: TextAlign.center,
             ),
           ),
-          
+
           SizedBox(height: constraints.maxHeight * 0.06),
-          
+
           // Sign in form
           Center(
             child: ConstrainedBox(
@@ -148,7 +149,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
               child: _buildSignInCard(context),
             ),
           ),
-          
+
           // Bottom spacer
           const Spacer(),
         ],
@@ -198,8 +199,6 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       ),
     );
   }
-
-
 }
 
 class _MerlinLogo extends StatefulWidget {
@@ -262,13 +261,13 @@ class _MerlinLogoPainter extends CustomPainter {
     final strokeWidth = size.width * 0.08;
 
     const colors = [
-      Color(0xFF5FD4AA), 
-      Color(0xFFE8B99D), 
-      Color(0xFFB8A5C7), 
+      Color(0xFF5FD4AA),
+      Color(0xFFE8B99D),
+      Color(0xFFB8A5C7),
     ];
 
     for (int i = 0; i < 3; i++) {
-      final baseAngle = (i * 2.094) + (animation * 0.5); 
+      final baseAngle = (i * 2.094) + (animation * 0.5);
       final ringCenter = Offset(
         center.dx + radius * 0.3 * _smoothCos(baseAngle),
         center.dy + radius * 0.3 * _smoothSin(baseAngle),
@@ -296,10 +295,17 @@ class _MerlinLogoPainter extends CustomPainter {
     }
   }
 
-  double _smoothSin(double angle) => 
-    (3.141592653589793 * angle).remainder(6.283185307179586).abs() < 3.141592653589793
-        ? (angle.remainder(1) < 0.5 ? angle.remainder(1) * 2 : 2 - angle.remainder(1) * 2) - 0.5
-        : -((angle.remainder(1) < 0.5 ? angle.remainder(1) * 2 : 2 - angle.remainder(1) * 2) - 0.5);
+  double _smoothSin(double angle) =>
+      (3.141592653589793 * angle).remainder(6.283185307179586).abs() <
+          3.141592653589793
+      ? (angle.remainder(1) < 0.5
+                ? angle.remainder(1) * 2
+                : 2 - angle.remainder(1) * 2) -
+            0.5
+      : -((angle.remainder(1) < 0.5
+                ? angle.remainder(1) * 2
+                : 2 - angle.remainder(1) * 2) -
+            0.5);
 
   double _smoothCos(double angle) => _smoothSin(angle + 1.5707963267948966);
 

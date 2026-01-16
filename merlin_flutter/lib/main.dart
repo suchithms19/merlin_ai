@@ -59,12 +59,12 @@ class MerlinApp extends StatelessWidget {
     return MaterialApp(
       title: 'Merlin',
       debugShowCheckedModeBanner: false,
-      
+
       // Apply dark theme
       theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-      
+
       // Builder to handle text scaling and safe areas
       builder: (context, child) {
         return MediaQuery(
@@ -76,7 +76,7 @@ class MerlinApp extends StatelessWidget {
           child: child!,
         );
       },
-      
+
       home: const AuthScreen(
         child: HomeScreen(),
       ),

@@ -132,8 +132,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           onMessagesChanged: (messages) {
             if (messages.isNotEmpty) {
               final lastMsg = messages.last;
-              if (lastMsg.functionsExecuted?.any((f) => 
-                  f.contains('Calendar') || f.contains('Event')) ?? false) {
+              if (lastMsg.functionsExecuted?.any(
+                    (f) => f.contains('Calendar') || f.contains('Event'),
+                  ) ??
+                  false) {
                 _loadEvents();
               }
             }
@@ -190,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               _scaffoldKey.currentState?.openDrawer();
             },
           ),
-          
+
           Expanded(
             child: Center(
               child: TextButton.icon(
@@ -260,9 +262,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-          child: Row(
-            children: [
-              TextButton.icon(
+      child: Row(
+        children: [
+          TextButton.icon(
             onPressed: () => _showMonthPicker(context),
             icon: Text(
               monthYear,
@@ -272,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             label: const Icon(Icons.keyboard_arrow_down),
           ),
-          
+
           const Spacer(),
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -347,22 +349,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: _isCalendarLoading
               ? const Center(child: CircularProgressIndicator())
               : _calendarError != null
-                  ? _buildCalendarError(context)
-                  : _events.isEmpty
-                      ? _buildEmptyCalendar(context)
-                      : CalendarDayView(
-                          date: _selectedDate,
-                          events: _events,
-                          calendarColors: {
-                            for (final cal in _calendars)
-                              cal.googleCalendarId: theme.colorScheme.primary,
-                          },
-                          onEventTap: (event) => EventDetailDialog.show(
-                            context,
-                            event: event,
-                            calendar: calendarLookup[event.calendarId],
-                          ),
-                        ),
+              ? _buildCalendarError(context)
+              : _events.isEmpty
+              ? _buildEmptyCalendar(context)
+              : CalendarDayView(
+                  date: _selectedDate,
+                  events: _events,
+                  calendarColors: {
+                    for (final cal in _calendars)
+                      cal.googleCalendarId: theme.colorScheme.primary,
+                  },
+                  onEventTap: (event) => EventDetailDialog.show(
+                    context,
+                    event: event,
+                    calendar: calendarLookup[event.calendarId],
+                  ),
+                ),
         ),
       ],
     );
@@ -576,7 +578,14 @@ class _MiniLogoPainter extends CustomPainter {
 
     for (int i = 0; i < 3; i++) {
       final ringCenter = Offset(
-        center.dx + radius * 0.25 * (i == 0 ? -0.5 : i == 1 ? 0.5 : 0),
+        center.dx +
+            radius *
+                0.25 *
+                (i == 0
+                    ? -0.5
+                    : i == 1
+                    ? 0.5
+                    : 0),
         center.dy + radius * 0.25 * (i == 2 ? 0.5 : -0.3),
       );
 

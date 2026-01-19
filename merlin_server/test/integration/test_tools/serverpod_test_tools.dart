@@ -1202,6 +1202,7 @@ class _EmailEndpoint {
     List<String>? bcc,
     String? bodyPlainText,
     String? bodyHtml,
+    required bool saveAsDraft,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -1221,6 +1222,7 @@ class _EmailEndpoint {
             'bcc': bcc,
             'bodyPlainText': bodyPlainText,
             'bodyHtml': bodyHtml,
+            'saveAsDraft': saveAsDraft,
           }),
           serializationManager: _serializationManager,
         );

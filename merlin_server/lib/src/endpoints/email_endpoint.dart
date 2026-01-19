@@ -106,6 +106,7 @@ class EmailEndpoint extends Endpoint {
     List<String>? bcc,
     String? bodyPlainText,
     String? bodyHtml,
+    bool saveAsDraft = false,
   }) async {
     final userProfileId = await _requireUserProfileId(session);
     final service = GoogleGmailService(session);
@@ -117,6 +118,7 @@ class EmailEndpoint extends Endpoint {
       subject: subject,
       bodyPlainText: bodyPlainText,
       bodyHtml: bodyHtml,
+      saveAsDraft: saveAsDraft,
     );
   }
 

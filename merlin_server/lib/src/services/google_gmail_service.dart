@@ -215,8 +215,8 @@ class GoogleGmailService {
     }
   }
 
-  /// Sends a new email
-  Future<Email?> sendEmail({
+  /// Saves an email as a draft
+  Future<String?> saveDraft({
     required int userProfileId,
     required List<String> to,
     List<String>? cc,
@@ -226,6 +226,68 @@ class GoogleGmailService {
     String? bodyHtml,
   }) async {
     try {
+      final api = await _getGmailApi(userProfileId);
+
+      final rawMessage = _buildRawMessage(
+        to: to,
+        cc: cc,
+        bcc: bcc,
+        subject: subject,
+        bodyPlainText: bodyPlainText,
+        bodyHtml: bodyHtml,
+      );
+
+      final message = gmail.Message(raw: rawMessage);
+      final draft = gmail.Draft(message: message);
+      final createdDraft = await api.users.drafts.create(draft, 'me');
+
+      if (createdDraft.id == null) {
+        throw Exception('Failed to save draft: no draft ID returned');
+      }
+
+      session.log(
+        'Saved draft email to ${to.join(", ")} with subject "$subject"',
+        level: LogLevel.info,
+      );
+
+      return createdDraft.id;
+    } catch (error, stackTrace) {
+      session.log(
+        'Failed to save draft: $error',
+        level: LogLevel.error,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  /// Sends a new email
+  Future<Email?> sendEmail({
+    required int userProfileId,
+    required List<String> to,
+    List<String>? cc,
+    List<String>? bcc,
+    required String subject,
+    String? bodyPlainText,
+    String? bodyHtml,
+    bool saveAsDraft = false,
+  }) async {
+    try {
+      // If user wants to save as draft, use saveDraft instead
+      if (saveAsDraft) {
+        await saveDraft(
+          userProfileId: userProfileId,
+          to: to,
+          cc: cc,
+          bcc: bcc,
+          subject: subject,
+          bodyPlainText: bodyPlainText,
+          bodyHtml: bodyHtml,
+        );
+        // Return null since drafts aren't in the sent folder
+        return null;
+      }
+
       final api = await _getGmailApi(userProfileId);
 
       final rawMessage = _buildRawMessage(

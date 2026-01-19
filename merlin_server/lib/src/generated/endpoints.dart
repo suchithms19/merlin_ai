@@ -858,6 +858,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<String?>(),
               nullable: true,
             ),
+            'saveAsDraft': _i1.ParameterDescription(
+              name: 'saveAsDraft',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
           },
           call:
               (
@@ -871,6 +876,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 bcc: params['bcc'],
                 bodyPlainText: params['bodyPlainText'],
                 bodyHtml: params['bodyHtml'],
+                saveAsDraft: params['saveAsDraft'],
               ),
         ),
         'replyToEmail': _i1.MethodConnector(

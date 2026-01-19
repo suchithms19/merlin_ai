@@ -533,6 +533,7 @@ class EndpointEmail extends _i2.EndpointRef {
     List<String>? bcc,
     String? bodyPlainText,
     String? bodyHtml,
+    required bool saveAsDraft,
   }) => caller.callServerEndpoint<_i10.Email?>(
     'email',
     'sendEmail',
@@ -543,6 +544,7 @@ class EndpointEmail extends _i2.EndpointRef {
       'bcc': bcc,
       'bodyPlainText': bodyPlainText,
       'bodyHtml': bodyHtml,
+      'saveAsDraft': saveAsDraft,
     },
   );
 

@@ -208,7 +208,7 @@ When an action is approved, use the appropriate function call.
       ),
       FunctionDeclaration(
         'sendEmail',
-        'Send a new email',
+        'Send a new email. If the user explicitly requests to save as draft (e.g., "save as draft", "put in draft", "draft it"), set saveAsDraft to true.',
         Schema.object(
           properties: {
             'to': Schema.array(
@@ -220,6 +220,10 @@ When an action is approved, use the appropriate function call.
             'cc': Schema.array(
               items: Schema.string(),
               description: 'CC recipients',
+            ),
+            'saveAsDraft': Schema.boolean(
+              description:
+                  'Set to true if user explicitly requests to save email as draft instead of sending. Look for phrases like "save as draft", "put in draft", "draft", "save draft", "draft it", etc.',
             ),
           },
           requiredProperties: ['to', 'subject', 'body'],
@@ -857,6 +861,7 @@ When an action is approved, use the appropriate function call.
 
     final to = (args['to'] as List).cast<String>();
     final cc = args['cc'] != null ? (args['cc'] as List).cast<String>() : null;
+    final saveAsDraft = args['saveAsDraft'] as bool? ?? false;
 
     final email = await emailService.sendEmail(
       userProfileId: userProfileId,
@@ -864,11 +869,13 @@ When an action is approved, use the appropriate function call.
       cc: cc,
       subject: args['subject'] as String,
       bodyPlainText: args['body'] as String,
+      saveAsDraft: saveAsDraft,
     );
 
     return {
       'success': true,
       'messageId': email?.googleMessageId,
+      'savedAsDraft': saveAsDraft,
     };
   }
 

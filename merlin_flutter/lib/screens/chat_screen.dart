@@ -220,7 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: ChatHistoryWidget(
-              key: ValueKey('chat_${_messages.length}_${_isLoading}'),
+              key: ValueKey('chat_${_messages.length}_$_isLoading'),
               client: widget.client,
               messages: List.from(
                 _messages,

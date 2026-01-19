@@ -34,11 +34,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _loadCalendars();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> _loadCalendars() async {
     setState(() {
       _isCalendarLoading = true;

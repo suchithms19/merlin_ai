@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:merlin_client/merlin_client.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';

@@ -8,10 +8,14 @@ import '../theme/app_theme.dart';
 
 class AppDrawer extends StatefulWidget {
   final VoidCallback? onClose;
+  final VoidCallback? onGoogleDisconnected;
+  final VoidCallback? onGoogleConnected;
 
   const AppDrawer({
     super.key,
     this.onClose,
+    this.onGoogleDisconnected,
+    this.onGoogleConnected,
   });
 
   @override
@@ -131,11 +135,13 @@ class _AppDrawerState extends State<AppDrawer> {
                 _isLoading = false;
               });
             }
+            widget.onGoogleConnected?.call();
           } catch (e) {
             setState(() {
               _isGoogleConnected = true;
               _isLoading = false;
             });
+            widget.onGoogleConnected?.call();
           }
         } else if (timer.tick >= 60) {
           timer.cancel();
@@ -180,7 +186,9 @@ class _AppDrawerState extends State<AppDrawer> {
         setState(() {
           _isGoogleConnected = false;
           _isLoading = false;
+          _userEmail = null;
         });
+        widget.onGoogleDisconnected?.call();
       } catch (e) {
         setState(() => _isLoading = false);
         if (mounted) {

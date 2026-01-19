@@ -16,7 +16,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   // Calendar state
   DateTime _selectedDate = DateTime.now();
   bool _isCalendarLoading = false;
@@ -27,11 +28,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // UI state
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _wasInBackground = false;
+  bool _isReloading = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadCalendars();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      _wasInBackground = true;
+    } else if (state == AppLifecycleState.resumed && _wasInBackground) {
+      _wasInBackground = false;
+      if (_calendarError != null || _calendars.isEmpty) {
+        _loadCalendars();
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_calendarError != null && !_isCalendarLoading && !_isReloading) {
+      _isReloading = true;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted && _calendarError != null && !_isCalendarLoading) {
+          _loadCalendars();
+        }
+        _isReloading = false;
+      });
+    }
   }
 
   Future<void> _loadCalendars() async {
@@ -119,6 +156,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _loadEvents();
   }
 
+  void _clearCalendarData() {
+    setState(() {
+      _calendars.clear();
+      _events.clear();
+      _selectedCalendarId = null;
+      _calendarError = 'Connect your Google account to view calendar';
+      _isCalendarLoading = false;
+    });
+  }
+
   void _openChatScreen() {
     Navigator.push(
       context,
@@ -158,7 +205,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: const Drawer(child: AppDrawer()),
+      drawer: Drawer(
+        child: AppDrawer(
+          onGoogleDisconnected: _clearCalendarData,
+          onGoogleConnected: _loadCalendars,
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -225,7 +277,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Row(
         children: [
-          const AppDrawer(),
+          AppDrawer(
+            onGoogleDisconnected: _clearCalendarData,
+            onGoogleConnected: _loadCalendars,
+          ),
           const VerticalDivider(width: 1),
           Expanded(
             child: Column(

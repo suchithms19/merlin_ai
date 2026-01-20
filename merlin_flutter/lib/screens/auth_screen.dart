@@ -19,6 +19,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen>
     with SingleTickerProviderStateMixin {
   bool _isSignedIn = false;
+  String? _errorMessage;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
@@ -177,6 +178,20 @@ class _AuthScreenState extends State<AuthScreen>
     );
   }
 
+  void _clearError() {
+    if (_errorMessage != null) {
+      setState(() {
+        _errorMessage = null;
+      });
+    }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+  }
+
   Widget _buildSignInCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -191,9 +206,94 @@ class _AuthScreenState extends State<AuthScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SignInWidget(
-            client: client,
-            onAuthenticated: () {},
+          if (_errorMessage != null) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3D1515),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: const Color(0xFFFF6B6B),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Color(0xFFFF6B6B),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(
+                        color: Color(0xFFFFB3B3),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _clearError,
+                    child: const Icon(
+                      Icons.close,
+                      color: Color(0xFFFFB3B3),
+                      size: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          Theme(
+            data: Theme.of(context).copyWith(
+              cardColor: Colors.black,
+              cardTheme: const CardThemeData(
+                color: Colors.black,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+              ),
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                surface: Colors.black,
+                surfaceContainerHighest: Colors.black,
+                surfaceContainerHigh: Colors.black,
+                surfaceContainerLow: Colors.black,
+                surfaceContainerLowest: Colors.black,
+              ),
+              scaffoldBackgroundColor: Colors.black,
+              dialogBackgroundColor: Colors.black,
+            ),
+            child: SignInWidget(
+              client: client,
+              onAuthenticated: () {
+                _clearError();
+              },
+              onError: (error) {
+                String errorMessage;
+                final errorString = error.toString().toLowerCase();
+
+                if (errorString.contains('invalid') ||
+                    errorString.contains('credentials') ||
+                    errorString.contains('password') ||
+                    errorString.contains('incorrect')) {
+                  errorMessage = 'Invalid email or password. Please try again.';
+                } else if (errorString.contains('network') ||
+                    errorString.contains('connection') ||
+                    errorString.contains('timeout')) {
+                  errorMessage = 'Network error. Please check your connection.';
+                } else if (errorString.contains('not found') ||
+                    errorString.contains('user')) {
+                  errorMessage = 'Account not found. Please check your email.';
+                } else {
+                  errorMessage = 'An error occurred. Please try again.';
+                }
+
+                _showError(errorMessage);
+              },
+            ),
           ),
         ],
       ),

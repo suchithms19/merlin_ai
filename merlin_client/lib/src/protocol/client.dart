@@ -25,8 +25,10 @@ import 'package:merlin_client/src/protocol/email/email_list_response.dart'
 import 'package:merlin_client/src/protocol/email/email.dart' as _i10;
 import 'package:merlin_client/src/protocol/google_oauth/google_oauth_token.dart'
     as _i11;
-import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i12;
-import 'protocol.dart' as _i13;
+import 'package:merlin_client/src/protocol/user_context/user_context.dart'
+    as _i12;
+import 'package:merlin_client/src/protocol/greetings/greeting.dart' as _i13;
+import 'protocol.dart' as _i14;
 
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
@@ -674,6 +676,58 @@ class EndpointGoogleOAuth extends _i2.EndpointRef {
   );
 }
 
+/// {@category Endpoint}
+class EndpointUserContext extends _i2.EndpointRef {
+  EndpointUserContext(_i2.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'userContext';
+
+  /// Get all user contexts for the current user
+  _i3.Future<List<_i12.UserContext>> getUserContexts() =>
+      caller.callServerEndpoint<List<_i12.UserContext>>(
+        'userContext',
+        'getUserContexts',
+        {},
+      );
+
+  /// Add a new user context
+  _i3.Future<_i12.UserContext> addUserContext(
+    String title,
+    String content,
+  ) => caller.callServerEndpoint<_i12.UserContext>(
+    'userContext',
+    'addUserContext',
+    {
+      'title': title,
+      'content': content,
+    },
+  );
+
+  /// Update an existing user context
+  _i3.Future<_i12.UserContext> updateUserContext(
+    int contextId,
+    String title,
+    String content,
+  ) => caller.callServerEndpoint<_i12.UserContext>(
+    'userContext',
+    'updateUserContext',
+    {
+      'contextId': contextId,
+      'title': title,
+      'content': content,
+    },
+  );
+
+  /// Delete a user context
+  _i3.Future<bool> deleteUserContext(int contextId) =>
+      caller.callServerEndpoint<bool>(
+        'userContext',
+        'deleteUserContext',
+        {'contextId': contextId},
+      );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -684,8 +738,8 @@ class EndpointGreeting extends _i2.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i3.Future<_i12.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i12.Greeting>(
+  _i3.Future<_i13.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i13.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -723,7 +777,7 @@ class Client extends _i2.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i13.Protocol(),
+         _i14.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -738,6 +792,7 @@ class Client extends _i2.ServerpodClientShared {
     calendar = EndpointCalendar(this);
     email = EndpointEmail(this);
     googleOAuth = EndpointGoogleOAuth(this);
+    userContext = EndpointUserContext(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -754,6 +809,8 @@ class Client extends _i2.ServerpodClientShared {
 
   late final EndpointGoogleOAuth googleOAuth;
 
+  late final EndpointUserContext userContext;
+
   late final EndpointGreeting greeting;
 
   late final Modules modules;
@@ -766,6 +823,7 @@ class Client extends _i2.ServerpodClientShared {
     'calendar': calendar,
     'email': email,
     'googleOAuth': googleOAuth,
+    'userContext': userContext,
     'greeting': greeting,
   };
 

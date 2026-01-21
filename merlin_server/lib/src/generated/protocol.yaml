@@ -43,5 +43,10 @@ googleOAuth:
   - refreshGoogleTokens:
   - getGoogleConnectionStatus:
   - disconnectGoogle:
+userContext:
+  - getUserContexts:
+  - addUserContext:
+  - updateUserContext:
+  - deleteUserContext:
 greeting:
   - hello:

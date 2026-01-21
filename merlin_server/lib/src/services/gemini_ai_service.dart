@@ -5,6 +5,7 @@ import '../generated/calendar/calendar_event.dart';
 import '../generated/chat/chat_message.dart';
 import '../generated/chat/chat_response.dart';
 import '../generated/email/email.dart';
+import '../generated/user_context/user_context.dart';
 import '../services/google_calendar_service.dart';
 import '../services/google_gmail_service.dart';
 
@@ -321,6 +322,13 @@ When an action is approved, use the appropriate function call.
         'Current date and time: ${DateTime.now().toIso8601String()}',
       );
 
+      final userContextInfo = await _getUserContext(userProfileId);
+      if (userContextInfo.isNotEmpty) {
+        contextParts.add(
+          'User preferences and important information:\n$userContextInfo',
+        );
+      }
+
       if (includeCalendarContext) {
         final calendarContext = await _getCalendarContext(userProfileId);
         if (calendarContext.isNotEmpty) {
@@ -431,6 +439,23 @@ When an action is approved, use the appropriate function call.
             'I apologize, but I encountered an error processing your request. Please try again.',
         error: e.toString(),
       );
+    }
+  }
+
+  Future<String> _getUserContext(int userProfileId) async {
+    try {
+      final contexts = await UserContext.db.find(
+        session,
+        where: (t) => t.userProfileId.equals(userProfileId),
+        orderBy: (t) => t.createdAt,
+        orderDescending: true,
+      );
+
+      if (contexts.isEmpty) return '';
+
+      return contexts.map((c) => '- ${c.title}: ${c.content}').join('\n');
+    } catch (e) {
+      return '';
     }
   }
 

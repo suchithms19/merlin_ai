@@ -29,16 +29,19 @@ import 'email/reply_email_request.dart' as _i16;
 import 'email/send_email_request.dart' as _i17;
 import 'google_oauth/google_oauth_token.dart' as _i18;
 import 'greetings/greeting.dart' as _i19;
-import 'user_profile/user_profile.dart' as _i20;
-import 'package:merlin_client/src/protocol/chat/chat_message.dart' as _i21;
-import 'package:merlin_client/src/protocol/calendar/calendar.dart' as _i22;
+import 'user_context/user_context.dart' as _i20;
+import 'user_profile/user_profile.dart' as _i21;
+import 'package:merlin_client/src/protocol/chat/chat_message.dart' as _i22;
+import 'package:merlin_client/src/protocol/calendar/calendar.dart' as _i23;
 import 'package:merlin_client/src/protocol/calendar/calendar_event.dart'
-    as _i23;
-import 'package:merlin_client/src/protocol/email/email.dart' as _i24;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i25;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i24;
+import 'package:merlin_client/src/protocol/email/email.dart' as _i25;
+import 'package:merlin_client/src/protocol/user_context/user_context.dart'
     as _i26;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    as _i27;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i28;
 export 'calendar/calendar.dart';
 export 'calendar/calendar_event.dart';
 export 'calendar/create_event_request.dart';
@@ -57,6 +60,7 @@ export 'email/reply_email_request.dart';
 export 'email/send_email_request.dart';
 export 'google_oauth/google_oauth_token.dart';
 export 'greetings/greeting.dart';
+export 'user_context/user_context.dart';
 export 'user_profile/user_profile.dart';
 export 'client.dart';
 
@@ -148,8 +152,11 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i19.Greeting) {
       return _i19.Greeting.fromJson(data) as T;
     }
-    if (t == _i20.UserProfile) {
-      return _i20.UserProfile.fromJson(data) as T;
+    if (t == _i20.UserContext) {
+      return _i20.UserContext.fromJson(data) as T;
+    }
+    if (t == _i21.UserProfile) {
+      return _i21.UserProfile.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.Calendar?>()) {
       return (data != null ? _i2.Calendar.fromJson(data) : null) as T;
@@ -207,8 +214,11 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i19.Greeting?>()) {
       return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.UserProfile?>()) {
-      return (data != null ? _i20.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.UserContext?>()) {
+      return (data != null ? _i20.UserContext.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.UserProfile?>()) {
+      return (data != null ? _i21.UserProfile.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
@@ -244,19 +254,19 @@ class Protocol extends _i1.SerializationManager {
       return (data as List).map((e) => deserialize<_i11.Email>(e)).toList()
           as T;
     }
-    if (t == List<_i21.ChatMessage>) {
+    if (t == List<_i22.ChatMessage>) {
       return (data as List)
-              .map((e) => deserialize<_i21.ChatMessage>(e))
+              .map((e) => deserialize<_i22.ChatMessage>(e))
               .toList()
           as T;
     }
-    if (t == List<_i22.Calendar>) {
-      return (data as List).map((e) => deserialize<_i22.Calendar>(e)).toList()
+    if (t == List<_i23.Calendar>) {
+      return (data as List).map((e) => deserialize<_i23.Calendar>(e)).toList()
           as T;
     }
-    if (t == List<_i23.CalendarEvent>) {
+    if (t == List<_i24.CalendarEvent>) {
       return (data as List)
-              .map((e) => deserialize<_i23.CalendarEvent>(e))
+              .map((e) => deserialize<_i24.CalendarEvent>(e))
               .toList()
           as T;
     }
@@ -290,15 +300,21 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == List<_i24.Email>) {
-      return (data as List).map((e) => deserialize<_i24.Email>(e)).toList()
+    if (t == List<_i25.Email>) {
+      return (data as List).map((e) => deserialize<_i25.Email>(e)).toList()
+          as T;
+    }
+    if (t == List<_i26.UserContext>) {
+      return (data as List)
+              .map((e) => deserialize<_i26.UserContext>(e))
+              .toList()
           as T;
     }
     try {
-      return _i25.Protocol().deserialize<T>(data, t);
+      return _i27.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i26.Protocol().deserialize<T>(data, t);
+      return _i28.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -323,7 +339,8 @@ class Protocol extends _i1.SerializationManager {
       _i17.SendEmailRequest => 'SendEmailRequest',
       _i18.GoogleOAuthToken => 'GoogleOAuthToken',
       _i19.Greeting => 'Greeting',
-      _i20.UserProfile => 'UserProfile',
+      _i20.UserContext => 'UserContext',
+      _i21.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -374,14 +391,16 @@ class Protocol extends _i1.SerializationManager {
         return 'GoogleOAuthToken';
       case _i19.Greeting():
         return 'Greeting';
-      case _i20.UserProfile():
+      case _i20.UserContext():
+        return 'UserContext';
+      case _i21.UserProfile():
         return 'UserProfile';
     }
-    className = _i25.Protocol().getClassNameForObject(data);
+    className = _i27.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i26.Protocol().getClassNameForObject(data);
+    className = _i28.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -448,16 +467,19 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'Greeting') {
       return deserialize<_i19.Greeting>(data['data']);
     }
+    if (dataClassName == 'UserContext') {
+      return deserialize<_i20.UserContext>(data['data']);
+    }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i20.UserProfile>(data['data']);
+      return deserialize<_i21.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i25.Protocol().deserializeByClassName(data);
+      return _i27.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i26.Protocol().deserializeByClassName(data);
+      return _i28.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }

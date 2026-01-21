@@ -17,11 +17,12 @@ import '../endpoints/ai_chat_endpoint.dart' as _i4;
 import '../endpoints/calendar_endpoint.dart' as _i5;
 import '../endpoints/email_endpoint.dart' as _i6;
 import '../endpoints/google_oauth_endpoint.dart' as _i7;
-import '../greetings/greeting_endpoint.dart' as _i8;
+import '../endpoints/user_context_endpoint.dart' as _i8;
+import '../greetings/greeting_endpoint.dart' as _i9;
 import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
-    as _i9;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i10;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i11;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -63,7 +64,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'googleOAuth',
           null,
         ),
-      'greeting': _i8.GreetingEndpoint()
+      'userContext': _i8.UserContextEndpoint()
+        ..initialize(
+          server,
+          'userContext',
+          null,
+        ),
+      'greeting': _i9.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -1108,6 +1115,97 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['userContext'] = _i1.EndpointConnector(
+      name: 'userContext',
+      endpoint: endpoints['userContext']!,
+      methodConnectors: {
+        'getUserContexts': _i1.MethodConnector(
+          name: 'getUserContexts',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['userContext'] as _i8.UserContextEndpoint)
+                  .getUserContexts(session),
+        ),
+        'addUserContext': _i1.MethodConnector(
+          name: 'addUserContext',
+          params: {
+            'title': _i1.ParameterDescription(
+              name: 'title',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'content': _i1.ParameterDescription(
+              name: 'content',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['userContext'] as _i8.UserContextEndpoint)
+                  .addUserContext(
+                    session,
+                    params['title'],
+                    params['content'],
+                  ),
+        ),
+        'updateUserContext': _i1.MethodConnector(
+          name: 'updateUserContext',
+          params: {
+            'contextId': _i1.ParameterDescription(
+              name: 'contextId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'title': _i1.ParameterDescription(
+              name: 'title',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'content': _i1.ParameterDescription(
+              name: 'content',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['userContext'] as _i8.UserContextEndpoint)
+                  .updateUserContext(
+                    session,
+                    params['contextId'],
+                    params['title'],
+                    params['content'],
+                  ),
+        ),
+        'deleteUserContext': _i1.MethodConnector(
+          name: 'deleteUserContext',
+          params: {
+            'contextId': _i1.ParameterDescription(
+              name: 'contextId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['userContext'] as _i8.UserContextEndpoint)
+                  .deleteUserContext(
+                    session,
+                    params['contextId'],
+                  ),
+        ),
+      },
+    );
     connectors['greeting'] = _i1.EndpointConnector(
       name: 'greeting',
       endpoint: endpoints['greeting']!,
@@ -1125,16 +1223,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i8.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i9.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i9.Endpoints()
+    modules['serverpod_auth_idp'] = _i10.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i10.Endpoints()
+    modules['serverpod_auth_core'] = _i11.Endpoints()
       ..initializeEndpoints(server);
   }
 }

@@ -1,0 +1,8 @@
+class: UserContext
+table: user_context
+fields:
+  userProfileId: int
+  title: String
+  content: String
+  createdAt: DateTime?
+  updatedAt: DateTime?

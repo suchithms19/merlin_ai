@@ -34,12 +34,15 @@ import 'email/reply_email_request.dart' as _i19;
 import 'email/send_email_request.dart' as _i20;
 import 'google_oauth/google_oauth_token.dart' as _i21;
 import 'greetings/greeting.dart' as _i22;
-import 'user_profile/user_profile.dart' as _i23;
-import 'package:merlin_server/src/generated/chat/chat_message.dart' as _i24;
-import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i25;
+import 'user_context/user_context.dart' as _i23;
+import 'user_profile/user_profile.dart' as _i24;
+import 'package:merlin_server/src/generated/chat/chat_message.dart' as _i25;
+import 'package:merlin_server/src/generated/calendar/calendar.dart' as _i26;
 import 'package:merlin_server/src/generated/calendar/calendar_event.dart'
-    as _i26;
-import 'package:merlin_server/src/generated/email/email.dart' as _i27;
+    as _i27;
+import 'package:merlin_server/src/generated/email/email.dart' as _i28;
+import 'package:merlin_server/src/generated/user_context/user_context.dart'
+    as _i29;
 export 'calendar/calendar.dart';
 export 'calendar/calendar_event.dart';
 export 'calendar/create_event_request.dart';
@@ -58,6 +61,7 @@ export 'email/reply_email_request.dart';
 export 'email/send_email_request.dart';
 export 'google_oauth/google_oauth_token.dart';
 export 'greetings/greeting.dart';
+export 'user_context/user_context.dart';
 export 'user_profile/user_profile.dart';
 
 class Protocol extends _i1.SerializationManagerServer {
@@ -624,6 +628,68 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'user_context',
+      dartName: 'UserContext',
+      schema: 'public',
+      module: 'merlin',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'user_context_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'userProfileId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'title',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'content',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'user_context_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'user_profile',
       dartName: 'UserProfile',
       schema: 'public',
@@ -771,8 +837,11 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i22.Greeting) {
       return _i22.Greeting.fromJson(data) as T;
     }
-    if (t == _i23.UserProfile) {
-      return _i23.UserProfile.fromJson(data) as T;
+    if (t == _i23.UserContext) {
+      return _i23.UserContext.fromJson(data) as T;
+    }
+    if (t == _i24.UserProfile) {
+      return _i24.UserProfile.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.Calendar?>()) {
       return (data != null ? _i5.Calendar.fromJson(data) : null) as T;
@@ -831,8 +900,11 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i22.Greeting?>()) {
       return (data != null ? _i22.Greeting.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i23.UserProfile?>()) {
-      return (data != null ? _i23.UserProfile.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i23.UserContext?>()) {
+      return (data != null ? _i23.UserContext.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i24.UserProfile?>()) {
+      return (data != null ? _i24.UserProfile.fromJson(data) : null) as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
@@ -870,19 +942,19 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data as List).map((e) => deserialize<_i14.Email>(e)).toList()
           as T;
     }
-    if (t == List<_i24.ChatMessage>) {
+    if (t == List<_i25.ChatMessage>) {
       return (data as List)
-              .map((e) => deserialize<_i24.ChatMessage>(e))
+              .map((e) => deserialize<_i25.ChatMessage>(e))
               .toList()
           as T;
     }
-    if (t == List<_i25.Calendar>) {
-      return (data as List).map((e) => deserialize<_i25.Calendar>(e)).toList()
+    if (t == List<_i26.Calendar>) {
+      return (data as List).map((e) => deserialize<_i26.Calendar>(e)).toList()
           as T;
     }
-    if (t == List<_i26.CalendarEvent>) {
+    if (t == List<_i27.CalendarEvent>) {
       return (data as List)
-              .map((e) => deserialize<_i26.CalendarEvent>(e))
+              .map((e) => deserialize<_i27.CalendarEvent>(e))
               .toList()
           as T;
     }
@@ -916,8 +988,14 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == List<_i27.Email>) {
-      return (data as List).map((e) => deserialize<_i27.Email>(e)).toList()
+    if (t == List<_i28.Email>) {
+      return (data as List).map((e) => deserialize<_i28.Email>(e)).toList()
+          as T;
+    }
+    if (t == List<_i29.UserContext>) {
+      return (data as List)
+              .map((e) => deserialize<_i29.UserContext>(e))
+              .toList()
           as T;
     }
     try {
@@ -952,7 +1030,8 @@ class Protocol extends _i1.SerializationManagerServer {
       _i20.SendEmailRequest => 'SendEmailRequest',
       _i21.GoogleOAuthToken => 'GoogleOAuthToken',
       _i22.Greeting => 'Greeting',
-      _i23.UserProfile => 'UserProfile',
+      _i23.UserContext => 'UserContext',
+      _i24.UserProfile => 'UserProfile',
       _ => null,
     };
   }
@@ -1003,7 +1082,9 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'GoogleOAuthToken';
       case _i22.Greeting():
         return 'Greeting';
-      case _i23.UserProfile():
+      case _i23.UserContext():
+        return 'UserContext';
+      case _i24.UserProfile():
         return 'UserProfile';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -1081,8 +1162,11 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'Greeting') {
       return deserialize<_i22.Greeting>(data['data']);
     }
+    if (dataClassName == 'UserContext') {
+      return deserialize<_i23.UserContext>(data['data']);
+    }
     if (dataClassName == 'UserProfile') {
-      return deserialize<_i23.UserProfile>(data['data']);
+      return deserialize<_i24.UserProfile>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -1132,8 +1216,10 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i15.EmailAttachment.t;
       case _i21.GoogleOAuthToken:
         return _i21.GoogleOAuthToken.t;
-      case _i23.UserProfile:
-        return _i23.UserProfile.t;
+      case _i23.UserContext:
+        return _i23.UserContext.t;
+      case _i24.UserProfile:
+        return _i24.UserProfile.t;
     }
     return null;
   }

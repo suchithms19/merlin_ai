@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:merlin_client/merlin_client.dart';
 import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -347,6 +348,9 @@ class _AppDrawerState extends State<AppDrawer> {
                   if (_isGoogleConnected) _buildGoogleAccountStatus(context),
                   _buildAddAccountButton(context),
                 ],
+                const SizedBox(height: 16),
+                _buildSectionHeader(context, 'AI Preferences'),
+                _buildAddContextButton(context),
               ],
             ),
           ),
@@ -483,11 +487,439 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
+  Widget _buildAddContextButton(BuildContext context) {
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(
+        Icons.psychology_outlined,
+        color: theme.colorScheme.primary,
+      ),
+      title: const Text('Add Context'),
+      subtitle: Text(
+        'Add preferences or info for AI',
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.5),
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: theme.colorScheme.onSurface.withOpacity(0.3),
+      ),
+      onTap: () => _showContextDialog(context),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+    );
+  }
+
+  Future<void> _showContextDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => const _UserContextDialog(),
+    );
+  }
+
   String _getInitials(String name) {
     final parts = name.split(' ');
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
     return name.isNotEmpty ? name[0].toUpperCase() : 'U';
+  }
+}
+
+/// Dialog for managing user contexts
+class _UserContextDialog extends StatefulWidget {
+  const _UserContextDialog();
+
+  @override
+  State<_UserContextDialog> createState() => _UserContextDialogState();
+}
+
+class _UserContextDialogState extends State<_UserContextDialog> {
+  List<UserContext> _contexts = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadContexts();
+  }
+
+  Future<void> _loadContexts() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final contexts = await client.userContext.getUserContexts();
+      setState(() {
+        _contexts = contexts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _error = 'Failed to load contexts: $e';
+      });
+    }
+  }
+
+  Future<void> _addContext() async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => const _AddEditContextDialog(),
+    );
+
+    if (result != null) {
+      setState(() => _isLoading = true);
+      try {
+        await client.userContext.addUserContext(
+          result['title']!,
+          result['content']!,
+        );
+        await _loadContexts();
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Failed to add context: $e';
+        });
+      }
+    }
+  }
+
+  Future<void> _editContext(UserContext ctx) async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => _AddEditContextDialog(
+        initialTitle: ctx.title,
+        initialContent: ctx.content,
+      ),
+    );
+
+    if (result != null && ctx.id != null) {
+      setState(() => _isLoading = true);
+      try {
+        await client.userContext.updateUserContext(
+          ctx.id!,
+          result['title']!,
+          result['content']!,
+        );
+        await _loadContexts();
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Failed to update context: $e';
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteContext(UserContext ctx) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Context'),
+        content: Text('Are you sure you want to delete "${ctx.title}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && ctx.id != null) {
+      setState(() => _isLoading = true);
+      try {
+        await client.userContext.deleteUserContext(ctx.id!);
+        await _loadContexts();
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Failed to delete context: $e';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 500,
+          maxHeight: 600,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.psychology_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'AI Context & Preferences',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Add information that Merlin should know about you to provide better assistance.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (_error != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.colorScheme.error.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Text(
+                    _error!,
+                    style: TextStyle(
+                      color: theme.colorScheme.error,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              Flexible(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _contexts.isEmpty
+                    ? _buildEmptyState(context)
+                    : _buildContextList(context),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _addContext,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add New Context'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.lightbulb_outline,
+            size: 48,
+            color: theme.colorScheme.onSurface.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No context added yet',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add preferences, work info, or anything\nMerlin should know about you.',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContextList(BuildContext context) {
+    final theme = Theme.of(context);
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _contexts.length,
+      itemBuilder: (context, index) {
+        final ctx = _contexts[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            title: Text(
+              ctx.title,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              ctx.content,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: () => _editContext(ctx),
+                  tooltip: 'Edit',
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: theme.colorScheme.error,
+                  ),
+                  onPressed: () => _deleteContext(ctx),
+                  tooltip: 'Delete',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Dialog for adding or editing a context
+class _AddEditContextDialog extends StatefulWidget {
+  final String? initialTitle;
+  final String? initialContent;
+
+  const _AddEditContextDialog({
+    this.initialTitle,
+    this.initialContent,
+  });
+
+  @override
+  State<_AddEditContextDialog> createState() => _AddEditContextDialogState();
+}
+
+class _AddEditContextDialogState extends State<_AddEditContextDialog> {
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.initialTitle);
+    _contentController = TextEditingController(text: widget.initialContent);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.pop(context, {
+        'title': _titleController.text.trim(),
+        'content': _contentController.text.trim(),
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEditing = widget.initialTitle != null;
+
+    return AlertDialog(
+      title: Text(isEditing ? 'Edit Context' : 'Add Context'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                hintText: 'e.g., Work Schedule, Preferences',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a title';
+                }
+                return null;
+              },
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _contentController,
+              decoration: const InputDecoration(
+                labelText: 'Content',
+                hintText: 'e.g., I work Mon-Fri 9am-5pm',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+              maxLines: 4,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter content';
+                }
+                return null;
+              },
+              textCapitalization: TextCapitalization.sentences,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _save,
+          child: Text(isEditing ? 'Save' : 'Add'),
+        ),
+      ],
+    );
   }
 }

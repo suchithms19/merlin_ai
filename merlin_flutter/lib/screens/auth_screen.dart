@@ -264,7 +264,7 @@ class _AuthScreenState extends State<AuthScreen>
                 surfaceContainerLowest: Colors.black,
               ),
               scaffoldBackgroundColor: Colors.black,
-              dialogBackgroundColor: Colors.black,
+              dialogTheme: DialogThemeData(backgroundColor: Colors.black),
             ),
             child: SignInWidget(
               client: client,

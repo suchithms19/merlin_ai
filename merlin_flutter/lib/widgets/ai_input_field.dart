@@ -108,8 +108,8 @@ class _AIInputFieldState extends State<AIInputField>
                       startAngle: 0,
                       endAngle: 6.28,
                       colors: [
-                        ...AppTheme.rainbowGradient,
-                        AppTheme.rainbowGradient.first,
+                        ...AppTheme.inputGradient,
+                        AppTheme.inputGradient.first,
                       ],
                       transform: GradientRotation(
                         _gradientController.value * 6.28,
@@ -131,7 +131,6 @@ class _AIInputFieldState extends State<AIInputField>
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // Text Input
                   Expanded(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
@@ -160,8 +159,6 @@ class _AIInputFieldState extends State<AIInputField>
                       ),
                     ),
                   ),
-
-                  // Send Button
                   Padding(
                     padding: const EdgeInsets.only(right: 6, bottom: 6),
                     child: _buildSendButton(context),

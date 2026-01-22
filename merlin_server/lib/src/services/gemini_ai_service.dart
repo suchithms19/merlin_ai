@@ -80,7 +80,6 @@ When an action is approved, use the appropriate function call.
 
   List<FunctionDeclaration> _getFunctionDeclarations() {
     return [
-      // Calendar Functions
       FunctionDeclaration(
         'getCalendarEvents',
         'Get calendar events for a specific date range',
@@ -176,7 +175,6 @@ When an action is approved, use the appropriate function call.
         ),
       ),
 
-      // Email Functions
       FunctionDeclaration(
         'getEmails',
         'Get recent emails from inbox',
@@ -305,7 +303,6 @@ When an action is approved, use the appropriate function call.
     ];
   }
 
-  /// Main chat method - handles user message and returns AI response
   Future<ChatResponse> chat({
     required int userProfileId,
     required String message,
@@ -316,7 +313,6 @@ When an action is approved, use the appropriate function call.
     try {
       final model = await _getModel();
 
-      // Build context
       final contextParts = <String>[];
       contextParts.add(
         'Current date and time: ${DateTime.now().toIso8601String()}',
@@ -343,10 +339,8 @@ When an action is approved, use the appropriate function call.
         }
       }
 
-      // Build conversation
       final contents = <Content>[];
 
-      // Add context as first user message
       if (contextParts.isNotEmpty) {
         contents.add(Content.text('[Context]\n${contextParts.join("\n\n")}'));
         contents.add(
@@ -356,33 +350,36 @@ When an action is approved, use the appropriate function call.
         );
       }
 
-      // Add conversation history
-      if (conversationHistory != null) {
-        for (final msg in conversationHistory) {
+      if (conversationHistory != null && conversationHistory.isNotEmpty) {
+        final validMessages = conversationHistory
+            .where(
+              (msg) =>
+                  msg.content.trim().isNotEmpty &&
+                  (msg.role == 'user' || msg.role == 'model'),
+            )
+            .toList();
+
+        for (final msg in validMessages) {
           if (msg.role == 'user') {
             contents.add(Content.text(msg.content));
-          } else if (msg.role == 'model') {
+          } else {
             contents.add(Content.model([TextPart(msg.content)]));
           }
         }
       }
 
-      // Add current message
       contents.add(Content.text(message));
 
-      // Start chat
       final chat = model.startChat(
         history: contents.take(contents.length - 1).toList(),
       );
 
-      // Send message and handle function calls
       var response = await chat.sendMessage(Content.text(message));
 
       final functionsCalled = <String>[];
       final calendarEventsAffected = <String>[];
       final emailsAffected = <String>[];
 
-      // Handle function calls in a loop
       while (response.functionCalls.isNotEmpty) {
         final functionResponses = <FunctionResponse>[];
 
@@ -405,17 +402,14 @@ When an action is approved, use the appropriate function call.
           functionResponses.add(FunctionResponse(call.name, result));
         }
 
-        // Send function responses back to model
         response = await chat.sendMessage(
           Content.functionResponses(functionResponses),
         );
       }
 
-      // Get final text response
       final responseText =
           response.text ?? 'I apologize, but I couldn\'t generate a response.';
 
-      // Save messages to history
       await _saveMessage(userProfileId, 'user', message);
       await _saveMessage(userProfileId, 'model', responseText);
 
@@ -534,7 +528,6 @@ When an action is approved, use the appropriate function call.
   }) async {
     try {
       switch (functionName) {
-        // Calendar functions
         case 'getCalendarEvents':
           return await _handleGetCalendarEvents(userProfileId, args);
 
@@ -562,7 +555,6 @@ When an action is approved, use the appropriate function call.
         case 'findAvailableTimeSlots':
           return await _handleFindAvailableSlots(userProfileId, args);
 
-        // Email functions
         case 'getEmails':
           return await _handleGetEmails(userProfileId, args);
 
@@ -623,7 +615,6 @@ When an action is approved, use the appropriate function call.
     }
   }
 
-  // Calendar function handlers
   Future<Map<String, Object?>> _handleGetCalendarEvents(
     int userProfileId,
     Map<String, Object?> args,
@@ -642,7 +633,6 @@ When an action is approved, use the appropriate function call.
       return {'events': [], 'message': 'No calendars found'};
     }
 
-    // Use primary calendar
     final primaryCalendar = calendars.firstWhere(
       (cal) => cal.isPrimary,
       orElse: () => calendars.first,
@@ -681,7 +671,6 @@ When an action is approved, use the appropriate function call.
         };
       }
 
-      // Find the primary calendar (or first writable calendar)
       final primaryCalendar = calendars.firstWhere(
         (cal) => cal.isPrimary,
         orElse: () => calendars.first,
@@ -708,7 +697,6 @@ When an action is approved, use the appropriate function call.
         'event': _eventToMap(event),
       };
     } catch (e) {
-      // Check if it's a permission error
       if (e.toString().contains('403') ||
           e.toString().contains('writer access')) {
         return {
@@ -843,7 +831,6 @@ When an action is approved, use the appropriate function call.
     };
   }
 
-  // Email function handlers
   Future<Map<String, Object?>> _handleGetEmails(
     int userProfileId,
     Map<String, Object?> args,
@@ -978,7 +965,6 @@ When an action is approved, use the appropriate function call.
     );
   }
 
-  // Helper methods
   Map<String, Object?> _eventToMap(CalendarEvent event) {
     return {
       'eventId': event.googleEventId,
@@ -1013,6 +999,7 @@ When an action is approved, use the appropriate function call.
     String role,
     String content,
   ) async {
+    if (content.trim().isEmpty) return;
     try {
       final message = ChatMessage(
         userProfileId: userProfileId,
@@ -1026,7 +1013,6 @@ When an action is approved, use the appropriate function call.
     }
   }
 
-  /// Get conversation history for a user
   Future<List<ChatMessage>> getConversationHistory(
     int userProfileId, {
     int limit = 20,
@@ -1042,7 +1028,6 @@ When an action is approved, use the appropriate function call.
         .then((list) => list.reversed.toList());
   }
 
-  /// Clear conversation history for a user
   Future<void> clearConversationHistory(int userProfileId) async {
     await ChatMessage.db.deleteWhere(
       session,

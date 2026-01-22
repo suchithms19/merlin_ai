@@ -49,9 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       });
       _scrollToBottom();
-    } catch (e) {
-      // Chat history not available yet, that's fine
-    }
+    } catch (_) {}
   }
 
   Future<void> _sendMessage(String message) async {
@@ -222,9 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ChatHistoryWidget(
               key: ValueKey('chat_${_messages.length}_$_isLoading'),
               client: widget.client,
-              messages: List.from(
-                _messages,
-              ), // Create new list to force rebuild
+              messages: List.from(_messages),
               scrollController: _scrollController,
               isLoading: _isLoading,
             ),

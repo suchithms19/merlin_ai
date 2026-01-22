@@ -60,7 +60,6 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
 
       final uri = Uri.parse(authUrl);
       if (await canLaunchUrl(uri)) {
-        // Launch OAuth URL in external browser
         await launchUrl(
           uri,
           mode: LaunchMode.externalApplication,
@@ -79,7 +78,6 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
   }
 
   void _setupOAuthCallbackListener() {
-    // Poll for connection status every 2 seconds for up to 2 minutes
     Timer.periodic(const Duration(seconds: 2), (timer) async {
       if (!mounted) {
         timer.cancel();
@@ -144,8 +142,7 @@ class _GoogleConnectionWidgetState extends State<GoogleConnectionWidget> {
     });
 
     try {
-      // TODO: Implement sync functionality when calendar/email sync is ready
-      await Future.delayed(const Duration(seconds: 1)); // Placeholder
+      await Future.delayed(const Duration(seconds: 1));
       setState(() {
         _lastSyncTime = DateTime.now();
         _isLoading = false;

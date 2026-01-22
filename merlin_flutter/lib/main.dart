@@ -33,14 +33,12 @@ void main() async {
     ),
   );
 
-  // Load server URL from environment or config
   const serverUrlFromEnv = String.fromEnvironment('SERVER_URL');
   final config = await AppConfig.loadConfig();
   serverUrl = serverUrlFromEnv.isEmpty
       ? config.apiUrl ?? 'http://$localhost:8080/'
       : serverUrlFromEnv;
 
-  // Initialize client
   client = Client(serverUrl)
     ..connectivityMonitor = FlutterConnectivityMonitor()
     ..authSessionManager = FlutterAuthSessionManager();
@@ -50,7 +48,6 @@ void main() async {
   runApp(const MerlinApp());
 }
 
-/// Main application widget
 class MerlinApp extends StatelessWidget {
   const MerlinApp({super.key});
 
@@ -59,13 +56,9 @@ class MerlinApp extends StatelessWidget {
     return MaterialApp(
       title: 'Merlin',
       debugShowCheckedModeBanner: false,
-
-      // Apply dark theme
       theme: AppTheme.darkTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
-
-      // Builder to handle text scaling and safe areas
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(

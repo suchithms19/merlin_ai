@@ -3,8 +3,6 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 
 enum MessageRole { user, assistant }
 
-/// Chat message bubble with modern dark mode design
-/// Supports markdown rendering for AI responses
 class ChatMessageWidget extends StatelessWidget {
   final String content;
   final MessageRole role;

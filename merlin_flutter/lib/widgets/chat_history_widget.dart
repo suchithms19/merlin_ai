@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:merlin_client/merlin_client.dart';
 import 'chat_message_widget.dart';
 
-/// Chat history display widget with modern dark mode design
-/// Shows conversation history with empty state
 class ChatHistoryWidget extends StatelessWidget {
   final Client client;
   final ScrollController? scrollController;
@@ -59,7 +57,6 @@ class ChatHistoryWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animated logo
             Container(
               width: 80,
               height: 80,
@@ -89,7 +86,6 @@ class ChatHistoryWidget extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Feature list
             _buildFeatureItem(
               context,
               Icons.calendar_today_rounded,
@@ -116,7 +112,6 @@ class ChatHistoryWidget extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Suggestions
             Text(
               'Try asking:',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -257,7 +252,6 @@ class ChatHistoryWidget extends StatelessWidget {
   }
 }
 
-/// Data class for chat messages
 class ChatMessageData {
   final String content;
   final String role;

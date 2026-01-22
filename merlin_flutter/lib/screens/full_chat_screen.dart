@@ -64,7 +64,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
         });
         _scrollToBottom();
       }
-    } catch (e) {}
+    } catch (_) {}
   }
 
   Future<void> _sendMessage() async {

@@ -28,7 +28,6 @@ class _AppDrawerState extends State<AppDrawer> {
   bool _isLoading = false;
   String? _userEmail;
   String? _userName;
-  bool _showAccountsExpanded = true;
 
   @override
   void initState() {
@@ -240,144 +239,159 @@ class _AppDrawerState extends State<AppDrawer> {
     }
   }
 
+  String _getInitials(String name) {
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.isNotEmpty ? name[0].toUpperCase() : 'U';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final safeAreaPadding = MediaQuery.of(context).padding;
 
     return Container(
-      width: AppTheme.isMobile(context) ? null : 320,
-      color: theme.colorScheme.surface,
+      width: AppTheme.isMobile(context) ? null : 260,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E0D14),
+        border: Border(
+          right: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
+      ),
       child: Column(
         children: [
           if (AppTheme.isMobile(context))
             Container(
-              padding: EdgeInsets.only(top: safeAreaPadding.top + 12),
+              padding: EdgeInsets.only(top: safeAreaPadding.top + 8),
               child: Container(
-                width: 40,
+                width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  color: theme.colorScheme.onSurface.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
 
-          Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: AppTheme.isMobile(context) ? 24 : safeAreaPadding.top + 24,
-              bottom: 20,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _getInitials(_userName ?? _userEmail ?? 'U'),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _userName ?? 'User',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (_userEmail != null)
-                        Text(
-                          _userEmail!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      else if (!_isGoogleConnected)
-                        Text(
-                          'Not connected',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.4),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
+          _buildUserHeader(context, safeAreaPadding),
 
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildSectionHeader(context, 'Connected Accounts'),
-                _buildExpandableMenuItem(
-                  context,
-                  icon: Icons.g_mobiledata_rounded,
-                  title: 'Manage Accounts',
-                  isExpanded: _showAccountsExpanded,
-                  onToggle: () {
-                    setState(() {
-                      _showAccountsExpanded = !_showAccountsExpanded;
-                    });
-                  },
-                ),
-                if (_showAccountsExpanded) ...[
-                  if (_isGoogleConnected) _buildGoogleAccountStatus(context),
-                  _buildAddAccountButton(context),
-                ],
-                const SizedBox(height: 16),
-                _buildSectionHeader(context, 'AI Preferences'),
-                _buildAddContextButton(context),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.logout_rounded,
-                      color: theme.colorScheme.error,
-                    ),
-                    title: Text(
-                      'Sign Out',
-                      style: TextStyle(color: theme.colorScheme.error),
-                    ),
-                    onTap: _signOut,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  _buildSection(
+                    context,
+                    title: 'ACCOUNTS',
+                    children: [
+                      if (_isGoogleConnected)
+                        _buildAccountTile(context)
+                      else
+                        _buildConnectButton(context),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _buildSection(
+                    context,
+                    title: 'SETTINGS',
+                    children: [
+                      _buildMenuItem(
+                        context,
+                        icon: Icons.tune_rounded,
+                        label: 'My Preferences',
+                        onTap: () => _showContextDialog(context),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+          ),
+
+          _buildFooter(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserHeader(BuildContext context, EdgeInsets safeAreaPadding) {
+    final theme = Theme.of(context);
+    final displayName = _userName ?? 'User';
+    final displayEmail = _userEmail ?? 'No account linked';
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: AppTheme.isMobile(context) ? 20 : safeAreaPadding.top + 20,
+        bottom: 16,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.08),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary.withOpacity(0.8),
+                  theme.colorScheme.secondary.withOpacity(0.6),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              _getInitials(displayName),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  displayName,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  displayEmail,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    fontSize: 11,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ],
@@ -385,98 +399,165 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 8),
+          child: Text(
+            title,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.35),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+              fontSize: 10,
+            ),
+          ),
+        ),
+        ...children,
+      ],
+    );
+  }
+
+  Widget _buildAccountTile(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: theme.colorScheme.outline.withOpacity(0.1),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4285F4).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(
+                    Icons.mail_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF4285F4),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Google',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        _userEmail ?? 'Connected',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          fontSize: 10,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (_isLoading)
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  GestureDetector(
+                    onTap: _disconnectGoogle,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: theme.colorScheme.onSurface.withOpacity(0.4),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildExpandableMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required bool isExpanded,
-    required VoidCallback onToggle,
-  }) {
-    return ListTile(
-      leading: Icon(icon, size: 28),
-      title: Text(title),
-      trailing: AnimatedRotation(
-        turns: isExpanded ? 0.5 : 0,
-        duration: const Duration(milliseconds: 200),
-        child: const Icon(Icons.keyboard_arrow_down),
-      ),
-      onTap: onToggle,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-    );
-  }
-
-  Widget _buildGoogleAccountStatus(BuildContext context) {
+  Widget _buildConnectButton(BuildContext context) {
     final theme = Theme.of(context);
-    return ListTile(
-      leading: Icon(
-        Icons.g_mobiledata_rounded,
-        color: theme.colorScheme.primary,
-      ),
-      title: Text(
-        _userEmail ?? 'Google Account',
-        style: theme.textTheme.bodyMedium,
-      ),
-      trailing: _isLoading
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : IconButton(
-              icon: Icon(
-                Icons.link_off,
-                size: 18,
-                color: theme.colorScheme.error.withOpacity(0.7),
-              ),
-              onPressed: _disconnectGoogle,
-              tooltip: 'Disconnect',
-            ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-    );
-  }
 
-  Widget _buildAddAccountButton(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.only(bottom: 4),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _isGoogleConnected ? null : _connectGoogle,
-          borderRadius: BorderRadius.circular(12),
+          onTap: _isLoading ? null : _connectGoogle,
+          borderRadius: BorderRadius.circular(10),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.3),
+                color: theme.colorScheme.primary.withOpacity(0.3),
+                style: BorderStyle.solid,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.add_circle_outline,
-                  size: 20,
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: _isLoading
+                      ? Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.primary,
+                          ),
+                        )
+                      : Icon(
+                          Icons.add_rounded,
+                          size: 16,
+                          color: theme.colorScheme.primary,
+                        ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Text(
-                  _isGoogleConnected ? 'Account Connected' : 'Add Account',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  'Connect Google',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ],
@@ -487,27 +568,96 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  Widget _buildAddContextButton(BuildContext context) {
+  Widget _buildMenuItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     final theme = Theme.of(context);
-    return ListTile(
-      leading: Icon(
-        Icons.psychology_outlined,
-        color: theme.colorScheme.primary,
-      ),
-      title: const Text('Add Context'),
-      subtitle: Text(
-        'Add preferences or info for AI',
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.5),
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      trailing: Icon(
-        Icons.arrow_forward_ios,
-        size: 16,
-        color: theme.colorScheme.onSurface.withOpacity(0.3),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.08),
+              width: 1,
+            ),
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _signOut,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.logout_rounded,
+                    size: 18,
+                    color: theme.colorScheme.error.withOpacity(0.8),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Sign out',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: theme.colorScheme.error.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
-      onTap: () => _showContextDialog(context),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
     );
   }
 
@@ -517,17 +667,8 @@ class _AppDrawerState extends State<AppDrawer> {
       builder: (context) => const _UserContextDialog(),
     );
   }
-
-  String _getInitials(String name) {
-    final parts = name.split(' ');
-    if (parts.length >= 2) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    }
-    return name.isNotEmpty ? name[0].toUpperCase() : 'U';
-  }
 }
 
-/// Dialog for managing user contexts
 class _UserContextDialog extends StatefulWidget {
   const _UserContextDialog();
 
@@ -561,7 +702,7 @@ class _UserContextDialogState extends State<_UserContextDialog> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to load contexts: $e';
+        _error = 'Failed to load: $e';
       });
     }
   }
@@ -583,7 +724,7 @@ class _UserContextDialogState extends State<_UserContextDialog> {
       } catch (e) {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to add context: $e';
+          _error = 'Failed to add: $e';
         });
       }
     }
@@ -610,7 +751,7 @@ class _UserContextDialogState extends State<_UserContextDialog> {
       } catch (e) {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to update context: $e';
+          _error = 'Failed to update: $e';
         });
       }
     }
@@ -620,8 +761,8 @@ class _UserContextDialogState extends State<_UserContextDialog> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Context'),
-        content: Text('Are you sure you want to delete "${ctx.title}"?'),
+        title: const Text('Delete'),
+        content: Text('Delete "${ctx.title}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -646,7 +787,7 @@ class _UserContextDialogState extends State<_UserContextDialog> {
       } catch (e) {
         setState(() {
           _isLoading = false;
-          _error = 'Failed to delete context: $e';
+          _error = 'Failed to delete: $e';
         });
       }
     }
@@ -659,61 +800,54 @@ class _UserContextDialogState extends State<_UserContextDialog> {
     return Dialog(
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxWidth: 500,
-          maxHeight: 600,
+          maxWidth: 420,
+          maxHeight: 520,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.psychology_outlined,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'AI Context & Preferences',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      'My Preferences',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close, size: 20),
                     onPressed: () => Navigator.pop(context),
+                    visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                'Add information that Merlin should know about you to provide better assistance.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                'Tell Merlin about yourself',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.5),
                 ),
               ),
               const SizedBox(height: 16),
               if (_error != null)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.error.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: theme.colorScheme.error.withOpacity(0.3),
-                    ),
                   ),
                   child: Text(
                     _error!,
                     style: TextStyle(
                       color: theme.colorScheme.error,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -724,13 +858,13 @@ class _UserContextDialogState extends State<_UserContextDialog> {
                     ? _buildEmptyState(context)
                     : _buildContextList(context),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: TextButton.icon(
                   onPressed: _isLoading ? null : _addContext,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add New Context'),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add Preference'),
                 ),
               ),
             ],
@@ -747,23 +881,22 @@ class _UserContextDialogState extends State<_UserContextDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.lightbulb_outline,
-            size: 48,
-            color: theme.colorScheme.onSurface.withOpacity(0.3),
+            Icons.tune_rounded,
+            size: 40,
+            color: theme.colorScheme.onSurface.withOpacity(0.2),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
-            'No context added yet',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+            'No preferences yet',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            'Add preferences, work info, or anything\nMerlin should know about you.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+            'Add work hours, focus time, etc.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.35),
             ),
           ),
         ],
@@ -778,39 +911,47 @@ class _UserContextDialogState extends State<_UserContextDialog> {
       itemCount: _contexts.length,
       itemBuilder: (context, index) {
         final ctx = _contexts[index];
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: theme.colorScheme.outline.withOpacity(0.1),
+            ),
+          ),
           child: ListTile(
+            dense: true,
             title: Text(
               ctx.title,
-              style: theme.textTheme.titleSmall?.copyWith(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
               ctx.content,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
               ),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  icon: const Icon(Icons.edit_outlined, size: 16),
                   onPressed: () => _editContext(ctx),
-                  tooltip: 'Edit',
+                  visualDensity: VisualDensity.compact,
                 ),
                 IconButton(
                   icon: Icon(
                     Icons.delete_outline,
-                    size: 20,
-                    color: theme.colorScheme.error,
+                    size: 16,
+                    color: theme.colorScheme.error.withOpacity(0.7),
                   ),
                   onPressed: () => _deleteContext(ctx),
-                  tooltip: 'Delete',
+                  visualDensity: VisualDensity.compact,
                 ),
               ],
             ),
@@ -821,7 +962,6 @@ class _UserContextDialogState extends State<_UserContextDialog> {
   }
 }
 
-/// Dialog for adding or editing a context
 class _AddEditContextDialog extends StatefulWidget {
   final String? initialTitle;
   final String? initialContent;
@@ -868,7 +1008,7 @@ class _AddEditContextDialogState extends State<_AddEditContextDialog> {
     final isEditing = widget.initialTitle != null;
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Context' : 'Add Context'),
+      title: Text(isEditing ? 'Edit' : 'Add Preference'),
       content: Form(
         key: _formKey,
         child: Column(
@@ -878,30 +1018,28 @@ class _AddEditContextDialogState extends State<_AddEditContextDialog> {
               controller: _titleController,
               decoration: const InputDecoration(
                 labelText: 'Title',
-                hintText: 'e.g., Work Schedule, Preferences',
-                border: OutlineInputBorder(),
+                hintText: 'e.g., Work Hours',
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a title';
+                  return 'Required';
                 }
                 return null;
               },
               textCapitalization: TextCapitalization.sentences,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _contentController,
               decoration: const InputDecoration(
-                labelText: 'Content',
-                hintText: 'e.g., I work Mon-Fri 9am-5pm',
-                border: OutlineInputBorder(),
+                labelText: 'Details',
+                hintText: 'e.g., Mon-Fri 9am-5pm',
                 alignLabelWithHint: true,
               ),
-              maxLines: 4,
+              maxLines: 3,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter content';
+                  return 'Required';
                 }
                 return null;
               },

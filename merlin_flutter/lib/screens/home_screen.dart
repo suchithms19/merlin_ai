@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/calendar_day_view.dart';
 import '../widgets/event_detail_dialog.dart';
+import '../widgets/todays_load_indicator.dart';
 import 'full_chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
-  // Calendar state
   DateTime _selectedDate = DateTime.now();
   bool _isCalendarLoading = false;
   String? _calendarError;
@@ -26,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen>
   List<CalendarEvent> _events = [];
   String? _selectedCalendarId;
 
-  // UI state
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _wasInBackground = false;
   bool _isReloading = false;
@@ -227,48 +226,183 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildMobileHeader(BuildContext context) {
     final theme = Theme.of(context);
-    final monthYear = DateFormat('MMMM').format(_selectedDate);
+    final dayNum = DateFormat('d').format(_selectedDate);
+    final dayName = DateFormat('EEE').format(_selectedDate);
+    final monthYear = DateFormat('MMM yyyy').format(_selectedDate);
+    final isToday = _isToday(_selectedDate);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.1),
           ),
-
-          Expanded(
-            child: Center(
-              child: TextButton.icon(
-                onPressed: () => _showMonthPicker(context),
-                icon: Text(
-                  monthYear,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.menu_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
-                label: const Icon(Icons.keyboard_arrow_down, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => _showMonthPicker(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: isToday
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          dayNum,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: isToday
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            dayName,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            monthYear,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 18,
+                        color: theme.colorScheme.onSurface.withOpacity(0.4),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildNavButton(
+                    context,
+                    icon: Icons.chevron_left_rounded,
+                    onTap: () => _changeDay(-1),
+                  ),
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: _goToToday,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'Today',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  _buildNavButton(
+                    context,
+                    icon: Icons.chevron_right_rounded,
+                    onTap: () => _changeDay(1),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          if (!_isCalendarLoading &&
+              _calendarError == null &&
+              _events.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  TodaysLoadIndicator(
+                    eventCount: _events.length,
+                    totalHoursBooked: _calculateTotalHours(),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${_events.length} event${_events.length != 1 ? 's' : ''}',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          _buildMiniLogo(context),
         ],
       ),
     );
   }
 
-  Widget _buildMiniLogo(BuildContext context) {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: CustomPaint(
-        painter: _MiniLogoPainter(),
+  Widget _buildNavButton(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onTap: _isCalendarLoading ? null : onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          size: 18,
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+        ),
       ),
     );
   }
@@ -281,7 +415,6 @@ class _HomeScreenState extends State<HomeScreen>
             onGoogleDisconnected: _clearCalendarData,
             onGoogleConnected: _loadCalendars,
           ),
-          const VerticalDivider(width: 1),
           Expanded(
             child: Column(
               children: [
@@ -308,38 +441,125 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildDesktopHeader(BuildContext context) {
     final theme = Theme.of(context);
-    final monthYear = DateFormat('MMMM yyyy').format(_selectedDate);
+    final dayNum = DateFormat('d').format(_selectedDate);
+    final fullDate = DateFormat('EEEE, MMMM d, yyyy').format(_selectedDate);
+    final isToday = _isToday(_selectedDate);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.1),
+          ),
+        ),
+      ),
       child: Row(
         children: [
-          TextButton.icon(
-            onPressed: () => _showMonthPicker(context),
-            icon: Text(
-              monthYear,
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: isToday
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              dayNum,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
+                color: isToday
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
               ),
             ),
-            label: const Icon(Icons.keyboard_arrow_down),
           ),
-
-          const Spacer(),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => _showMonthPicker(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        fullDate,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: theme.colorScheme.onSurface.withOpacity(0.4),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!_isCalendarLoading && _calendarError == null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        TodaysLoadIndicator(
+                          eventCount: _events.length,
+                          totalHoursBooked: _calculateTotalHours(),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${_events.length} event${_events.length != 1 ? 's' : ''} scheduled',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left),
-                onPressed: _isCalendarLoading ? null : () => _changeDay(-1),
+              _buildNavButton(
+                context,
+                icon: Icons.chevron_left_rounded,
+                onTap: () => _changeDay(-1),
               ),
-              TextButton(
-                onPressed: _isCalendarLoading ? null : _goToToday,
-                child: const Text('Today'),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _goToToday,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Text(
+                    'Today',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                onPressed: _isCalendarLoading ? null : () => _changeDay(1),
+              const SizedBox(width: 8),
+              _buildNavButton(
+                context,
+                icon: Icons.chevron_right_rounded,
+                onTap: () => _changeDay(1),
               ),
             ],
           ),
@@ -348,75 +568,45 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  double _calculateTotalHours() {
+    double total = 0;
+    for (final event in _events) {
+      final duration = event.endTime.difference(event.startTime);
+      total += duration.inMinutes / 60.0;
+    }
+    return total;
+  }
+
   Widget _buildCalendarContent(BuildContext context) {
     final theme = Theme.of(context);
-    final dayFormat = DateFormat('d');
-    final dayName = DateFormat('EEE').format(_selectedDate);
-    final isToday = _isToday(_selectedDate);
     final calendarLookup = {
       for (final cal in _calendars) cal.googleCalendarId: cal,
     };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: isToday
-                      ? Border.all(
-                          color: theme.colorScheme.primary,
-                          width: 2,
-                        )
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  dayFormat.format(_selectedDate),
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isToday ? theme.colorScheme.primary : null,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                dayName,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _isCalendarLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _calendarError != null
-              ? _buildCalendarError(context)
-              : _events.isEmpty
-              ? _buildEmptyCalendar(context)
-              : CalendarDayView(
-                  date: _selectedDate,
-                  events: _events,
-                  calendarColors: {
-                    for (final cal in _calendars)
-                      cal.googleCalendarId: theme.colorScheme.primary,
-                  },
-                  onEventTap: (event) => EventDetailDialog.show(
-                    context,
-                    event: event,
-                    calendar: calendarLookup[event.calendarId],
-                  ),
-                ),
-        ),
-      ],
+    if (_isCalendarLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_calendarError != null) {
+      return _buildCalendarError(context);
+    }
+
+    if (_events.isEmpty) {
+      return _buildEmptyCalendar(context);
+    }
+
+    return CalendarDayView(
+      date: _selectedDate,
+      events: _events,
+      calendarColors: {
+        for (final cal in _calendars)
+          cal.googleCalendarId: theme.colorScheme.primary,
+      },
+      onEventTap: (event) => EventDetailDialog.show(
+        context,
+        event: event,
+        calendar: calendarLookup[event.calendarId],
+      ),
     );
   }
 
@@ -468,14 +658,14 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'No events scheduled',
+            'Your day is clear',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Ask Merlin to schedule something!',
+            'Merlin is standing by to help you plan',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.4),
             ),
@@ -492,43 +682,57 @@ class _HomeScreenState extends State<HomeScreen>
     return GestureDetector(
       onTap: _openChatScreen,
       child: Container(
-        padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
+        padding: EdgeInsets.fromLTRB(16, 10, 16, 10 + bottomPadding),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+          border: Border(
+            top: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.1),
             ),
-          ],
+          ),
         ),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.primary.withOpacity(0.08),
+                theme.colorScheme.secondary.withOpacity(0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: theme.colorScheme.primary.withOpacity(0.15),
+            ),
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.auto_awesome,
-                size: 20,
-                color: theme.colorScheme.primary,
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 18,
+                  color: theme.colorScheme.primary,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ask Merlin...',
-                  style: theme.textTheme.bodyLarge?.copyWith(
+                  'Ask Merlin anything...',
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
               ),
               Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: theme.colorScheme.onSurface.withOpacity(0.3),
+                Icons.arrow_forward_rounded,
+                size: 18,
+                color: theme.colorScheme.primary.withOpacity(0.6),
               ),
             ],
           ),
@@ -546,40 +750,54 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+          border: Border(
+            top: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.1),
             ),
-          ],
+          ),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.primary.withOpacity(0.08),
+                theme.colorScheme.secondary.withOpacity(0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: theme.colorScheme.primary.withOpacity(0.15),
+            ),
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.auto_awesome,
-                size: 20,
-                color: theme.colorScheme.primary,
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  'Ask Merlin...',
+                  'Ask Merlin anything...',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
               ),
               Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: theme.colorScheme.onSurface.withOpacity(0.3),
+                Icons.arrow_forward_rounded,
+                size: 20,
+                color: theme.colorScheme.primary.withOpacity(0.6),
               ),
             ],
           ),
@@ -610,45 +828,4 @@ class _HomeScreenState extends State<HomeScreen>
         date.month == now.month &&
         date.day == now.day;
   }
-}
-
-/// Mini logo painter for the header
-class _MiniLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width * 0.25;
-    final strokeWidth = size.width * 0.08;
-
-    const colors = [
-      Color(0xFF5FD4AA),
-      Color(0xFFE8B99D),
-      Color(0xFFB8A5C7),
-    ];
-
-    for (int i = 0; i < 3; i++) {
-      final ringCenter = Offset(
-        center.dx +
-            radius *
-                0.25 *
-                (i == 0
-                    ? -0.5
-                    : i == 1
-                    ? 0.5
-                    : 0),
-        center.dy + radius * 0.25 * (i == 2 ? 0.5 : -0.3),
-      );
-
-      final paint = Paint()
-        ..color = colors[i]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
-
-      canvas.drawCircle(ringCenter, radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_MiniLogoPainter oldDelegate) => false;
 }

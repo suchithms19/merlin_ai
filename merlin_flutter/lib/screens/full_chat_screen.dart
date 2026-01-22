@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../widgets/chat_message_widget.dart';
 
-/// Full-screen chat page with back button and auto-updating messages
 class FullChatScreen extends StatefulWidget {
   final List<ChatMessageData>? initialMessages;
   final Function(List<ChatMessageData>)? onMessagesChanged;
@@ -33,7 +32,6 @@ class _FullChatScreenState extends State<FullChatScreen> {
     } else {
       _loadChatHistory();
     }
-    // Auto-focus the input field when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
       _scrollToBottom();
@@ -66,9 +64,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
         });
         _scrollToBottom();
       }
-    } catch (e) {
-      // Chat history not available yet
-    }
+    } catch (e) {}
   }
 
   Future<void> _sendMessage() async {
@@ -119,7 +115,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
           _isLoading = false;
           _messages.add(
             ChatMessageData(
-              content: 'Sorry, I encountered an error: $e',
+              content: 'Sorry, something went wrong. Please try again.',
               role: 'model',
               timestamp: DateTime.now(),
               isError: true,
@@ -153,7 +149,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Chat'),
-        content: const Text('Are you sure you want to clear all chat history?'),
+        content: const Text('Delete all messages?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -180,7 +176,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to clear chat: $e')),
+            SnackBar(content: Text('Failed to clear: $e')),
           );
         }
       }
@@ -189,55 +185,99 @@ class _FullChatScreenState extends State<FullChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Row(
+      backgroundColor: const Color(0xFF0C0B0F),
+      body: SafeArea(
+        child: Column(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.auto_awesome,
-                size: 18,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
+            _buildHeader(context),
+            Expanded(
+              child: _messages.isEmpty && !_isLoading
+                  ? _buildEmptyState(context)
+                  : _buildMessagesList(context),
             ),
-            const SizedBox(width: 12),
-            const Text('Merlin'),
+            _buildInputArea(context),
           ],
         ),
-        actions: [
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C0B0F),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.08),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.auto_awesome_rounded,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Merlin',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  _isLoading ? 'Thinking...' : 'Online',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _isLoading
+                        ? theme.colorScheme.primary
+                        : const Color(0xFF7EE8A8),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
           if (_messages.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
               onPressed: _clearChat,
-              tooltip: 'Clear chat',
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                size: 22,
+              ),
             ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Messages list
-          Expanded(
-            child: _messages.isEmpty && !_isLoading
-                ? _buildEmptyState(context)
-                : _buildMessagesList(context),
-          ),
-          // Input field
-          _buildInputField(context),
         ],
       ),
     );
@@ -246,82 +286,89 @@ class _FullChatScreenState extends State<FullChatScreen> {
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                shape: BoxShape.circle,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary.withOpacity(0.2),
+                  theme.colorScheme.secondary.withOpacity(0.1),
+                ],
               ),
-              child: Icon(
-                Icons.auto_awesome_rounded,
-                size: 40,
-                color: theme.colorScheme.primary,
-              ),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 24),
-            Text(
-              "Hello! I'm Merlin",
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              size: 32,
+              color: theme.colorScheme.primary,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Your AI personal assistant',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
-              ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'How can I help?',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 32),
-            _buildQuickAction(
-              context,
-              Icons.calendar_today,
-              'Schedule a meeting',
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Ask me about your calendar, emails, or schedule',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
             ),
-            const SizedBox(height: 12),
-            _buildQuickAction(context, Icons.email, 'Check my emails'),
-            const SizedBox(height: 12),
-            _buildQuickAction(context, Icons.wb_sunny, "What's on today?"),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          _buildSuggestionChip(context, 'Schedule a meeting tomorrow'),
+          const SizedBox(height: 10),
+          _buildSuggestionChip(context, 'What do I have today?'),
+          const SizedBox(height: 10),
+          _buildSuggestionChip(context, 'Check my emails'),
+        ],
       ),
     );
   }
 
-  Widget _buildQuickAction(BuildContext context, IconData icon, String text) {
+  Widget _buildSuggestionChip(BuildContext context, String text) {
     final theme = Theme.of(context);
 
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         _textController.text = text;
         _sendMessage();
       },
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
+          color: theme.colorScheme.surfaceContainerHigh.withOpacity(0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: theme.colorScheme.outline.withOpacity(0.1),
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 20, color: theme.colorScheme.primary),
+            Icon(
+              Icons.arrow_outward_rounded,
+              size: 16,
+              color: theme.colorScheme.primary.withOpacity(0.7),
+            ),
             const SizedBox(width: 12),
-            Flexible(
+            Expanded(
               child: Text(
                 text,
-                style: theme.textTheme.bodyMedium,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withOpacity(0.8),
+                ),
               ),
             ),
           ],
@@ -333,7 +380,7 @@ class _FullChatScreenState extends State<FullChatScreen> {
   Widget _buildMessagesList(BuildContext context) {
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
       itemCount: _messages.length + (_isLoading ? 1 : 0),
       itemBuilder: (context, index) {
         if (index == _messages.length) {
@@ -365,28 +412,33 @@ class _FullChatScreenState extends State<FullChatScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 30,
+            height: 30,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.auto_awesome_rounded,
-              size: 18,
-              color: theme.colorScheme.onPrimaryContainer,
+              size: 16,
+              color: Colors.white,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHigh,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(18),
-                topRight: Radius.circular(18),
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
                 bottomLeft: Radius.circular(4),
-                bottomRight: Radius.circular(18),
+                bottomRight: Radius.circular(16),
               ),
             ),
             child: _TypingDots(),
@@ -396,50 +448,48 @@ class _FullChatScreenState extends State<FullChatScreen> {
     );
   }
 
-  Widget _buildInputField(BuildContext context) {
+  Widget _buildInputArea(BuildContext context) {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final hasText = _textController.text.trim().isNotEmpty;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + bottomPadding),
+      padding: EdgeInsets.fromLTRB(12, 10, 12, 10 + bottomPadding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+        color: const Color(0xFF0C0B0F),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outline.withOpacity(0.08),
           ),
-        ],
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
             child: Container(
+              constraints: const BoxConstraints(maxHeight: 120),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: TextField(
                 controller: _textController,
                 focusNode: _focusNode,
-                maxLines: 4,
-                minLines: 1,
+                maxLines: null,
                 enabled: !_isLoading,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
                 onChanged: (_) => setState(() {}),
                 style: theme.textTheme.bodyLarge,
                 decoration: InputDecoration(
-                  hintText: 'Ask Merlin...',
+                  hintText: 'Message Merlin...',
                   hintStyle: TextStyle(
-                    color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    color: theme.colorScheme.onSurface.withOpacity(0.35),
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
+                    horizontal: 18,
                     vertical: 12,
                   ),
                 ),
@@ -447,52 +497,54 @@ class _FullChatScreenState extends State<FullChatScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          _buildSendButton(context, hasText),
+          GestureDetector(
+            onTap: (hasText && !_isLoading) ? _sendMessage : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: (hasText && !_isLoading)
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.secondary,
+                        ],
+                      )
+                    : null,
+                color: (hasText && !_isLoading)
+                    ? null
+                    : theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Center(
+                child: _isLoading
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.onSurface.withOpacity(0.4),
+                        ),
+                      )
+                    : Icon(
+                        Icons.arrow_upward_rounded,
+                        size: 20,
+                        color: (hasText && !_isLoading)
+                            ? Colors.white
+                            : theme.colorScheme.onSurface.withOpacity(0.3),
+                      ),
+              ),
+            ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSendButton(BuildContext context, bool hasText) {
-    final theme = Theme.of(context);
-    final canSend = hasText && !_isLoading;
-
-    return GestureDetector(
-      onTap: canSend ? _sendMessage : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: canSend
-              ? theme.colorScheme.primary
-              : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Center(
-          child: _isLoading
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
-                  ),
-                )
-              : Icon(
-                  Icons.arrow_upward_rounded,
-                  size: 22,
-                  color: canSend
-                      ? theme.colorScheme.onPrimary
-                      : theme.colorScheme.onSurface.withOpacity(0.3),
-                ),
-        ),
       ),
     );
   }
 }
 
-/// Animated typing dots
 class _TypingDots extends StatefulWidget {
   @override
   State<_TypingDots> createState() => _TypingDotsState();
@@ -533,11 +585,11 @@ class _TypingDotsState extends State<_TypingDots>
 
             return Container(
               margin: EdgeInsets.only(left: index > 0 ? 4 : 0),
-              width: 8,
-              height: 8,
+              width: 7,
+              height: 7,
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.withOpacity(
-                  0.4 + bounce * 0.6,
+                  0.3 + bounce * 0.7,
                 ),
                 shape: BoxShape.circle,
               ),
@@ -549,7 +601,6 @@ class _TypingDotsState extends State<_TypingDots>
   }
 }
 
-/// Data class for chat messages
 class ChatMessageData {
   final String content;
   final String role;

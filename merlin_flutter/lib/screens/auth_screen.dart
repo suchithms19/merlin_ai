@@ -104,75 +104,36 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   Widget _buildContent(BuildContext context, BoxConstraints constraints) {
-    final screenWidth = constraints.maxWidth;
-    final isWideScreen = screenWidth > AppTheme.mobileBreakpoint;
+    final theme = Theme.of(context);
     final contentMaxWidth = AppTheme.responsiveMaxWidth(context);
 
     return Padding(
       padding: AppTheme.responsivePadding(context),
       child: Column(
         children: [
-          SizedBox(height: constraints.maxHeight * 0.12),
-
-          // Logo
-          Center(
-            child: _MerlinLogo(
-              size: isWideScreen ? 120 : 100,
-            ),
-          ),
-
-          SizedBox(height: constraints.maxHeight * 0.04),
-
-          // Title
-          Center(
-            child: _buildTitle(context),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Tagline
-          Center(
-            child: Text(
-              'Own your time',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          SizedBox(height: constraints.maxHeight * 0.06),
-
-          // Sign in form
+          const Spacer(),
           Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: contentMaxWidth),
-              child: _buildSignInCard(context),
+              child: Column(
+                children: [
+                  Text(
+                    'Merlin',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontSize: 52,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1.2,
+                      height: 1.1,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSignInCard(context),
+                ],
+              ),
             ),
           ),
-
-          // Bottom spacer
           const Spacer(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitle(BuildContext context) {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
-        children: [
-          TextSpan(
-            text: 'Merlin AI',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ],
       ),
     );
@@ -196,11 +157,11 @@ class _AuthScreenState extends State<AuthScreen>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFF12111A),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: Colors.white,
-          width: 0.5,
+          color: const Color(0xFF3D3849),
+          width: 1,
         ),
       ),
       child: Column(
@@ -214,7 +175,7 @@ class _AuthScreenState extends State<AuthScreen>
                 color: const Color(0xFF3D1515),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: const Color(0xFFFF6B6B),
+                  color: const Color(0xFFE86B6B),
                   width: 1,
                 ),
               ),
@@ -222,7 +183,7 @@ class _AuthScreenState extends State<AuthScreen>
                 children: [
                   const Icon(
                     Icons.error_outline,
-                    color: Color(0xFFFF6B6B),
+                    color: Color(0xFFE86B6B),
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -250,21 +211,23 @@ class _AuthScreenState extends State<AuthScreen>
           ],
           Theme(
             data: Theme.of(context).copyWith(
-              cardColor: Colors.black,
+              cardColor: const Color(0xFF12111A),
               cardTheme: const CardThemeData(
-                color: Colors.black,
+                color: Color(0xFF12111A),
                 surfaceTintColor: Colors.transparent,
                 elevation: 0,
               ),
               colorScheme: Theme.of(context).colorScheme.copyWith(
-                surface: Colors.black,
-                surfaceContainerHighest: Colors.black,
-                surfaceContainerHigh: Colors.black,
-                surfaceContainerLow: Colors.black,
-                surfaceContainerLowest: Colors.black,
+                surface: const Color(0xFF12111A),
+                surfaceContainerHighest: const Color(0xFF26232F),
+                surfaceContainerHigh: const Color(0xFF1C1A26),
+                surfaceContainerLow: const Color(0xFF15131D),
+                surfaceContainerLowest: const Color(0xFF0C0B0F),
               ),
-              scaffoldBackgroundColor: Colors.black,
-              dialogTheme: DialogThemeData(backgroundColor: Colors.black),
+              scaffoldBackgroundColor: const Color(0xFF0C0B0F),
+              dialogTheme: const DialogThemeData(
+                backgroundColor: Color(0xFF1C1A26),
+              ),
             ),
             child: SignInWidget(
               client: client,
@@ -298,119 +261,5 @@ class _AuthScreenState extends State<AuthScreen>
         ],
       ),
     );
-  }
-}
-
-class _MerlinLogo extends StatefulWidget {
-  final double size;
-
-  const _MerlinLogo({
-    this.size = 100,
-  });
-
-  @override
-  State<_MerlinLogo> createState() => _MerlinLogoState();
-}
-
-class _MerlinLogoState extends State<_MerlinLogo>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(widget.size, widget.size),
-          painter: _MerlinLogoPainter(
-            animation: _controller.value,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _MerlinLogoPainter extends CustomPainter {
-  final double animation;
-
-  _MerlinLogoPainter({
-    required this.animation,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width * 0.28;
-    final strokeWidth = size.width * 0.08;
-
-    const colors = [
-      Color(0xFF5FD4AA),
-      Color(0xFFE8B99D),
-      Color(0xFFB8A5C7),
-    ];
-
-    for (int i = 0; i < 3; i++) {
-      final baseAngle = (i * 2.094) + (animation * 0.5);
-      final ringCenter = Offset(
-        center.dx + radius * 0.3 * _smoothCos(baseAngle),
-        center.dy + radius * 0.3 * _smoothSin(baseAngle),
-      );
-
-      final paint = Paint()
-        ..color = colors[i]
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = StrokeCap.round;
-
-      paint.shader = SweepGradient(
-        center: Alignment.center,
-        startAngle: 0,
-        endAngle: 6.283,
-        colors: [
-          colors[i],
-          colors[i].withOpacity(0.7),
-          colors[i],
-        ],
-        transform: GradientRotation(animation * 3.14),
-      ).createShader(Rect.fromCircle(center: ringCenter, radius: radius));
-
-      canvas.drawCircle(ringCenter, radius, paint);
-    }
-  }
-
-  double _smoothSin(double angle) =>
-      (3.141592653589793 * angle).remainder(6.283185307179586).abs() <
-          3.141592653589793
-      ? (angle.remainder(1) < 0.5
-                ? angle.remainder(1) * 2
-                : 2 - angle.remainder(1) * 2) -
-            0.5
-      : -((angle.remainder(1) < 0.5
-                ? angle.remainder(1) * 2
-                : 2 - angle.remainder(1) * 2) -
-            0.5);
-
-  double _smoothCos(double angle) => _smoothSin(angle + 1.5707963267948966);
-
-  @override
-  bool shouldRepaint(_MerlinLogoPainter oldDelegate) {
-    return oldDelegate.animation != animation;
   }
 }

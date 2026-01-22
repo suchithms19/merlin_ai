@@ -513,58 +513,96 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget _buildConnectButton(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _isLoading ? null : _connectGoogle,
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.3),
-                style: BorderStyle.solid,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 4),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _isLoading ? null : _connectGoogle,
               borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    style: BorderStyle.solid,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: _isLoading
+                          ? Padding(
+                              padding: const EdgeInsets.all(6),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: theme.colorScheme.primary,
+                              ),
+                            )
+                          : Icon(
+                              Icons.add_rounded,
+                              size: 16,
+                              color: theme.colorScheme.primary,
+                            ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Connect Google',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 4),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: theme.colorScheme.primary.withOpacity(0.15),
+                width: 1,
+              ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: _isLoading
-                      ? Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: theme.colorScheme.primary,
-                          ),
-                        )
-                      : Icon(
-                          Icons.add_rounded,
-                          size: 16,
-                          color: theme.colorScheme.primary,
-                        ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  'Connect Google',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: theme.colorScheme.primary,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'If Google shows "hasn\'t verified", click "Advanced" → "Continue"',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary.withOpacity(0.9),
+                      fontSize: 10,
+                      height: 1.3,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 

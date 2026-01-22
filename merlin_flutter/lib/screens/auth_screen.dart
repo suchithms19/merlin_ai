@@ -258,8 +258,79 @@ class _AuthScreenState extends State<AuthScreen>
               },
             ),
           ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C1A26).withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xFF3D3849).withOpacity(0.5),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 16,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Test Credentials',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                _buildCredentialRow(context, 'Email:', 'serverpod@gmail.com'),
+                const SizedBox(height: 4),
+                _buildCredentialRow(context, 'Password:', 'Serverpod@123'),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCredentialRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        SizedBox(
+          width: 70,
+          child: Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              fontSize: 11,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

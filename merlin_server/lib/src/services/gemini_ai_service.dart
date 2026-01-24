@@ -344,7 +344,7 @@ When an action is approved, use the appropriate function call.
       if (contextParts.isNotEmpty) {
         contents.add(Content.text('[Context]\n${contextParts.join("\n\n")}'));
         contents.add(
-          Content.model([
+          Content('model', [
             TextPart('I understand the context. How can I help you today?'),
           ]),
         );
@@ -363,7 +363,7 @@ When an action is approved, use the appropriate function call.
           if (msg.role == 'user') {
             contents.add(Content.text(msg.content));
           } else {
-            contents.add(Content.model([TextPart(msg.content)]));
+            contents.add(Content('model', [TextPart(msg.content)]));
           }
         }
       }

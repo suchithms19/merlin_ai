@@ -356,6 +356,35 @@ class GoogleOAuthService {
   }
 
   Future<void> disconnect(int userProfileId) async {
+    final token = await GoogleOAuthToken.db.findFirstRow(
+      session,
+      where: (t) => t.userProfileId.equals(userProfileId),
+    );
+
+    if (token != null) {
+      try {
+        final accessToken = TokenEncryption.decrypt(token.accessToken, session);
+
+        final revokeResponse = await http.post(
+          Uri.parse('https://oauth2.googleapis.com/revoke'),
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: {'token': accessToken},
+        );
+
+        if (revokeResponse.statusCode != 200) {
+          session.log(
+            'Failed to revoke Google OAuth token: ${revokeResponse.body}',
+            level: LogLevel.warning,
+          );
+        }
+      } catch (e) {
+        session.log(
+          'Error revoking Google OAuth token: $e',
+          level: LogLevel.warning,
+        );
+      }
+    }
+
     await GoogleOAuthToken.db.deleteWhere(
       session,
       where: (t) => t.userProfileId.equals(userProfileId),

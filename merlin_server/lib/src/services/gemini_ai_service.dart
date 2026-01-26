@@ -8,6 +8,7 @@ import '../generated/email/email.dart';
 import '../generated/user_context/user_context.dart';
 import '../services/google_calendar_service.dart';
 import '../services/google_gmail_service.dart';
+import '../services/google_oauth_service.dart';
 
 class GeminiAIService {
   GeminiAIService(this.session);
@@ -303,6 +304,48 @@ When an action is approved, use the appropriate function call.
     ];
   }
 
+  bool _isCalendarOrEmailRelated(String message) {
+    final lowerMessage = message.toLowerCase();
+    final calendarKeywords = [
+      'calendar',
+      'event',
+      'meeting',
+      'appointment',
+      'schedule',
+      'reminder',
+      'agenda',
+      'book',
+      'reserve',
+      'cancel event',
+      'create event',
+      'delete event',
+      'update event',
+      'what\'s on',
+      'what is on',
+      'when is',
+      'when are',
+    ];
+    final emailKeywords = [
+      'email',
+      'mail',
+      'gmail',
+      'inbox',
+      'send email',
+      'reply',
+      'forward',
+      'archive',
+      'delete email',
+      'unread',
+      'read email',
+      'check email',
+      'compose',
+      'draft',
+    ];
+
+    return calendarKeywords.any((keyword) => lowerMessage.contains(keyword)) ||
+        emailKeywords.any((keyword) => lowerMessage.contains(keyword));
+  }
+
   Future<ChatResponse> chat({
     required int userProfileId,
     required String message,
@@ -311,6 +354,23 @@ When an action is approved, use the appropriate function call.
     bool includeEmailContext = true,
   }) async {
     try {
+      if (_isCalendarOrEmailRelated(message)) {
+        final oauthService = GoogleOAuthService(session);
+        final isConnected = await oauthService.isConnected(userProfileId);
+
+        if (!isConnected) {
+          await _saveMessage(userProfileId, 'user', message);
+          final responseMessage =
+              'I\'d be happy to help you with your calendar and email! However, '
+              'you need to connect your Google account first to access these features. ';
+          await _saveMessage(userProfileId, 'model', responseMessage);
+
+          return ChatResponse(
+            message: responseMessage,
+          );
+        }
+      }
+
       final model = await _getModel();
 
       final contextParts = <String>[];
@@ -527,6 +587,37 @@ When an action is approved, use the appropriate function call.
     required List<String> emailsAffected,
   }) async {
     try {
+      final calendarFunctions = [
+        'getCalendarEvents',
+        'createCalendarEvent',
+        'updateCalendarEvent',
+        'deleteCalendarEvent',
+        'findAvailableTimeSlots',
+      ];
+      final emailFunctions = [
+        'getEmails',
+        'searchEmails',
+        'sendEmail',
+        'replyToEmail',
+        'forwardEmail',
+        'archiveEmail',
+        'deleteEmail',
+        'markEmailAsRead',
+      ];
+
+      if (calendarFunctions.contains(functionName) ||
+          emailFunctions.contains(functionName)) {
+        final oauthService = GoogleOAuthService(session);
+        final isConnected = await oauthService.isConnected(userProfileId);
+
+        if (!isConnected) {
+          return {
+            'error':
+                'Google account is not connected. Please connect your Google account to use this feature.',
+          };
+        }
+      }
+
       switch (functionName) {
         case 'getCalendarEvents':
           return await _handleGetCalendarEvents(userProfileId, args);

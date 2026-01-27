@@ -14,9 +14,15 @@ class GoogleOAuthService {
 
   Map<String, dynamic> _getOAuthConfig() {
     try {
-      final redirectUri = Platform.environment['googleOAuthRedirectUri'] ?? session.passwords['googleOAuthRedirectUri'];
-      final clientId = Platform.environment['googleOAuthClientId'] ?? session.passwords['googleOAuthClientId'];
-      final clientSecret = Platform.environment['googleOAuthClientSecret'] ?? session.passwords['googleOAuthClientSecret'];
+      final redirectUri =
+          Platform.environment['googleOAuthRedirectUri'] ??
+          session.passwords['googleOAuthRedirectUri'];
+      final clientId =
+          Platform.environment['googleOAuthClientId'] ??
+          session.passwords['googleOAuthClientId'];
+      final clientSecret =
+          Platform.environment['googleOAuthClientSecret'] ??
+          session.passwords['googleOAuthClientSecret'];
 
       return {
         'clientId': clientId,

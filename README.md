@@ -48,7 +48,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone https://github.com/suchithms19/merlin_ai
-cd merlin
+cd merlin_ai
 ```
 
 ### 2. Configure Google OAuth
@@ -125,8 +125,6 @@ Update `merlin_flutter/assets/config.json` with your server URL:
 cd merlin_server
 dart bin/main.dart
 ```
-
-The server will be available at `http://localhost:8080/`
 
 ### Run the Flutter App
 

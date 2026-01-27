@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:serverpod/serverpod.dart';
 import '../generated/google_oauth/google_oauth_token.dart';
@@ -13,13 +14,14 @@ class GoogleOAuthService {
 
   Map<String, dynamic> _getOAuthConfig() {
     try {
-      // Access config from passwords.yaml or environment
-      // For now, we'll read from environment variables
-      // In production, these should be set as environment variables
+      final redirectUri = Platform.environment['googleOAuthRedirectUri'] ?? session.passwords['googleOAuthRedirectUri'];
+      final clientId = Platform.environment['googleOAuthClientId'] ?? session.passwords['googleOAuthClientId'];
+      final clientSecret = Platform.environment['googleOAuthClientSecret'] ?? session.passwords['googleOAuthClientSecret'];
+
       return {
-        'clientId': session.passwords['googleOAuthClientId'] ?? '',
-        'clientSecret': session.passwords['googleOAuthClientSecret'] ?? '',
-        'redirectUri': 'http://localhost:8082/auth/google/callback',
+        'clientId': clientId,
+        'clientSecret': clientSecret,
+        'redirectUri': redirectUri,
         'scopes': [
           'https://www.googleapis.com/auth/calendar',
           'https://www.googleapis.com/auth/gmail.readonly',

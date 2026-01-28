@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import '../generated/calendar/calendar_event.dart';
 import '../generated/chat/chat_message.dart';
 import '../generated/chat/chat_response.dart';
+import 'dart:io';
 import '../generated/email/email.dart';
 import '../generated/user_context/user_context.dart';
 import '../services/google_calendar_service.dart';
@@ -56,7 +57,10 @@ When an action is approved, use the appropriate function call.
   Future<GenerativeModel> _getModel() async {
     if (_model != null) return _model!;
 
-    final apiKey = session.passwords['geminiApiKey'] ?? '';
+    final apiKey =
+        Platform.environment['geminiApiKey'] ??
+        session.passwords['geminiApiKey'] ??
+        '';
     if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY_HERE') {
       throw Exception(
         'Gemini API key not configured. Please set geminiApiKey in passwords.yaml',

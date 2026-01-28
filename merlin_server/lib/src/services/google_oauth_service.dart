@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:serverpod/serverpod.dart';
 import '../generated/google_oauth/google_oauth_token.dart';
+import '../generated/calendar/calendar.dart';
+import '../generated/calendar/calendar_event.dart';
 import '../util/token_encryption.dart';
 import 'user_profile_service.dart';
 
@@ -394,6 +396,16 @@ class GoogleOAuthService {
     }
 
     await GoogleOAuthToken.db.deleteWhere(
+      session,
+      where: (t) => t.userProfileId.equals(userProfileId),
+    );
+
+    await CalendarEvent.db.deleteWhere(
+      session,
+      where: (t) => t.userProfileId.equals(userProfileId),
+    );
+
+    await Calendar.db.deleteWhere(
       session,
       where: (t) => t.userProfileId.equals(userProfileId),
     );

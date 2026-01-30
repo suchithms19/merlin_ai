@@ -172,3 +172,17 @@ merlin/
     │   └── config/        # App configuration
     └── assets/            # App assets
 ```
+
+## Production Url
+
+- **Production URL:** https://aimerlin.netlify.app/
+
+### Login Credentials (Production)
+
+The username and password are already provided on the **Sign In** page.  
+Use those credentials to log in.
+
+### Timezone Mismatch (Production)
+
+- In production, some date and time values may appear incorrect due to timezone differences.
+- This issue does not occur in the local environment.

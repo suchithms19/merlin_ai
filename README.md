@@ -2,6 +2,8 @@
 
 Merlin is an intelligent AI personal assistant built with Serverpod and Flutter. It helps users manage their calendar and emails through natural language conversations, powered by Google's Gemini AI.
 
+![Merlin App](https://res.cloudinary.com/dierfpyk9/image/upload/v1769280857/Screenshot_2026-01-24_235606_kvno5w.png)
+
 ## Features
 
 ### AI-Powered Assistant
@@ -172,6 +174,10 @@ merlin/
     │   └── config/        # App configuration
     └── assets/            # App assets
 ```
+
+## Local Development Testing
+
+- For new user registration in local development, the OTP is logged in the server console.
 
 ## Production Url
 

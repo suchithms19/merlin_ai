@@ -27,7 +27,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: merlin_test
-      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
+      POSTGRES_PASSWORD: "AzSNEyd_b9TdLT44in1AdPuJ52VE2rIL"
     volumes:
       - merlin_test_data:/var/lib/postgresql/data
 
@@ -35,7 +35,7 @@ services:
     image: redis:6.2.6
     ports:
       - "9091:6379"
-    command: redis-server --requirepass "${REDIS_TEST_PASSWORD}"
+    command: redis-server --requirepass "AL7ny4ijaR6v10rGIxKJNPZzrLc293Tc"
     environment:
       - REDIS_REPLICATION_MODE=master
 
